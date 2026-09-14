@@ -1,0 +1,59 @@
+{
+  "schema": 1,
+  "dataset_sha256": "740fac37a10dc6df82a74a7613b2888e10dc282e2de82c2281905ebebd94c43f",
+  "brain": {
+    "upstream_commit": "71ecf53d78eaffaf1a57ed7b0ccf5d458abc9f33",
+    "upstream_python_sha256": {
+      "native.py": "81ff083d7d863d53ef1b264b7de3c123c0f9cc4e38d397ad36cbfa328649e234",
+      "engine.py": "5fc0ce73c05a49ff58af01729a9169018080bb5b913cedb2268116a95c04aeb3",
+      "transmitters.py": "fc9868a935b90a1658192a1717f6a4b425865c8ecea8cd2e6bd1c78ed57bfcf7"
+    },
+    "sensory_arrays_sha256": "f5435f87cebbee0ad734849f3778699495def8ea9ee116e2995f8af3a0dcd56e",
+    "superclasses_sha256": "6e6f3fbca28ceac601d66b7ee4b7bf1677e30cfbd721761a9d96f3f43f756498",
+    "neurons": 166700,
+    "edges": 25582938,
+    "synaptic_contacts": 124177617,
+    "graph_sha256": "19f1fe72719f8fdf5769ac50be6c18b8a02afc52a1bedb6b2527b05369b70210",
+    "dt_ms": 0.1,
+    "word_ms": 20.0,
+    "warmup_ms": 100.0,
+    "retinal_inputs": 3335,
+    "readout_population": "all descending_neuron annotations",
+    "readout_neurons": 1314,
+    "feature_dimensions": 256,
+    "features": "fixed pooled spike rates and end-of-word voltages",
+    "encoder_sha256": "272a645c2b29fa43dd40097825d7052518ad7940ea5ca5f3863c0865944d3da3",
+    "projection_sha256": "9c085a13bb7e259e88974e7884b0b1598e7ba7a8bd089093f91c25a934bd5ff5",
+    "encoder_seed": 1729,
+    "encoder_high": 0.02,
+    "kernel": {
+      "kernel_source_sha256": "2dc0939d5efb5b3b53551a7836b24385e30976b6dfb8ece9edbb0a6983bed337",
+      "binary_sha256": "ec712780142207e6131aa603d574a5f6f1c7c607d815bdee3bbade6bfb7572e3",
+      "model_revision": "lif-r2-refractory-write-protection",
+      "compile_flags": [
+        "-O3",
+        "-std=c++17",
+        "-shared",
+        "-fPIC"
+      ]
+    },
+    "plasticity": false,
+    "lamina_bias": 12.0,
+    "decoder_temporal_memory": false
+  },
+  "workers": 4,
+  "code_sha256": {
+    "brain.py": "f9785b2005ac1fa6392f568d361f08000803420d5b8c7a04fd4b7f2facb449eb",
+    "extract.py": "2d9a6e9342d708fbf37fc053356ce06dd50c27d6217ea446d154e56f20d32835"
+  },
+  "scope": "full graph frozen, story-reset state, at most 128 lexical context words",
+  "identity": "6eaaf190d380d27ce9c689da3f95c76549b9927d7c88335f8101b225936c2a10",
+  "final_graph_sha256": "19f1fe72719f8fdf5769ac50be6c18b8a02afc52a1bedb6b2527b05369b70210",
+  "split_hashes": {
+    "test": "2412f380f52a0dd5f55117002d69e3bcd3dc23125c95d56f3e1b1680b7ce6031",
+    "train": "7c81e9586de8e7dfaf9fe106dfe4cb85bc42b6f2d2e3e9efb8fa94b4213cb641",
+    "val": "9b0cae730983c9c306a0c7c6062a68e8513edfa0077c84309525eac1f6e91204"
+  },
+  "completed": true,
+  "elapsed_seconds": 151.608434916
+}

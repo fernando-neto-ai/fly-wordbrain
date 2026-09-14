@@ -1,0 +1,28 @@
+{
+  "all_arrays_bit_exact": true,
+  "splits": {
+    "train": {
+      "X": true,
+      "y": true,
+      "positions": true,
+      "current_ids": true,
+      "story_ids": true
+    },
+    "val": {
+      "X": true,
+      "y": true,
+      "positions": true,
+      "current_ids": true,
+      "story_ids": true
+    },
+    "test": {
+      "X": true,
+      "y": true,
+      "positions": true,
+      "current_ids": true,
+      "story_ids": true
+    }
+  },
+  "first_identity": "b0d6c3c80c0211a6731cb54554bd5f0932aa3fbb261bc34e8d3105bfcd59ab17",
+  "verified_identity": "6eaaf190d380d27ce9c689da3f95c76549b9927d7c88335f8101b225936c2a10"
+}

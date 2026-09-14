@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+data/
+results/**
+!results/.gitkeep
+vendor/doomfly/connectome_data/
+vendor/doomfly/outputs/
+*.dylib
+*.so
+*.partial

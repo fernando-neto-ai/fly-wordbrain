@@ -1,0 +1,950 @@
+{
+  "architecture": "256 neural features -> affine four-way softmax; no IDs/history supplied to classifier",
+  "brain": {
+    "decoder_temporal_memory": false,
+    "dt_ms": 0.1,
+    "edges": 25582938,
+    "encoder_high": 0.02,
+    "encoder_seed": 1729,
+    "encoder_sha256": "272a645c2b29fa43dd40097825d7052518ad7940ea5ca5f3863c0865944d3da3",
+    "feature_dimensions": 256,
+    "features": "fixed pooled spike rates and end-of-word voltages",
+    "graph_sha256": "19f1fe72719f8fdf5769ac50be6c18b8a02afc52a1bedb6b2527b05369b70210",
+    "kernel": {
+      "binary_sha256": "ec712780142207e6131aa603d574a5f6f1c7c607d815bdee3bbade6bfb7572e3",
+      "compile_flags": [
+        "-O3",
+        "-std=c++17",
+        "-shared",
+        "-fPIC"
+      ],
+      "kernel_source_sha256": "2dc0939d5efb5b3b53551a7836b24385e30976b6dfb8ece9edbb0a6983bed337",
+      "model_revision": "lif-r2-refractory-write-protection"
+    },
+    "lamina_bias": 12.0,
+    "neurons": 166700,
+    "plasticity": false,
+    "projection_sha256": "9c085a13bb7e259e88974e7884b0b1598e7ba7a8bd089093f91c25a934bd5ff5",
+    "readout_neurons": 1314,
+    "readout_population": "all descending_neuron annotations",
+    "retinal_inputs": 3335,
+    "sensory_arrays_sha256": "f5435f87cebbee0ad734849f3778699495def8ea9ee116e2995f8af3a0dcd56e",
+    "superclasses_sha256": "6e6f3fbca28ceac601d66b7ee4b7bf1677e30cfbd721761a9d96f3f43f756498",
+    "synaptic_contacts": 124177617,
+    "upstream_commit": "71ecf53d78eaffaf1a57ed7b0ccf5d458abc9f33",
+    "upstream_python_sha256": {
+      "engine.py": "5fc0ce73c05a49ff58af01729a9169018080bb5b913cedb2268116a95c04aeb3",
+      "native.py": "81ff083d7d863d53ef1b264b7de3c123c0f9cc4e38d397ad36cbfa328649e234",
+      "transmitters.py": "fc9868a935b90a1658192a1717f6a4b425865c8ecea8cd2e6bd1c78ed57bfcf7"
+    },
+    "warmup_ms": 100.0,
+    "word_ms": 20.0
+  },
+  "context_definition": "Actual lexical words preceding answer; name cue at word index1; C-2 intervening words; BOS excluded",
+  "dataset_sha256": "740fac37a10dc6df82a74a7613b2888e10dc282e2de82c2281905ebebd94c43f",
+  "feature_identity": "9ce5292eeaabd1380468179a4fafacde92523880adfbe8710f67092150224537",
+  "feature_split_hashes": {
+    "test": "6df2e07c520b6dfbe1f07b0dbbbfeda97e4ad5b98ef68bb5b56f8dcd85f9fe02",
+    "train": "669d78513f0cef49309bb2c3897f4f234090df60572fff8e726407f253bda075",
+    "val": "2263cef47aac282686ba6e8484c19740e9c2273cb75be56fdae2346531cea6ab"
+  },
+  "interpretation": "Separate trained memory diagnostic, not the next-word decoder and not a test of language understanding. Held-out query/filler templates; each context has only8 test examples in2 paired groups. Decoder seeds share the same neural features and test items, so seed spread is not a population confidence interval.",
+  "labels": [
+    "lily",
+    "tim",
+    "tom",
+    "sam"
+  ],
+  "probes_sha256": "d0f8c3ca49dd5a75bb42188927f76be3d25e79caa7efc6cd07f4db1c3b1901e5",
+  "runs": [
+    {
+      "checkpoint": "decoder_seed_0.pt",
+      "checkpoint_sha256": "b9e02419c6c48b598bbe4a226c0b110051b064348641078c02555ec269258c5c",
+      "seed": 0,
+      "selection": {
+        "architecture": "linear_softmax",
+        "batch_size": 32,
+        "feature_identity": "9ce5292eeaabd1380468179a4fafacde92523880adfbe8710f67092150224537",
+        "input": "standardized_frozen_brain_features_only",
+        "l2": 0.01,
+        "learning_rate": 0.01,
+        "seed": 0,
+        "selected_epoch": 1,
+        "task": "four_way_delayed_name_decodability",
+        "validation_cross_entropy": 1.4469557374715805
+      },
+      "test": {
+        "by_context_words": {
+          "128": {
+            "accuracy": 0.25,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              2,
+              2,
+              2,
+              2
+            ],
+            "correct": 2,
+            "cross_entropy": 1.6431433837899605,
+            "examples": 8,
+            "uniform_cross_entropy": 1.3862943611198906
+          },
+          "16": {
+            "accuracy": 0.375,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              2,
+              2,
+              2,
+              2
+            ],
+            "correct": 3,
+            "cross_entropy": 1.347688160844365,
+            "examples": 8,
+            "uniform_cross_entropy": 1.3862943611198906
+          },
+          "32": {
+            "accuracy": 0.375,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              2,
+              2,
+              2,
+              2
+            ],
+            "correct": 3,
+            "cross_entropy": 1.6657742233088935,
+            "examples": 8,
+            "uniform_cross_entropy": 1.3862943611198906
+          },
+          "64": {
+            "accuracy": 0.125,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              2,
+              2,
+              2,
+              2
+            ],
+            "correct": 1,
+            "cross_entropy": 1.7002018750109198,
+            "examples": 8,
+            "uniform_cross_entropy": 1.3862943611198906
+          },
+          "8": {
+            "accuracy": 0.125,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              2,
+              2,
+              2,
+              2
+            ],
+            "correct": 1,
+            "cross_entropy": 1.5095268111997173,
+            "examples": 8,
+            "uniform_cross_entropy": 1.3862943611198906
+          }
+        },
+        "overall": {
+          "accuracy": 0.25,
+          "chance_accuracy": 0.25,
+          "class_counts": [
+            10,
+            10,
+            10,
+            10
+          ],
+          "correct": 10,
+          "cross_entropy": 1.573266890830771,
+          "examples": 40,
+          "uniform_cross_entropy": 1.3862943611198906
+        }
+      },
+      "train": {
+        "by_context_words": {
+          "128": {
+            "accuracy": 0.3125,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              4,
+              4,
+              4,
+              4
+            ],
+            "correct": 5,
+            "cross_entropy": 1.2762652454128034,
+            "examples": 16,
+            "uniform_cross_entropy": 1.3862943611198906
+          },
+          "16": {
+            "accuracy": 0.3125,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              4,
+              4,
+              4,
+              4
+            ],
+            "correct": 5,
+            "cross_entropy": 1.4352120922159108,
+            "examples": 16,
+            "uniform_cross_entropy": 1.3862943611198906
+          },
+          "32": {
+            "accuracy": 0.4375,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              4,
+              4,
+              4,
+              4
+            ],
+            "correct": 7,
+            "cross_entropy": 1.4001153322965474,
+            "examples": 16,
+            "uniform_cross_entropy": 1.3862943611198906
+          },
+          "64": {
+            "accuracy": 0.3125,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              4,
+              4,
+              4,
+              4
+            ],
+            "correct": 5,
+            "cross_entropy": 1.384729765693868,
+            "examples": 16,
+            "uniform_cross_entropy": 1.3862943611198906
+          },
+          "8": {
+            "accuracy": 0.375,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              4,
+              4,
+              4,
+              4
+            ],
+            "correct": 6,
+            "cross_entropy": 1.2958041938130667,
+            "examples": 16,
+            "uniform_cross_entropy": 1.3862943611198906
+          }
+        },
+        "overall": {
+          "accuracy": 0.35,
+          "chance_accuracy": 0.25,
+          "class_counts": [
+            20,
+            20,
+            20,
+            20
+          ],
+          "correct": 28,
+          "cross_entropy": 1.3584253258864394,
+          "examples": 80,
+          "uniform_cross_entropy": 1.3862943611198906
+        }
+      },
+      "val": {
+        "by_context_words": {
+          "128": {
+            "accuracy": 0.0,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              2,
+              2,
+              2,
+              2
+            ],
+            "correct": 0,
+            "cross_entropy": 1.7103373497341665,
+            "examples": 8,
+            "uniform_cross_entropy": 1.3862943611198906
+          },
+          "16": {
+            "accuracy": 0.125,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              2,
+              2,
+              2,
+              2
+            ],
+            "correct": 1,
+            "cross_entropy": 1.5271712748449935,
+            "examples": 8,
+            "uniform_cross_entropy": 1.3862943611198906
+          },
+          "32": {
+            "accuracy": 0.5,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              2,
+              2,
+              2,
+              2
+            ],
+            "correct": 4,
+            "cross_entropy": 1.3058742692428078,
+            "examples": 8,
+            "uniform_cross_entropy": 1.3862943611198906
+          },
+          "64": {
+            "accuracy": 0.5,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              2,
+              2,
+              2,
+              2
+            ],
+            "correct": 4,
+            "cross_entropy": 1.3161963196328639,
+            "examples": 8,
+            "uniform_cross_entropy": 1.3862943611198906
+          },
+          "8": {
+            "accuracy": 0.375,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              2,
+              2,
+              2,
+              2
+            ],
+            "correct": 3,
+            "cross_entropy": 1.3751994243720214,
+            "examples": 8,
+            "uniform_cross_entropy": 1.3862943611198906
+          }
+        },
+        "overall": {
+          "accuracy": 0.3,
+          "chance_accuracy": 0.25,
+          "class_counts": [
+            10,
+            10,
+            10,
+            10
+          ],
+          "correct": 12,
+          "cross_entropy": 1.4469557275653706,
+          "examples": 40,
+          "uniform_cross_entropy": 1.3862943611198906
+        }
+      }
+    },
+    {
+      "checkpoint": "decoder_seed_1.pt",
+      "checkpoint_sha256": "99f706b9b82d9bb6dfa7cf1e6380b9203e84221f005e92c03d91b81ff2968892",
+      "seed": 1,
+      "selection": {
+        "architecture": "linear_softmax",
+        "batch_size": 32,
+        "feature_identity": "9ce5292eeaabd1380468179a4fafacde92523880adfbe8710f67092150224537",
+        "input": "standardized_frozen_brain_features_only",
+        "l2": 0.01,
+        "learning_rate": 0.01,
+        "seed": 1,
+        "selected_epoch": 1,
+        "task": "four_way_delayed_name_decodability",
+        "validation_cross_entropy": 1.4604756504297256
+      },
+      "test": {
+        "by_context_words": {
+          "128": {
+            "accuracy": 0.125,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              2,
+              2,
+              2,
+              2
+            ],
+            "correct": 1,
+            "cross_entropy": 1.6000764610319669,
+            "examples": 8,
+            "uniform_cross_entropy": 1.3862943611198906
+          },
+          "16": {
+            "accuracy": 0.375,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              2,
+              2,
+              2,
+              2
+            ],
+            "correct": 3,
+            "cross_entropy": 1.4019238719519005,
+            "examples": 8,
+            "uniform_cross_entropy": 1.3862943611198906
+          },
+          "32": {
+            "accuracy": 0.5,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              2,
+              2,
+              2,
+              2
+            ],
+            "correct": 4,
+            "cross_entropy": 1.322791767241906,
+            "examples": 8,
+            "uniform_cross_entropy": 1.3862943611198906
+          },
+          "64": {
+            "accuracy": 0.25,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              2,
+              2,
+              2,
+              2
+            ],
+            "correct": 2,
+            "cross_entropy": 1.6916934097229879,
+            "examples": 8,
+            "uniform_cross_entropy": 1.3862943611198906
+          },
+          "8": {
+            "accuracy": 0.375,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              2,
+              2,
+              2,
+              2
+            ],
+            "correct": 3,
+            "cross_entropy": 1.3064899391420917,
+            "examples": 8,
+            "uniform_cross_entropy": 1.3862943611198906
+          }
+        },
+        "overall": {
+          "accuracy": 0.325,
+          "chance_accuracy": 0.25,
+          "class_counts": [
+            10,
+            10,
+            10,
+            10
+          ],
+          "correct": 13,
+          "cross_entropy": 1.4645950898181705,
+          "examples": 40,
+          "uniform_cross_entropy": 1.3862943611198906
+        }
+      },
+      "train": {
+        "by_context_words": {
+          "128": {
+            "accuracy": 0.5625,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              4,
+              4,
+              4,
+              4
+            ],
+            "correct": 9,
+            "cross_entropy": 1.2461054803311595,
+            "examples": 16,
+            "uniform_cross_entropy": 1.3862943611198906
+          },
+          "16": {
+            "accuracy": 0.375,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              4,
+              4,
+              4,
+              4
+            ],
+            "correct": 6,
+            "cross_entropy": 1.2785829743244346,
+            "examples": 16,
+            "uniform_cross_entropy": 1.3862943611198906
+          },
+          "32": {
+            "accuracy": 0.4375,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              4,
+              4,
+              4,
+              4
+            ],
+            "correct": 7,
+            "cross_entropy": 1.3762553177023733,
+            "examples": 16,
+            "uniform_cross_entropy": 1.3862943611198906
+          },
+          "64": {
+            "accuracy": 0.25,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              4,
+              4,
+              4,
+              4
+            ],
+            "correct": 4,
+            "cross_entropy": 1.496892048980179,
+            "examples": 16,
+            "uniform_cross_entropy": 1.3862943611198906
+          },
+          "8": {
+            "accuracy": 0.25,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              4,
+              4,
+              4,
+              4
+            ],
+            "correct": 4,
+            "cross_entropy": 1.4236770654114839,
+            "examples": 16,
+            "uniform_cross_entropy": 1.3862943611198906
+          }
+        },
+        "overall": {
+          "accuracy": 0.375,
+          "chance_accuracy": 0.25,
+          "class_counts": [
+            20,
+            20,
+            20,
+            20
+          ],
+          "correct": 30,
+          "cross_entropy": 1.364302577349926,
+          "examples": 80,
+          "uniform_cross_entropy": 1.3862943611198906
+        }
+      },
+      "val": {
+        "by_context_words": {
+          "128": {
+            "accuracy": 0.0,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              2,
+              2,
+              2,
+              2
+            ],
+            "correct": 0,
+            "cross_entropy": 1.4161086257167232,
+            "examples": 8,
+            "uniform_cross_entropy": 1.3862943611198906
+          },
+          "16": {
+            "accuracy": 0.0,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              2,
+              2,
+              2,
+              2
+            ],
+            "correct": 0,
+            "cross_entropy": 1.6121554608743205,
+            "examples": 8,
+            "uniform_cross_entropy": 1.3862943611198906
+          },
+          "32": {
+            "accuracy": 0.125,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              2,
+              2,
+              2,
+              2
+            ],
+            "correct": 1,
+            "cross_entropy": 1.421723316092189,
+            "examples": 8,
+            "uniform_cross_entropy": 1.3862943611198906
+          },
+          "64": {
+            "accuracy": 0.5,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              2,
+              2,
+              2,
+              2
+            ],
+            "correct": 4,
+            "cross_entropy": 1.396816575914367,
+            "examples": 8,
+            "uniform_cross_entropy": 1.3862943611198906
+          },
+          "8": {
+            "accuracy": 0.25,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              2,
+              2,
+              2,
+              2
+            ],
+            "correct": 2,
+            "cross_entropy": 1.4555742456790806,
+            "examples": 8,
+            "uniform_cross_entropy": 1.3862943611198906
+          }
+        },
+        "overall": {
+          "accuracy": 0.175,
+          "chance_accuracy": 0.25,
+          "class_counts": [
+            10,
+            10,
+            10,
+            10
+          ],
+          "correct": 7,
+          "cross_entropy": 1.460475644855336,
+          "examples": 40,
+          "uniform_cross_entropy": 1.3862943611198906
+        }
+      }
+    },
+    {
+      "checkpoint": "decoder_seed_2.pt",
+      "checkpoint_sha256": "6d03a91f7913ef3ce0e79c9cb4d04ce10fa6f5858e695b3dae235357f76e7d13",
+      "seed": 2,
+      "selection": {
+        "architecture": "linear_softmax",
+        "batch_size": 32,
+        "feature_identity": "9ce5292eeaabd1380468179a4fafacde92523880adfbe8710f67092150224537",
+        "input": "standardized_frozen_brain_features_only",
+        "l2": 0.01,
+        "learning_rate": 0.01,
+        "seed": 2,
+        "selected_epoch": 1,
+        "task": "four_way_delayed_name_decodability",
+        "validation_cross_entropy": 1.3968567967414856
+      },
+      "test": {
+        "by_context_words": {
+          "128": {
+            "accuracy": 0.25,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              2,
+              2,
+              2,
+              2
+            ],
+            "correct": 2,
+            "cross_entropy": 1.647172256163945,
+            "examples": 8,
+            "uniform_cross_entropy": 1.3862943611198906
+          },
+          "16": {
+            "accuracy": 0.25,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              2,
+              2,
+              2,
+              2
+            ],
+            "correct": 2,
+            "cross_entropy": 1.4323089383099863,
+            "examples": 8,
+            "uniform_cross_entropy": 1.3862943611198906
+          },
+          "32": {
+            "accuracy": 0.375,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              2,
+              2,
+              2,
+              2
+            ],
+            "correct": 3,
+            "cross_entropy": 1.3125767971158457,
+            "examples": 8,
+            "uniform_cross_entropy": 1.3862943611198906
+          },
+          "64": {
+            "accuracy": 0.0,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              2,
+              2,
+              2,
+              2
+            ],
+            "correct": 0,
+            "cross_entropy": 1.6367578269376164,
+            "examples": 8,
+            "uniform_cross_entropy": 1.3862943611198906
+          },
+          "8": {
+            "accuracy": 0.375,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              2,
+              2,
+              2,
+              2
+            ],
+            "correct": 3,
+            "cross_entropy": 1.3435774788687378,
+            "examples": 8,
+            "uniform_cross_entropy": 1.3862943611198906
+          }
+        },
+        "overall": {
+          "accuracy": 0.25,
+          "chance_accuracy": 0.25,
+          "class_counts": [
+            10,
+            10,
+            10,
+            10
+          ],
+          "correct": 10,
+          "cross_entropy": 1.4744786594792263,
+          "examples": 40,
+          "uniform_cross_entropy": 1.3862943611198906
+        }
+      },
+      "train": {
+        "by_context_words": {
+          "128": {
+            "accuracy": 0.5,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              4,
+              4,
+              4,
+              4
+            ],
+            "correct": 8,
+            "cross_entropy": 1.291185545936325,
+            "examples": 16,
+            "uniform_cross_entropy": 1.3862943611198906
+          },
+          "16": {
+            "accuracy": 0.4375,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              4,
+              4,
+              4,
+              4
+            ],
+            "correct": 7,
+            "cross_entropy": 1.305132313972957,
+            "examples": 16,
+            "uniform_cross_entropy": 1.3862943611198906
+          },
+          "32": {
+            "accuracy": 0.3125,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              4,
+              4,
+              4,
+              4
+            ],
+            "correct": 5,
+            "cross_entropy": 1.382954563378886,
+            "examples": 16,
+            "uniform_cross_entropy": 1.3862943611198906
+          },
+          "64": {
+            "accuracy": 0.3125,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              4,
+              4,
+              4,
+              4
+            ],
+            "correct": 5,
+            "cross_entropy": 1.4136928656204102,
+            "examples": 16,
+            "uniform_cross_entropy": 1.3862943611198906
+          },
+          "8": {
+            "accuracy": 0.375,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              4,
+              4,
+              4,
+              4
+            ],
+            "correct": 6,
+            "cross_entropy": 1.3741690111397993,
+            "examples": 16,
+            "uniform_cross_entropy": 1.3862943611198906
+          }
+        },
+        "overall": {
+          "accuracy": 0.3875,
+          "chance_accuracy": 0.25,
+          "class_counts": [
+            20,
+            20,
+            20,
+            20
+          ],
+          "correct": 31,
+          "cross_entropy": 1.3534268600096755,
+          "examples": 80,
+          "uniform_cross_entropy": 1.3862943611198906
+        }
+      },
+      "val": {
+        "by_context_words": {
+          "128": {
+            "accuracy": 0.25,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              2,
+              2,
+              2,
+              2
+            ],
+            "correct": 2,
+            "cross_entropy": 1.4145122969544914,
+            "examples": 8,
+            "uniform_cross_entropy": 1.3862943611198906
+          },
+          "16": {
+            "accuracy": 0.0,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              2,
+              2,
+              2,
+              2
+            ],
+            "correct": 0,
+            "cross_entropy": 1.5486789870149158,
+            "examples": 8,
+            "uniform_cross_entropy": 1.3862943611198906
+          },
+          "32": {
+            "accuracy": 0.375,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              2,
+              2,
+              2,
+              2
+            ],
+            "correct": 3,
+            "cross_entropy": 1.2916339335830576,
+            "examples": 8,
+            "uniform_cross_entropy": 1.3862943611198906
+          },
+          "64": {
+            "accuracy": 0.375,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              2,
+              2,
+              2,
+              2
+            ],
+            "correct": 3,
+            "cross_entropy": 1.344123293971514,
+            "examples": 8,
+            "uniform_cross_entropy": 1.3862943611198906
+          },
+          "8": {
+            "accuracy": 0.25,
+            "chance_accuracy": 0.25,
+            "class_counts": [
+              2,
+              2,
+              2,
+              2
+            ],
+            "correct": 2,
+            "cross_entropy": 1.385335493305977,
+            "examples": 8,
+            "uniform_cross_entropy": 1.3862943611198906
+          }
+        },
+        "overall": {
+          "accuracy": 0.25,
+          "chance_accuracy": 0.25,
+          "class_counts": [
+            10,
+            10,
+            10,
+            10
+          ],
+          "correct": 10,
+          "cross_entropy": 1.3968568009659912,
+          "examples": 40,
+          "uniform_cross_entropy": 1.3862943611198906
+        }
+      }
+    }
+  ],
+  "schema_version": 1,
+  "task": "delayed-name decodability from frozen neural state",
+  "test_by_context_words": {
+    "128": {
+      "accuracy_mean": 0.20833333333333334,
+      "accuracy_std_across_decoder_seeds": 0.05892556509887896,
+      "chance_accuracy": 0.25,
+      "cross_entropy_mean": 1.630130700328624,
+      "cross_entropy_std_across_decoder_seeds": 0.021315110882923986,
+      "test_examples_per_seed": 8
+    },
+    "16": {
+      "accuracy_mean": 0.3333333333333333,
+      "accuracy_std_across_decoder_seeds": 0.05892556509887896,
+      "chance_accuracy": 0.25,
+      "cross_entropy_mean": 1.393973657035417,
+      "cross_entropy_std_across_decoder_seeds": 0.03500069935144399,
+      "test_examples_per_seed": 8
+    },
+    "32": {
+      "accuracy_mean": 0.4166666666666667,
+      "accuracy_std_across_decoder_seeds": 0.05892556509887896,
+      "chance_accuracy": 0.25,
+      "cross_entropy_mean": 1.4337142625555483,
+      "cross_entropy_std_across_decoder_seeds": 0.16414415502295965,
+      "test_examples_per_seed": 8
+    },
+    "64": {
+      "accuracy_mean": 0.125,
+      "accuracy_std_across_decoder_seeds": 0.10206207261596575,
+      "chance_accuracy": 0.25,
+      "cross_entropy_mean": 1.676217703890508,
+      "cross_entropy_std_across_decoder_seeds": 0.028117727649319937,
+      "test_examples_per_seed": 8
+    },
+    "8": {
+      "accuracy_mean": 0.2916666666666667,
+      "accuracy_std_across_decoder_seeds": 0.11785113019775792,
+      "chance_accuracy": 0.25,
+      "cross_entropy_mean": 1.3865314097368489,
+      "cross_entropy_std_across_decoder_seeds": 0.08827900084959056,
+      "test_examples_per_seed": 8
+    }
+  },
+  "trainable_parameters": 1028,
+  "training_protocol": "Train-only feature scaling; epoch/L2 selection on validation; report all seeds0/1/2; no test selection"
+}

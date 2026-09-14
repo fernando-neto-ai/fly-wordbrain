@@ -1,0 +1,7 @@
+# Frozen Doomfly importer + native CPU dynamics. Python 3.9 on macm3.
+# Install into .venv; system-site-packages exposes existing PyTorch to decoder.
+numpy==1.24.4
+pandas==2.0.3
+scipy==1.10.1
+pyarrow==20.0.0
+numba==0.60.0

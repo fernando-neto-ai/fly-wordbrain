@@ -1,0 +1,53 @@
+{
+  "source_sha256": {
+    "fly_wordbrain/decoder.py": "edd9ef362dc20caa73731fdc41bde12cd3ca9520dfcba0f71cd646a29931962a",
+    "fly_wordbrain/recall.py": "d08527764abf04c187828d2edeea1bc0384ae309502b059e2c6db726b8b829b3",
+    "fly_wordbrain/generate.py": "0e663b60bbebaf2d338715c51cda2796423e7589924f63118ba22a459a8fa312",
+    "fly_wordbrain/__init__.py": "976fef7fbc9f6b41c0a9f03604afe9b8592ec020c4f14efe8064bdf56510712e",
+    "fly_wordbrain/brain.py": "f9785b2005ac1fa6392f568d361f08000803420d5b8c7a04fd4b7f2facb449eb",
+    "fly_wordbrain/probe.py": "b3055de870a6145efb4b4d96eb005e71331702be335ff4358ff1b7678a600994",
+    "fly_wordbrain/extract.py": "2d9a6e9342d708fbf37fc053356ce06dd50c27d6217ea446d154e56f20d32835",
+    "fly_wordbrain/data.py": "3302e5d63d919edceda8ca044e2b74c77a86e62a65553015982358186d051ad4"
+  },
+  "executed_module": "/Users/fernando/fly_wordbrain/fly_wordbrain/decoder.py",
+  "parameters": 263168,
+  "splits": {
+    "train": {
+      "examples": 16017,
+      "all_causal_rows_present_once": true,
+      "manual_cross_entropy": 5.440282486846248,
+      "reported_cross_entropy": 5.440282483523486,
+      "unknown_fraction": 0.03995754510832241,
+      "unknown_cross_entropy": 3.1788583550824696,
+      "known_target_cross_entropy": 5.534404321035545,
+      "cross_entropy_at_train_unknown_fraction": 5.4402824868462485,
+      "nonconstant_feature_columns": 105,
+      "logits_change_between_examples": true
+    },
+    "val": {
+      "examples": 3991,
+      "all_causal_rows_present_once": true,
+      "manual_cross_entropy": 5.162051777543957,
+      "reported_cross_entropy": 5.162051748375163,
+      "unknown_fraction": 0.12102230017539464,
+      "unknown_cross_entropy": 3.2344945890023418,
+      "known_target_cross_entropy": 5.4274480495124875,
+      "cross_entropy_at_train_unknown_fraction": 5.339823012693701,
+      "nonconstant_feature_columns": 105,
+      "logits_change_between_examples": true
+    },
+    "test": {
+      "examples": 3992,
+      "all_causal_rows_present_once": true,
+      "manual_cross_entropy": 5.242600416235962,
+      "reported_cross_entropy": 5.242600389586422,
+      "unknown_fraction": 0.11623246492985972,
+      "unknown_cross_entropy": 3.2586211213793304,
+      "known_target_cross_entropy": 5.503531933473343,
+      "cross_entropy_at_train_unknown_fraction": 5.413830808434936,
+      "nonconstant_feature_columns": 105,
+      "logits_change_between_examples": true
+    }
+  },
+  "passed": true
+}

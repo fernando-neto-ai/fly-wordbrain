@@ -1,0 +1,26 @@
+{
+  "url": "https://github.com/nftechie/doomfly",
+  "commit": "71ecf53d78eaffaf1a57ed7b0ccf5d458abc9f33",
+  "files": {
+    "LICENSE": "ae0de445f810bcf5acb8f9732163ec8834a79ed3ac1f2ea9673e19ba25b026ca",
+    "THIRD_PARTY.md": "b71e30253a8b3a133a5a4893312c5cc239886270cb9ab279e3bd08365ba3c70b",
+    "THIRD_PARTY_NOTICES.md": "350e3f5d9dad21796d938b3d764c313f85bc302b53bec0153c842234823436f7",
+    "doom/__init__.py": "b9fc70db740d8f43661fee3aa828e951bfcb3ca5f8588eb511cf0f4fdda6e9c0",
+    "doom/connectome.py": "11d0eed94557ffe5b0f9e5f46773bcd5f490600ac8d9cd8b15ce678edac8e19d",
+    "doom/prepare.py": "d280740149c4006374989227f8ca2d9caca626344ea02c3c359387d19627c262",
+    "doom/transmitters.py": "fc9868a935b90a1658192a1717f6a4b425865c8ecea8cd2e6bd1c78ed57bfcf7",
+    "doom/engine.py": "5fc0ce73c05a49ff58af01729a9169018080bb5b913cedb2268116a95c04aeb3",
+    "doom/native.py": "81ff083d7d863d53ef1b264b7de3c123c0f9cc4e38d397ad36cbfa328649e234",
+    "doom/kernel.cpp": "2dc0939d5efb5b3b53551a7836b24385e30976b6dfb8ece9edbb0a6983bed337",
+    "doom/build_kernel.py": "c2012a5ab467ddab0bd0f630d69a5a8fd442e70661c744b826d8ccfdff999c4e",
+    "doom/datasets.json": "4532ef8b2f08d819cb31dee3a40f21685112971a05697cf0fa7fa634cf9035b8",
+    "doom/provenance.py": "0c8d91aca939d9c6294462a6982e9e271ec3cf4edca6afe7412384e67a56bfb8",
+    "data-provenance/malecns_v1/source.lock.json": "a518a766aa46b14b7b9230a108a63b902acc1e3386f123f45d5c52311342efd8",
+    "data-provenance/malecns_v1/normalized/report.json": "99182dc947fecf11bdbda1dbeedb418d48b897fe14835587922aa70d58ee51ae"
+  },
+  "reference_manifest": {
+    "upstream_path": "outputs/doom/malecns_v1/manifest.json",
+    "vendored_path": "doomfly-reference-manifest.json",
+    "sha256": "f953f3e51fab83a3d0e46c1f9e1445af6bd0c8af2cf63d1ba6d365ae824da1bf"
+  }
+}
