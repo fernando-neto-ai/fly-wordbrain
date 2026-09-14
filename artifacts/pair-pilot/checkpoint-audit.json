@@ -1,0 +1,395 @@
+{
+  "passed": true,
+  "sources": {
+    "pair": {
+      "current_source_sha256": {
+        "brain.py": "f9785b2005ac1fa6392f568d361f08000803420d5b8c7a04fd4b7f2facb449eb",
+        "pair_brain.py": "d22948354773010cfdef558d3de463e8f08c2afd23e3d2fec39e2b48ef095b13",
+        "extract.py": "2d9a6e9342d708fbf37fc053356ce06dd50c27d6217ea446d154e56f20d32835",
+        "pair_extract.py": "376ac52c332f45ac798a607d7099e034d16a0f6b8ebeb269f4e1cdb54fb5a70f"
+      },
+      "verified_source_locks": [
+        {
+          "path": "results/pair-pilot/extraction-source-lock.json",
+          "sha256": "73078527f481d1256d6c9ce278f02708c2eecc828cfb739875185f620f579b80"
+        }
+      ]
+    },
+    "single": {
+      "current_source_sha256": {
+        "brain.py": "f9785b2005ac1fa6392f568d361f08000803420d5b8c7a04fd4b7f2facb449eb",
+        "extract.py": "2d9a6e9342d708fbf37fc053356ce06dd50c27d6217ea446d154e56f20d32835"
+      },
+      "verified_source_locks": []
+    },
+    "decoder": {
+      "pair_decoder.py": "147cf2c98909eabf353b5f9178ba02bf4244b99bb056d8f5b7ffdb1b370c1937",
+      "decoder.py": "edd9ef362dc20caa73731fdc41bde12cd3ca9520dfcba0f71cd646a29931962a"
+    }
+  },
+  "counts": {
+    "train": {
+      "rows": 16017,
+      "targets_by_horizon": [
+        16017,
+        15889
+      ],
+      "max_lexical_context": 128,
+      "complete_unique_causal_rows": true,
+      "nonconstant_brain_columns": 105,
+      "nonconstant_direct_columns": 256
+    },
+    "val": {
+      "rows": 3991,
+      "targets_by_horizon": [
+        3991,
+        3959
+      ],
+      "max_lexical_context": 127,
+      "complete_unique_causal_rows": true,
+      "nonconstant_brain_columns": 105,
+      "nonconstant_direct_columns": 256
+    },
+    "test": {
+      "rows": 3992,
+      "targets_by_horizon": [
+        3992,
+        3960
+      ],
+      "max_lexical_context": 128,
+      "complete_unique_causal_rows": true,
+      "nonconstant_brain_columns": 105,
+      "nonconstant_direct_columns": 256
+    }
+  },
+  "arms": {
+    "brain": {
+      "parameters": 526336,
+      "seed": 0,
+      "splits": {
+        "train": {
+          "manual_metrics": {
+            "next_1": {
+              "examples": 16017,
+              "cross_entropy": 5.455164956705002,
+              "accuracy": 0.07485796341387276,
+              "known_target_cross_entropy": 5.549835471087302,
+              "known_lexical_cross_entropy": 5.547727999485415,
+              "known_lexical_accuracy": 0.06612808652029448,
+              "unknown_fraction": 0.03995754510832241
+            },
+            "next_2": {
+              "examples": 15889,
+              "cross_entropy": 5.474126417752368,
+              "accuracy": 0.07225124299830071,
+              "known_target_cross_entropy": 5.570276368570228,
+              "known_lexical_cross_entropy": 5.568552568401581,
+              "known_lexical_accuracy": 0.06734117337888444,
+              "unknown_fraction": 0.04027943860532444
+            },
+            "overlapping_forecast_average_cross_entropy": 5.46460765257981
+          },
+          "logits_max_absolute_errors": [
+            6.581601026844908e-06,
+            5.6084273101220106e-06
+          ]
+        },
+        "val": {
+          "manual_metrics": {
+            "next_1": {
+              "examples": 3991,
+              "cross_entropy": 5.160726804931188,
+              "accuracy": 0.09571535955900777,
+              "known_target_cross_entropy": 5.427780532445877,
+              "known_lexical_cross_entropy": 5.426130662122266,
+              "known_lexical_accuracy": 0.07224443175328384,
+              "unknown_fraction": 0.12102230017539464
+            },
+            "next_2": {
+              "examples": 3959,
+              "cross_entropy": 5.186115308441305,
+              "accuracy": 0.08411214953271028,
+              "known_target_cross_entropy": 5.460673053577325,
+              "known_lexical_cross_entropy": 5.45915758618666,
+              "known_lexical_accuracy": 0.06741573033707865,
+              "unknown_fraction": 0.1217479161404395
+            },
+            "overlapping_forecast_average_cross_entropy": 5.173369960326981
+          },
+          "logits_max_absolute_errors": [
+            6.208170280075365e-06,
+            5.177467311767714e-06
+          ]
+        },
+        "test": {
+          "manual_metrics": {
+            "next_1": {
+              "examples": 3992,
+              "cross_entropy": 5.220940642775509,
+              "accuracy": 0.09343687374749499,
+              "known_target_cross_entropy": 5.475648232117451,
+              "known_lexical_cross_entropy": 5.472559556493864,
+              "known_lexical_accuracy": 0.0710833096388968,
+              "unknown_fraction": 0.11623246492985972
+            },
+            "next_2": {
+              "examples": 3960,
+              "cross_entropy": 5.240379510282465,
+              "accuracy": 0.08914141414141415,
+              "known_target_cross_entropy": 5.509889268843293,
+              "known_lexical_cross_entropy": 5.506463025278955,
+              "known_lexical_accuracy": 0.07427588184685976,
+              "unknown_fraction": 0.11666666666666667
+            },
+            "overlapping_forecast_average_cross_entropy": 5.230620964119517
+          },
+          "logits_max_absolute_errors": [
+            5.745628258502222e-06,
+            5.177467311767714e-06
+          ]
+        }
+      },
+      "checkpoint_head_sha256": {
+        "head-0.pt": "43c05a1c528c290a92462206c5a595668b57c70e2ee36b4218381af974533989",
+        "head-1.pt": "7df8455a2c316cb41ea0ea67a9cd2cc799af698662175f48b0bb8e263b271d67"
+      },
+      "train_only_scalers_exact": true,
+      "test_receipt_loss_max_absolute_error": 5.314792489996556e-06
+    },
+    "direct": {
+      "parameters": 526336,
+      "seed": 0,
+      "splits": {
+        "train": {
+          "manual_metrics": {
+            "next_1": {
+              "examples": 16017,
+              "cross_entropy": 4.082232425431225,
+              "accuracy": 0.2183305238184429,
+              "known_target_cross_entropy": 4.126753733925185,
+              "known_lexical_cross_entropy": 4.124772861608677,
+              "known_lexical_accuracy": 0.21955827741220926,
+              "unknown_fraction": 0.03995754510832241
+            },
+            "next_2": {
+              "examples": 15889,
+              "cross_entropy": 4.530620038696254,
+              "accuracy": 0.14078922525017307,
+              "known_target_cross_entropy": 4.592411093294789,
+              "known_lexical_cross_entropy": 4.591536354295915,
+              "known_lexical_accuracy": 0.13717889757571775,
+              "unknown_fraction": 0.04027943860532444
+            },
+            "overlapping_forecast_average_cross_entropy": 4.305526814798994
+          },
+          "logits_max_absolute_errors": [
+            9.346520086772614e-06,
+            8.483478026732882e-06
+          ]
+        },
+        "val": {
+          "manual_metrics": {
+            "next_1": {
+              "examples": 3991,
+              "cross_entropy": 4.443753417190948,
+              "accuracy": 0.18917564520170382,
+              "known_target_cross_entropy": 4.631517860620318,
+              "known_lexical_cross_entropy": 4.628815307621941,
+              "known_lexical_accuracy": 0.18932038834951456,
+              "unknown_fraction": 0.12102230017539464
+            },
+            "next_2": {
+              "examples": 3959,
+              "cross_entropy": 4.935998755250767,
+              "accuracy": 0.10911846425865117,
+              "known_target_cross_entropy": 5.182368693048518,
+              "known_lexical_cross_entropy": 5.180133394535467,
+              "known_lexical_accuracy": 0.10256410256410256,
+              "unknown_fraction": 0.1217479161404395
+            },
+            "overlapping_forecast_average_cross_entropy": 4.68888540377948
+          },
+          "logits_max_absolute_errors": [
+            8.935927549913458e-06,
+            8.222070432495343e-06
+          ]
+        },
+        "test": {
+          "manual_metrics": {
+            "next_1": {
+              "examples": 3992,
+              "cross_entropy": 4.494383355554787,
+              "accuracy": 0.19213426853707416,
+              "known_target_cross_entropy": 4.664807347579828,
+              "known_lexical_cross_entropy": 4.659288590867876,
+              "known_lexical_accuracy": 0.1905032698322434,
+              "unknown_fraction": 0.11623246492985972
+            },
+            "next_2": {
+              "examples": 3960,
+              "cross_entropy": 4.977736915874255,
+              "accuracy": 0.11186868686868687,
+              "known_target_cross_entropy": 5.210996330672125,
+              "known_lexical_cross_entropy": 5.208578949737389,
+              "known_lexical_accuracy": 0.10696874103814166,
+              "unknown_fraction": 0.11666666666666667
+            },
+            "overlapping_forecast_average_cross_entropy": 4.735087593339632
+          },
+          "logits_max_absolute_errors": [
+            8.223284558184218e-06,
+            8.483478026732882e-06
+          ]
+        }
+      },
+      "checkpoint_head_sha256": {
+        "head-0.pt": "0ce8adbc57112c5421dc88ef2cdec4e4e129eb536fbc5b7efa74b783b621fe35",
+        "head-1.pt": "d692a883f0201669fe6e5e7326c73ceda16ed5c592e5bfaa0724f7e0e83705d5"
+      },
+      "train_only_scalers_exact": true,
+      "test_receipt_loss_max_absolute_error": 7.433400816658775e-06
+    },
+    "single_word_brain": {
+      "parameters": 526336,
+      "seed": 0,
+      "splits": {
+        "train": {
+          "manual_metrics": {
+            "next_1": {
+              "examples": 16017,
+              "cross_entropy": 5.440282486846248,
+              "accuracy": 0.08178810014359743,
+              "known_target_cross_entropy": 5.534404321035545,
+              "known_lexical_cross_entropy": 5.532549719609973,
+              "known_lexical_accuracy": 0.07779008404456317,
+              "unknown_fraction": 0.03995754510832241
+            },
+            "next_2": {
+              "examples": 15889,
+              "cross_entropy": 5.46534598565533,
+              "accuracy": 0.0871042859840141,
+              "known_target_cross_entropy": 5.5600073062541675,
+              "known_lexical_cross_entropy": 5.558414520765129,
+              "known_lexical_accuracy": 0.08921884238880494,
+              "unknown_fraction": 0.04027943860532444
+            },
+            "overlapping_forecast_average_cross_entropy": 5.4527639615713
+          },
+          "logits_max_absolute_errors": [
+            5.059088735492878e-06,
+            4.937218415435041e-06
+          ]
+        },
+        "val": {
+          "manual_metrics": {
+            "next_1": {
+              "examples": 3991,
+              "cross_entropy": 5.162051777543957,
+              "accuracy": 0.09771986970684039,
+              "known_target_cross_entropy": 5.4274480495124875,
+              "known_lexical_cross_entropy": 5.425668500448952,
+              "known_lexical_accuracy": 0.08680753854940035,
+              "unknown_fraction": 0.12102230017539464
+            },
+            "next_2": {
+              "examples": 3959,
+              "cross_entropy": 5.181389923057503,
+              "accuracy": 0.08385956049507451,
+              "known_target_cross_entropy": 5.450373490447963,
+              "known_lexical_cross_entropy": 5.448311703491114,
+              "known_lexical_accuracy": 0.09190435033131662,
+              "unknown_fraction": 0.1217479161404395
+            },
+            "overlapping_forecast_average_cross_entropy": 5.171681930762589
+          },
+          "logits_max_absolute_errors": [
+            5.760367612239747e-06,
+            4.474382980568237e-06
+          ]
+        },
+        "test": {
+          "manual_metrics": {
+            "next_1": {
+              "examples": 3992,
+              "cross_entropy": 5.242600416235962,
+              "accuracy": 0.0966933867735471,
+              "known_target_cross_entropy": 5.503531933473343,
+              "known_lexical_cross_entropy": 5.5003115995747605,
+              "known_lexical_accuracy": 0.0838783053738982,
+              "unknown_fraction": 0.11623246492985972
+            },
+            "next_2": {
+              "examples": 3960,
+              "cross_entropy": 5.253902949434864,
+              "accuracy": 0.08636363636363636,
+              "known_target_cross_entropy": 5.521009992846302,
+              "known_lexical_cross_entropy": 5.5182687926467615,
+              "known_lexical_accuracy": 0.09664468024089475,
+              "unknown_fraction": 0.11666666666666667
+            },
+            "overlapping_forecast_average_cross_entropy": 5.248228941319923
+          },
+          "logits_max_absolute_errors": [
+            6.16515498297332e-06,
+            4.614869140162625e-06
+          ]
+        }
+      },
+      "checkpoint_head_sha256": {
+        "head-0.pt": "f2b1c6f48630b8055a8d4add878a2b168444955aedd28aed928236707cd6e840",
+        "head-1.pt": "f1f62d2e09064d03eeabee4673a1fd81ccd943ed75a519e392cb4e4fb9b15081"
+      },
+      "train_only_scalers_exact": true,
+      "original_nextword_checkpoint_exact": true,
+      "original_selected_fields": {
+        "seed": 0,
+        "l2": 0.01,
+        "selected_epoch": 25,
+        "validation_cross_entropy": 5.162051748375163,
+        "learning_rate": 0.01,
+        "batch_size": 256,
+        "architecture": "linear_softmax"
+      },
+      "test_receipt_loss_max_absolute_error": 4.955151588603712e-06
+    }
+  },
+  "unchanged_graph_dynamics_fields": [
+    "upstream_commit",
+    "upstream_python_sha256",
+    "sensory_arrays_sha256",
+    "superclasses_sha256",
+    "neurons",
+    "edges",
+    "synaptic_contacts",
+    "graph_sha256",
+    "dt_ms",
+    "word_ms",
+    "warmup_ms",
+    "retinal_inputs",
+    "readout_population",
+    "readout_neurons",
+    "feature_dimensions",
+    "features",
+    "projection_sha256",
+    "encoder_high",
+    "kernel",
+    "plasticity",
+    "lamina_bias",
+    "decoder_temporal_memory"
+  ],
+  "direct_control": {
+    "all_rows_recomputed": true,
+    "unique_ordered_pairs": 9761,
+    "encoder_sha256": "9928f5d67315347d7063dc2d88fc3c3fa18c751c045c6fac96df4c1aeb00c521",
+    "projection_sha256": "bcbebbf8b1069dc4cd68013ddf83b1b03d3028db88881addedb9b28485665bab"
+  },
+  "dataset_sha256": "740fac37a10dc6df82a74a7613b2888e10dc282e2de82c2281905ebebd94c43f",
+  "graph_sha256": "19f1fe72719f8fdf5769ac50be6c18b8a02afc52a1bedb6b2527b05369b70210",
+  "scope": "Saved artifacts and seed0 of all three arms; no NativeBrain instantiated or neural trajectory executed. Graph fidelity uses immutable extraction start/end receipts plus identical dynamics/source metadata.",
+  "numeric_tolerances": {
+    "logits_atol": 1e-05,
+    "logits_rtol": 1e-05,
+    "per_target_loss_absolute": 1e-05,
+    "reported_mean_ce_absolute": 1e-05
+  }
+}

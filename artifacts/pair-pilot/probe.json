@@ -1,0 +1,145 @@
+{
+  "brain": {
+    "upstream_commit": "71ecf53d78eaffaf1a57ed7b0ccf5d458abc9f33",
+    "upstream_python_sha256": {
+      "native.py": "81ff083d7d863d53ef1b264b7de3c123c0f9cc4e38d397ad36cbfa328649e234",
+      "engine.py": "5fc0ce73c05a49ff58af01729a9169018080bb5b913cedb2268116a95c04aeb3",
+      "transmitters.py": "fc9868a935b90a1658192a1717f6a4b425865c8ecea8cd2e6bd1c78ed57bfcf7"
+    },
+    "sensory_arrays_sha256": "f5435f87cebbee0ad734849f3778699495def8ea9ee116e2995f8af3a0dcd56e",
+    "superclasses_sha256": "6e6f3fbca28ceac601d66b7ee4b7bf1677e30cfbd721761a9d96f3f43f756498",
+    "neurons": 166700,
+    "edges": 25582938,
+    "synaptic_contacts": 124177617,
+    "graph_sha256": "19f1fe72719f8fdf5769ac50be6c18b8a02afc52a1bedb6b2527b05369b70210",
+    "dt_ms": 0.1,
+    "word_ms": 20.0,
+    "warmup_ms": 100.0,
+    "retinal_inputs": 3335,
+    "readout_population": "all descending_neuron annotations",
+    "readout_neurons": 1314,
+    "feature_dimensions": 256,
+    "features": "fixed pooled spike rates and end-of-word voltages",
+    "encoder_sha256": "9928f5d67315347d7063dc2d88fc3c3fa18c751c045c6fac96df4c1aeb00c521",
+    "projection_sha256": "9c085a13bb7e259e88974e7884b0b1598e7ba7a8bd089093f91c25a934bd5ff5",
+    "encoder_seed": 1729,
+    "encoder_high": 0.02,
+    "kernel": {
+      "kernel_source_sha256": "2dc0939d5efb5b3b53551a7836b24385e30976b6dfb8ece9edbb0a6983bed337",
+      "binary_sha256": "ec712780142207e6131aa603d574a5f6f1c7c607d815bdee3bbade6bfb7572e3",
+      "model_revision": "lif-r2-refractory-write-protection",
+      "compile_flags": [
+        "-O3",
+        "-std=c++17",
+        "-shared",
+        "-fPIC"
+      ]
+    },
+    "plasticity": false,
+    "lamina_bias": 12.0,
+    "decoder_temporal_memory": false,
+    "input_encoding": {
+      "type": "fixed_ordered_disjoint_receptor_roles",
+      "version": 1,
+      "seed": 1729,
+      "partition_seed": 3636,
+      "role_code_seeds": [
+        1729,
+        1730
+      ],
+      "bank_sizes": [
+        1667,
+        1668
+      ],
+      "illuminated_per_role": [
+        417,
+        417
+      ],
+      "high": 0.02,
+      "sha256": "9928f5d67315347d7063dc2d88fc3c3fa18c751c045c6fac96df4c1aeb00c521",
+      "learned": false
+    },
+    "external_input_context_words": 2,
+    "advancement": "one new word per neural interval; ordered previous/current code",
+    "direct_control": {
+      "type": "signed_countsketch_of_current_retinal_stimulus",
+      "dimensions": 256,
+      "seed": 3187,
+      "sha256": "bcbebbf8b1069dc4cd68013ddf83b1b03d3028db88881addedb9b28485665bab",
+      "temporal_memory": false,
+      "learned": false
+    }
+  },
+  "checks": {
+    "repeat_after_reset_exact": true,
+    "direct_repeat_exact": true,
+    "connected_word_order_changes_observations": true,
+    "disconnected_ignores_word_order": true,
+    "ordered_codes_distinct": true,
+    "equal_illumination": true,
+    "direct_has_no_older_history": true,
+    "graph_unchanged": true
+  },
+  "passed": true,
+  "wall_seconds": 1.5169750419999999,
+  "diagnostics": [
+    {
+      "kernel_seconds": 0.016737874999999958,
+      "all_spikes": 6150,
+      "readout_spikes": 1,
+      "readout_voltage_std": 0.17462897300720215,
+      "feature_norm": 15.956475257873535
+    },
+    {
+      "kernel_seconds": 0.016783957999999988,
+      "all_spikes": 5726,
+      "readout_spikes": 0,
+      "readout_voltage_std": 0.3264196813106537,
+      "feature_norm": 3.6652424335479736
+    },
+    {
+      "kernel_seconds": 0.017030832999999967,
+      "all_spikes": 5854,
+      "readout_spikes": 4,
+      "readout_voltage_std": 0.1441977322101593,
+      "feature_norm": 31.385202407836914
+    },
+    {
+      "kernel_seconds": 0.016902082999999957,
+      "all_spikes": 5920,
+      "readout_spikes": 0,
+      "readout_voltage_std": 0.10168502479791641,
+      "feature_norm": 1.1716059446334839
+    },
+    {
+      "kernel_seconds": 0.016749832999999992,
+      "all_spikes": 5683,
+      "readout_spikes": 1,
+      "readout_voltage_std": 0.1734417825937271,
+      "feature_norm": 15.962837219238281
+    },
+    {
+      "kernel_seconds": 0.017324584000000032,
+      "all_spikes": 5913,
+      "readout_spikes": 0,
+      "readout_voltage_std": 0.28648829460144043,
+      "feature_norm": 3.2317614555358887
+    },
+    {
+      "kernel_seconds": 0.016940041000000017,
+      "all_spikes": 5823,
+      "readout_spikes": 4,
+      "readout_voltage_std": 0.14431168138980865,
+      "feature_norm": 31.38607406616211
+    },
+    {
+      "kernel_seconds": 0.017350457999999902,
+      "all_spikes": 5956,
+      "readout_spikes": 0,
+      "readout_voltage_std": 0.06210339441895485,
+      "feature_norm": 0.7483996152877808
+    }
+  ],
+  "mean_kernel_ms_per_interval": 16.977458124999977,
+  "history_sensitivity_not_memory_score": 31.365886688232422
+}

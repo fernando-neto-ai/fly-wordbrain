@@ -1,0 +1,3139 @@
+{
+  "config": {
+    "schema_version": 1,
+    "seeds": [
+      0,
+      1,
+      2
+    ],
+    "primary_seed": 0,
+    "arms": [
+      "brain",
+      "direct",
+      "single_word_brain"
+    ],
+    "feature_dimensions": 256,
+    "vocabulary_size": 1024,
+    "parameters_per_two_head_model": 526336,
+    "l2_values": [
+      0.0,
+      0.0001,
+      0.01
+    ],
+    "max_epochs": 30,
+    "patience": 8,
+    "batch_size": 256,
+    "learning_rate": 0.01,
+    "cpu_threads": 1,
+    "dataset_sha256": "740fac37a10dc6df82a74a7613b2888e10dc282e2de82c2281905ebebd94c43f",
+    "feature_sha256": {
+      "train": "411172e6b736a5c32c4af8a098e62998703fd6769d05920696b708f294dc6d86",
+      "val": "eabeebf11c3db088edb0d43533d283fad38ee1fcb80f4f0782847539d0065f5f",
+      "test": "d91c7c3be6033817a34f387edf460d1a2fae6be1f62c518c39dff1a0e39de8bd"
+    },
+    "source_sha256": {
+      "pair_decoder.py": "147cf2c98909eabf353b5f9178ba02bf4244b99bb056d8f5b7ffdb1b370c1937",
+      "decoder.py": "edd9ef362dc20caa73731fdc41bde12cd3ca9520dfcba0f71cd646a29931962a"
+    },
+    "torch_version": "2.8.0",
+    "selection": "All arm/head/seed selections use validation only and finish before loading any test arrays.",
+    "standardization": "Each head uses only its valid training rows for mean/std; no shared learned trunk.",
+    "target_contract": "Input previous/current; forecast next_1 and next_2 from SAME features. No teacher-forced future word in head2.",
+    "loss_contract": "Horizon CE separate; mean across valid overlapping forecasts is NOT sequence perplexity.",
+    "masked_outputs": "Unscored horizon losses are NaN and predictions -1 in NPZ; all metrics use target_mask.",
+    "limitations": [
+      "Brain dynamics and all synapses remain frozen; only readout weights/biases train.",
+      "Independent head2 training cannot improve head1 representations because no learned trunk is shared.",
+      "Direct arm measures decodability of engineered ordered sensory input without the brain.",
+      "Overlapping forecasts are correlated; use story-level paired analysis, not independent-token significance."
+    ]
+  },
+  "arms": {
+    "brain": {
+      "repeats": [
+        {
+          "seed": 0,
+          "selected_heads": [
+            {
+              "seed": 0,
+              "l2": 0.01,
+              "selected_epoch": 25,
+              "validation_cross_entropy": 5.160726772412654,
+              "learning_rate": 0.01,
+              "batch_size": 256,
+              "architecture": "linear_softmax",
+              "input": "standardized_frozen_pair_input_brain_features_only",
+              "horizon": 1,
+              "head_conditioning": "same_current_feature_vector; no future word",
+              "arm": "brain",
+              "dataset_sha256": "740fac37a10dc6df82a74a7613b2888e10dc282e2de82c2281905ebebd94c43f",
+              "feature_sha256": {
+                "train": "411172e6b736a5c32c4af8a098e62998703fd6769d05920696b708f294dc6d86",
+                "val": "eabeebf11c3db088edb0d43533d283fad38ee1fcb80f4f0782847539d0065f5f",
+                "test": "d91c7c3be6033817a34f387edf460d1a2fae6be1f62c518c39dff1a0e39de8bd"
+              }
+            },
+            {
+              "seed": 0,
+              "l2": 0.01,
+              "selected_epoch": 18,
+              "validation_cross_entropy": 5.18611526368814,
+              "learning_rate": 0.01,
+              "batch_size": 256,
+              "architecture": "linear_softmax",
+              "input": "standardized_frozen_pair_input_brain_features_only",
+              "horizon": 2,
+              "head_conditioning": "same_current_feature_vector; no future word",
+              "arm": "brain",
+              "dataset_sha256": "740fac37a10dc6df82a74a7613b2888e10dc282e2de82c2281905ebebd94c43f",
+              "feature_sha256": {
+                "train": "411172e6b736a5c32c4af8a098e62998703fd6769d05920696b708f294dc6d86",
+                "val": "eabeebf11c3db088edb0d43533d283fad38ee1fcb80f4f0782847539d0065f5f",
+                "test": "d91c7c3be6033817a34f387edf460d1a2fae6be1f62c518c39dff1a0e39de8bd"
+              }
+            }
+          ],
+          "metrics": {
+            "train": {
+              "horizons": {
+                "next_1": {
+                  "examples": 16017,
+                  "cross_entropy": 5.45516493728398,
+                  "perplexity": 233.96345718441677,
+                  "accuracy": 0.07485796341387276,
+                  "known_target_examples": 15377,
+                  "known_target_cross_entropy": 5.549835459431847,
+                  "known_target_perplexity": 257.19523337415797,
+                  "known_target_accuracy": 0.06600767379853027,
+                  "unknown_target_fraction": 0.03995754510832241,
+                  "known_lexical_examples": 15349,
+                  "known_lexical_cross_entropy": 5.5477279878429995,
+                  "known_lexical_perplexity": 256.65377248416127,
+                  "known_lexical_accuracy": 0.06612808652029448,
+                  "interpretation": "Next-word conditional metrics, comparable to original next-word readout."
+                },
+                "next_2": {
+                  "examples": 15889,
+                  "cross_entropy": 5.4741264143901835,
+                  "perplexity": 238.44207635373033,
+                  "accuracy": 0.07225124299830071,
+                  "known_target_examples": 15249,
+                  "known_target_cross_entropy": 5.570276387301154,
+                  "known_target_perplexity": 262.50664271728476,
+                  "known_target_accuracy": 0.06721752246048922,
+                  "unknown_target_fraction": 0.04027943860532444,
+                  "known_lexical_examples": 15221,
+                  "known_lexical_cross_entropy": 5.568552587154652,
+                  "known_lexical_perplexity": 262.0545235216345,
+                  "known_lexical_accuracy": 0.06734117337888444,
+                  "interpretation": "Second-future-word forecast from the same current state; exp(CE) is not next-word sequence perplexity."
+                }
+              },
+              "forecast_average": {
+                "valid_forecasts": 31906,
+                "cross_entropy": 5.464607641155993,
+                "exp_cross_entropy": 236.1831683719031,
+                "accuracy": 0.07355983200651915,
+                "known_lexical_forecasts": 30570,
+                "known_lexical_cross_entropy": 5.558096690038703,
+                "known_lexical_accuracy": 0.06673209028459273,
+                "interpretation": "Token-weighted mean over valid overlapping horizon forecasts, NOT standard sequence perplexity."
+              },
+              "complete_pair": {
+                "examples": 15889,
+                "exact_accuracy": 0.013783120397759457,
+                "known_lexical_pairs": 14621,
+                "known_lexical_exact_accuracy": 0.013884139251761166
+              }
+            },
+            "val": {
+              "horizons": {
+                "next_1": {
+                  "examples": 3991,
+                  "cross_entropy": 5.160726772412654,
+                  "perplexity": 174.2910795345253,
+                  "accuracy": 0.09571535955900777,
+                  "known_target_examples": 3508,
+                  "known_target_cross_entropy": 5.42778051737165,
+                  "known_target_perplexity": 227.64343366496047,
+                  "known_target_accuracy": 0.07212086659064994,
+                  "unknown_target_fraction": 0.12102230017539464,
+                  "known_lexical_examples": 3502,
+                  "known_lexical_cross_entropy": 5.426130647406723,
+                  "known_lexical_perplexity": 227.26816126150382,
+                  "known_lexical_accuracy": 0.07224443175328384,
+                  "interpretation": "Next-word conditional metrics, comparable to original next-word readout."
+                },
+                "next_2": {
+                  "examples": 3959,
+                  "cross_entropy": 5.18611526368814,
+                  "perplexity": 178.7727173713368,
+                  "accuracy": 0.08411214953271028,
+                  "known_target_examples": 3477,
+                  "known_target_cross_entropy": 5.460673069453356,
+                  "known_target_perplexity": 235.2557145243011,
+                  "known_target_accuracy": 0.06729939603106126,
+                  "unknown_target_fraction": 0.1217479161404395,
+                  "known_lexical_examples": 3471,
+                  "known_lexical_cross_entropy": 5.459157602205225,
+                  "known_lexical_perplexity": 234.8994622065456,
+                  "known_lexical_accuracy": 0.06741573033707865,
+                  "interpretation": "Second-future-word forecast from the same current state; exp(CE) is not next-word sequence perplexity."
+                }
+              },
+              "forecast_average": {
+                "valid_forecasts": 7950,
+                "cross_entropy": 5.1733699217157545,
+                "exp_cross_entropy": 176.5086567152182,
+                "accuracy": 0.08993710691823899,
+                "known_lexical_forecasts": 6973,
+                "known_lexical_cross_entropy": 5.442570710522397,
+                "known_lexical_accuracy": 0.06984081457048616,
+                "interpretation": "Token-weighted mean over valid overlapping horizon forecasts, NOT standard sequence perplexity."
+              },
+              "complete_pair": {
+                "examples": 3959,
+                "exact_accuracy": 0.018186410709775197,
+                "known_lexical_pairs": 3044,
+                "known_lexical_exact_accuracy": 0.018725361366622863
+              }
+            },
+            "test": {
+              "horizons": {
+                "next_1": {
+                  "examples": 3992,
+                  "cross_entropy": 5.220940614585767,
+                  "perplexity": 185.10821769807995,
+                  "accuracy": 0.09343687374749499,
+                  "known_target_examples": 3528,
+                  "known_target_cross_entropy": 5.475648230723108,
+                  "known_target_perplexity": 238.8052176470735,
+                  "known_target_accuracy": 0.07086167800453515,
+                  "unknown_target_fraction": 0.11623246492985972,
+                  "known_lexical_examples": 3517,
+                  "known_lexical_cross_entropy": 5.472559554572807,
+                  "known_lexical_perplexity": 238.06876358628222,
+                  "known_lexical_accuracy": 0.0710833096388968,
+                  "interpretation": "Next-word conditional metrics, comparable to original next-word readout."
+                },
+                "next_2": {
+                  "examples": 3960,
+                  "cross_entropy": 5.2403794842537,
+                  "perplexity": 188.74171332542173,
+                  "accuracy": 0.08914141414141415,
+                  "known_target_examples": 3498,
+                  "known_target_cross_entropy": 5.509889310601781,
+                  "known_target_perplexity": 247.12377157210906,
+                  "known_target_accuracy": 0.0740423098913665,
+                  "unknown_target_fraction": 0.11666666666666667,
+                  "known_lexical_examples": 3487,
+                  "known_lexical_cross_entropy": 5.506463067457059,
+                  "known_lexical_perplexity": 246.27851429921338,
+                  "known_lexical_accuracy": 0.07427588184685976,
+                  "interpretation": "Second-future-word forecast from the same current state; exp(CE) is not next-word sequence perplexity."
+                }
+              },
+              "forecast_average": {
+                "valid_forecasts": 7952,
+                "cross_entropy": 5.230620937005915,
+                "exp_cross_entropy": 186.90882610194174,
+                "accuracy": 0.09129778672032193,
+                "known_lexical_forecasts": 7004,
+                "known_lexical_cross_entropy": 5.489438702120977,
+                "known_lexical_accuracy": 0.07267275842375785,
+                "interpretation": "Token-weighted mean over valid overlapping horizon forecasts, NOT standard sequence perplexity."
+              },
+              "complete_pair": {
+                "examples": 3960,
+                "exact_accuracy": 0.015909090909090907,
+                "known_lexical_pairs": 3069,
+                "known_lexical_exact_accuracy": 0.016943629846855653
+              }
+            }
+          }
+        },
+        {
+          "seed": 1,
+          "selected_heads": [
+            {
+              "seed": 1,
+              "l2": 0.01,
+              "selected_epoch": 12,
+              "validation_cross_entropy": 5.168867314453264,
+              "learning_rate": 0.01,
+              "batch_size": 256,
+              "architecture": "linear_softmax",
+              "input": "standardized_frozen_pair_input_brain_features_only",
+              "horizon": 1,
+              "head_conditioning": "same_current_feature_vector; no future word",
+              "arm": "brain",
+              "dataset_sha256": "740fac37a10dc6df82a74a7613b2888e10dc282e2de82c2281905ebebd94c43f",
+              "feature_sha256": {
+                "train": "411172e6b736a5c32c4af8a098e62998703fd6769d05920696b708f294dc6d86",
+                "val": "eabeebf11c3db088edb0d43533d283fad38ee1fcb80f4f0782847539d0065f5f",
+                "test": "d91c7c3be6033817a34f387edf460d1a2fae6be1f62c518c39dff1a0e39de8bd"
+              }
+            },
+            {
+              "seed": 1,
+              "l2": 0.01,
+              "selected_epoch": 14,
+              "validation_cross_entropy": 5.187187466530464,
+              "learning_rate": 0.01,
+              "batch_size": 256,
+              "architecture": "linear_softmax",
+              "input": "standardized_frozen_pair_input_brain_features_only",
+              "horizon": 2,
+              "head_conditioning": "same_current_feature_vector; no future word",
+              "arm": "brain",
+              "dataset_sha256": "740fac37a10dc6df82a74a7613b2888e10dc282e2de82c2281905ebebd94c43f",
+              "feature_sha256": {
+                "train": "411172e6b736a5c32c4af8a098e62998703fd6769d05920696b708f294dc6d86",
+                "val": "eabeebf11c3db088edb0d43533d283fad38ee1fcb80f4f0782847539d0065f5f",
+                "test": "d91c7c3be6033817a34f387edf460d1a2fae6be1f62c518c39dff1a0e39de8bd"
+              }
+            }
+          ],
+          "metrics": {
+            "train": {
+              "horizons": {
+                "next_1": {
+                  "examples": 16017,
+                  "cross_entropy": 5.451769161136542,
+                  "perplexity": 233.17031708241868,
+                  "accuracy": 0.08928013985140788,
+                  "known_target_examples": 15377,
+                  "known_target_cross_entropy": 5.541880768506899,
+                  "known_target_perplexity": 255.15744053684995,
+                  "known_target_accuracy": 0.08980945568056188,
+                  "unknown_target_fraction": 0.03995754510832241,
+                  "known_lexical_examples": 15349,
+                  "known_lexical_cross_entropy": 5.540320844081444,
+                  "known_lexical_perplexity": 254.75972449715138,
+                  "known_lexical_accuracy": 0.08997328816209525,
+                  "interpretation": "Next-word conditional metrics, comparable to original next-word readout."
+                },
+                "next_2": {
+                  "examples": 15889,
+                  "cross_entropy": 5.469791447582115,
+                  "perplexity": 237.41067502751608,
+                  "accuracy": 0.08414626471143559,
+                  "known_target_examples": 15249,
+                  "known_target_cross_entropy": 5.565594104100262,
+                  "known_target_perplexity": 261.2803853564359,
+                  "known_target_accuracy": 0.08728441209259624,
+                  "unknown_target_fraction": 0.04027943860532444,
+                  "known_lexical_examples": 15221,
+                  "known_lexical_cross_entropy": 5.564481953296889,
+                  "known_lexical_perplexity": 260.98996369223454,
+                  "known_lexical_accuracy": 0.08744497733394652,
+                  "interpretation": "Second-future-word forecast from the same current state; exp(CE) is not next-word sequence perplexity."
+                }
+              },
+              "forecast_average": {
+                "valid_forecasts": 31906,
+                "cross_entropy": 5.460744153593563,
+                "exp_cross_entropy": 235.27243806887918,
+                "accuracy": 0.0867235002820786,
+                "known_lexical_forecasts": 30570,
+                "known_lexical_cross_entropy": 5.552350816059471,
+                "known_lexical_accuracy": 0.08871442590775269,
+                "interpretation": "Token-weighted mean over valid overlapping horizon forecasts, NOT standard sequence perplexity."
+              },
+              "complete_pair": {
+                "examples": 15889,
+                "exact_accuracy": 0.0246082195229404,
+                "known_lexical_pairs": 14621,
+                "known_lexical_exact_accuracy": 0.026605567334655633
+              }
+            },
+            "val": {
+              "horizons": {
+                "next_1": {
+                  "examples": 3991,
+                  "cross_entropy": 5.168867314453264,
+                  "perplexity": 175.71569409490138,
+                  "accuracy": 0.09045352042094713,
+                  "known_target_examples": 3508,
+                  "known_target_cross_entropy": 5.422816026458855,
+                  "known_target_perplexity": 226.51610054006977,
+                  "known_target_accuracy": 0.09122006841505131,
+                  "unknown_target_fraction": 0.12102230017539464,
+                  "known_lexical_examples": 3502,
+                  "known_lexical_cross_entropy": 5.421032852628856,
+                  "known_lexical_perplexity": 226.11254287118334,
+                  "known_lexical_accuracy": 0.09137635636778983,
+                  "interpretation": "Next-word conditional metrics, comparable to original next-word readout."
+                },
+                "next_2": {
+                  "examples": 3959,
+                  "cross_entropy": 5.187187466530464,
+                  "perplexity": 178.96450078401926,
+                  "accuracy": 0.08461732760798181,
+                  "known_target_examples": 3477,
+                  "known_target_cross_entropy": 5.461637720572801,
+                  "known_target_perplexity": 235.4827637066901,
+                  "known_target_accuracy": 0.09433419614610296,
+                  "unknown_target_fraction": 0.1217479161404395,
+                  "known_lexical_examples": 3471,
+                  "known_lexical_cross_entropy": 5.45976459318882,
+                  "known_lexical_perplexity": 235.04208734386347,
+                  "known_lexical_accuracy": 0.09449726303658888,
+                  "interpretation": "Second-future-word forecast from the same current state; exp(CE) is not next-word sequence perplexity."
+                }
+              },
+              "forecast_average": {
+                "valid_forecasts": 7950,
+                "cross_entropy": 5.177990519745545,
+                "exp_cross_entropy": 177.3261193955056,
+                "accuracy": 0.08754716981132075,
+                "known_lexical_forecasts": 6973,
+                "known_lexical_cross_entropy": 5.440312627687458,
+                "known_lexical_accuracy": 0.0929298723648358,
+                "interpretation": "Token-weighted mean over valid overlapping horizon forecasts, NOT standard sequence perplexity."
+              },
+              "complete_pair": {
+                "examples": 3959,
+                "exact_accuracy": 0.029300328365748928,
+                "known_lexical_pairs": 3044,
+                "known_lexical_exact_accuracy": 0.03679369250985545
+              }
+            },
+            "test": {
+              "horizons": {
+                "next_1": {
+                  "examples": 3992,
+                  "cross_entropy": 5.240944661319495,
+                  "perplexity": 188.84841596325367,
+                  "accuracy": 0.09468937875751503,
+                  "known_target_examples": 3528,
+                  "known_target_cross_entropy": 5.487520489410883,
+                  "known_target_perplexity": 241.65727162850249,
+                  "known_target_accuracy": 0.09665532879818595,
+                  "unknown_target_fraction": 0.11623246492985972,
+                  "known_lexical_examples": 3517,
+                  "known_lexical_cross_entropy": 5.48428961616841,
+                  "known_lexical_perplexity": 240.8777675332844,
+                  "known_lexical_accuracy": 0.09695763434745522,
+                  "interpretation": "Next-word conditional metrics, comparable to original next-word readout."
+                },
+                "next_2": {
+                  "examples": 3960,
+                  "cross_entropy": 5.241067018939389,
+                  "perplexity": 188.87152441967072,
+                  "accuracy": 0.08510101010101011,
+                  "known_target_examples": 3498,
+                  "known_target_cross_entropy": 5.507881161057656,
+                  "known_target_perplexity": 246.62800803315054,
+                  "known_target_accuracy": 0.09519725557461406,
+                  "unknown_target_fraction": 0.11666666666666667,
+                  "known_lexical_examples": 3487,
+                  "known_lexical_cross_entropy": 5.506061925548245,
+                  "known_lexical_perplexity": 246.17974147817108,
+                  "known_lexical_accuracy": 0.09549756237453398,
+                  "interpretation": "Second-future-word forecast from the same current state; exp(CE) is not next-word sequence perplexity."
+                }
+              },
+              "forecast_average": {
+                "valid_forecasts": 7952,
+                "cross_entropy": 5.2410055939370475,
+                "exp_cross_entropy": 188.85992334214276,
+                "accuracy": 0.08991448692152917,
+                "known_lexical_forecasts": 7004,
+                "known_lexical_cross_entropy": 5.4951291425544015,
+                "known_lexical_accuracy": 0.09623072529982866,
+                "interpretation": "Token-weighted mean over valid overlapping horizon forecasts, NOT standard sequence perplexity."
+              },
+              "complete_pair": {
+                "examples": 3960,
+                "exact_accuracy": 0.026515151515151516,
+                "known_lexical_pairs": 3069,
+                "known_lexical_exact_accuracy": 0.033561420658194854
+              }
+            }
+          }
+        },
+        {
+          "seed": 2,
+          "selected_heads": [
+            {
+              "seed": 2,
+              "l2": 0.01,
+              "selected_epoch": 14,
+              "validation_cross_entropy": 5.159202562107893,
+              "learning_rate": 0.01,
+              "batch_size": 256,
+              "architecture": "linear_softmax",
+              "input": "standardized_frozen_pair_input_brain_features_only",
+              "horizon": 1,
+              "head_conditioning": "same_current_feature_vector; no future word",
+              "arm": "brain",
+              "dataset_sha256": "740fac37a10dc6df82a74a7613b2888e10dc282e2de82c2281905ebebd94c43f",
+              "feature_sha256": {
+                "train": "411172e6b736a5c32c4af8a098e62998703fd6769d05920696b708f294dc6d86",
+                "val": "eabeebf11c3db088edb0d43533d283fad38ee1fcb80f4f0782847539d0065f5f",
+                "test": "d91c7c3be6033817a34f387edf460d1a2fae6be1f62c518c39dff1a0e39de8bd"
+              }
+            },
+            {
+              "seed": 2,
+              "l2": 0.01,
+              "selected_epoch": 24,
+              "validation_cross_entropy": 5.191686859845091,
+              "learning_rate": 0.01,
+              "batch_size": 256,
+              "architecture": "linear_softmax",
+              "input": "standardized_frozen_pair_input_brain_features_only",
+              "horizon": 2,
+              "head_conditioning": "same_current_feature_vector; no future word",
+              "arm": "brain",
+              "dataset_sha256": "740fac37a10dc6df82a74a7613b2888e10dc282e2de82c2281905ebebd94c43f",
+              "feature_sha256": {
+                "train": "411172e6b736a5c32c4af8a098e62998703fd6769d05920696b708f294dc6d86",
+                "val": "eabeebf11c3db088edb0d43533d283fad38ee1fcb80f4f0782847539d0065f5f",
+                "test": "d91c7c3be6033817a34f387edf460d1a2fae6be1f62c518c39dff1a0e39de8bd"
+              }
+            }
+          ],
+          "metrics": {
+            "train": {
+              "horizons": {
+                "next_1": {
+                  "examples": 16017,
+                  "cross_entropy": 5.440118283749729,
+                  "perplexity": 230.46944263832455,
+                  "accuracy": 0.08703252793906474,
+                  "known_target_examples": 15377,
+                  "known_target_cross_entropy": 5.532039826547494,
+                  "known_target_perplexity": 252.65876579570232,
+                  "known_target_accuracy": 0.08772842557065748,
+                  "unknown_target_fraction": 0.03995754510832241,
+                  "known_lexical_examples": 15349,
+                  "known_lexical_cross_entropy": 5.530540329228396,
+                  "known_lexical_perplexity": 252.28018856245393,
+                  "known_lexical_accuracy": 0.08788846178904162,
+                  "interpretation": "Next-word conditional metrics, comparable to original next-word readout."
+                },
+                "next_2": {
+                  "examples": 15889,
+                  "cross_entropy": 5.474624397159861,
+                  "perplexity": 238.56084596947724,
+                  "accuracy": 0.07879665177166593,
+                  "known_target_examples": 15249,
+                  "known_target_cross_entropy": 5.568494023588949,
+                  "known_target_perplexity": 262.03917712370264,
+                  "known_target_accuracy": 0.07849695061971276,
+                  "unknown_target_fraction": 0.04027943860532444,
+                  "known_lexical_examples": 15221,
+                  "known_lexical_cross_entropy": 5.567924637153376,
+                  "known_lexical_perplexity": 261.8900180392692,
+                  "known_lexical_accuracy": 0.07864135076538992,
+                  "interpretation": "Second-future-word forecast from the same current state; exp(CE) is not next-word sequence perplexity."
+                }
+              },
+              "forecast_average": {
+                "valid_forecasts": 31906,
+                "cross_entropy": 5.4573021249073035,
+                "exp_cross_entropy": 234.46401569261747,
+                "accuracy": 0.08293111013602457,
+                "known_lexical_forecasts": 30570,
+                "known_lexical_cross_entropy": 5.549154217057186,
+                "known_lexical_accuracy": 0.08328426561988878,
+                "interpretation": "Token-weighted mean over valid overlapping horizon forecasts, NOT standard sequence perplexity."
+              },
+              "complete_pair": {
+                "examples": 15889,
+                "exact_accuracy": 0.0200767826798414,
+                "known_lexical_pairs": 14621,
+                "known_lexical_exact_accuracy": 0.021270774912796664
+              }
+            },
+            "val": {
+              "horizons": {
+                "next_1": {
+                  "examples": 3991,
+                  "cross_entropy": 5.159202562107893,
+                  "perplexity": 174.02562563025128,
+                  "accuracy": 0.08819844650463543,
+                  "known_target_examples": 3508,
+                  "known_target_cross_entropy": 5.4170011502681055,
+                  "known_target_perplexity": 225.20275961828696,
+                  "known_target_accuracy": 0.09321550741163055,
+                  "unknown_target_fraction": 0.12102230017539464,
+                  "known_lexical_examples": 3502,
+                  "known_lexical_cross_entropy": 5.415083755073651,
+                  "known_lexical_perplexity": 224.77137063296396,
+                  "known_lexical_accuracy": 0.09337521416333523,
+                  "interpretation": "Next-word conditional metrics, comparable to original next-word readout."
+                },
+                "next_2": {
+                  "examples": 3959,
+                  "cross_entropy": 5.191686859845091,
+                  "perplexity": 179.77154670940072,
+                  "accuracy": 0.08310179338216721,
+                  "known_target_examples": 3477,
+                  "known_target_cross_entropy": 5.461036225759952,
+                  "known_target_perplexity": 235.3411646356277,
+                  "known_target_accuracy": 0.08398044291055508,
+                  "unknown_target_fraction": 0.1217479161404395,
+                  "known_lexical_examples": 3471,
+                  "known_lexical_cross_entropy": 5.458618929014533,
+                  "known_lexical_perplexity": 234.77296223787687,
+                  "known_lexical_accuracy": 0.08412561221549986,
+                  "interpretation": "Second-future-word forecast from the same current state; exp(CE) is not next-word sequence perplexity."
+                }
+              },
+              "forecast_average": {
+                "valid_forecasts": 7950,
+                "cross_entropy": 5.175379333773499,
+                "exp_cross_entropy": 176.8636919248721,
+                "accuracy": 0.08566037735849057,
+                "known_lexical_forecasts": 6973,
+                "known_lexical_cross_entropy": 5.436754569464703,
+                "known_lexical_accuracy": 0.08877097375591568,
+                "interpretation": "Token-weighted mean over valid overlapping horizon forecasts, NOT standard sequence perplexity."
+              },
+              "complete_pair": {
+                "examples": 3959,
+                "exact_accuracy": 0.025006314725940892,
+                "known_lexical_pairs": 3044,
+                "known_lexical_exact_accuracy": 0.03055190538764783
+              }
+            },
+            "test": {
+              "horizons": {
+                "next_1": {
+                  "examples": 3992,
+                  "cross_entropy": 5.229300934097212,
+                  "perplexity": 186.66226867188774,
+                  "accuracy": 0.09193386773547094,
+                  "known_target_examples": 3528,
+                  "known_target_cross_entropy": 5.482649951007496,
+                  "known_target_perplexity": 240.4831322730799,
+                  "known_target_accuracy": 0.09552154195011338,
+                  "unknown_target_fraction": 0.11623246492985972,
+                  "known_lexical_examples": 3517,
+                  "known_lexical_cross_entropy": 5.478635890039151,
+                  "known_lexical_perplexity": 239.51975314311062,
+                  "known_lexical_accuracy": 0.09582030139323287,
+                  "interpretation": "Next-word conditional metrics, comparable to original next-word readout."
+                },
+                "next_2": {
+                  "examples": 3960,
+                  "cross_entropy": 5.250484964492345,
+                  "perplexity": 190.65870874558775,
+                  "accuracy": 0.08383838383838384,
+                  "known_target_examples": 3498,
+                  "known_target_cross_entropy": 5.509970581586051,
+                  "known_target_perplexity": 247.14385638040636,
+                  "known_target_accuracy": 0.08433390508862207,
+                  "unknown_target_fraction": 0.11666666666666667,
+                  "known_lexical_examples": 3487,
+                  "known_lexical_cross_entropy": 5.50861999251489,
+                  "known_lexical_perplexity": 246.81029189395366,
+                  "known_lexical_accuracy": 0.08459994264410668,
+                  "interpretation": "Second-future-word forecast from the same current state; exp(CE) is not next-word sequence perplexity."
+                }
+              },
+              "forecast_average": {
+                "valid_forecasts": 7952,
+                "cross_entropy": 5.239850325491167,
+                "exp_cross_entropy": 188.64186541398857,
+                "accuracy": 0.08790241448692153,
+                "known_lexical_forecasts": 7004,
+                "known_lexical_cross_entropy": 5.493563726323118,
+                "known_lexical_accuracy": 0.09023415191319246,
+                "interpretation": "Token-weighted mean over valid overlapping horizon forecasts, NOT standard sequence perplexity."
+              },
+              "complete_pair": {
+                "examples": 3960,
+                "exact_accuracy": 0.022474747474747474,
+                "known_lexical_pairs": 3069,
+                "known_lexical_exact_accuracy": 0.02737047898338221
+              }
+            }
+          }
+        }
+      ],
+      "aggregate": {
+        "train": {
+          "next_1": {
+            "cross_entropy": {
+              "mean": 5.449017460723417,
+              "std": 0.006443567180666587,
+              "values": [
+                5.45516493728398,
+                5.451769161136542,
+                5.440118283749729
+              ]
+            },
+            "accuracy": {
+              "mean": 0.08372354373478179,
+              "std": 0.006335709675955483,
+              "values": [
+                0.07485796341387276,
+                0.08928013985140788,
+                0.08703252793906474
+              ]
+            },
+            "known_lexical_cross_entropy": {
+              "mean": 5.53952972038428,
+              "std": 0.007039096044767891,
+              "values": [
+                5.5477279878429995,
+                5.540320844081444,
+                5.530540329228396
+              ]
+            },
+            "known_lexical_accuracy": {
+              "mean": 0.08132994549047712,
+              "std": 0.010782980798877363,
+              "values": [
+                0.06612808652029448,
+                0.08997328816209525,
+                0.08788846178904162
+              ]
+            }
+          },
+          "next_2": {
+            "cross_entropy": {
+              "mean": 5.47284741971072,
+              "std": 0.002170440961007749,
+              "values": [
+                5.4741264143901835,
+                5.469791447582115,
+                5.474624397159861
+              ]
+            },
+            "accuracy": {
+              "mean": 0.07839805316046743,
+              "std": 0.004864294812106176,
+              "values": [
+                0.07225124299830071,
+                0.08414626471143559,
+                0.07879665177166593
+              ]
+            },
+            "known_lexical_cross_entropy": {
+              "mean": 5.5669863925349725,
+              "std": 0.0017893652923060407,
+              "values": [
+                5.568552587154652,
+                5.564481953296889,
+                5.567924637153376
+              ]
+            },
+            "known_lexical_accuracy": {
+              "mean": 0.07780916715940696,
+              "std": 0.008228411370831452,
+              "values": [
+                0.06734117337888444,
+                0.08744497733394652,
+                0.07864135076538992
+              ]
+            }
+          },
+          "forecast_average_cross_entropy": {
+            "mean": 5.46088463988562,
+            "std": 0.002984118430811041,
+            "values": [
+              5.464607641155993,
+              5.460744153593563,
+              5.4573021249073035
+            ]
+          }
+        },
+        "val": {
+          "next_1": {
+            "cross_entropy": {
+              "mean": 5.162932216324603,
+              "std": 0.00424262863571663,
+              "values": [
+                5.160726772412654,
+                5.168867314453264,
+                5.159202562107893
+              ]
+            },
+            "accuracy": {
+              "mean": 0.09145577549486344,
+              "std": 0.0031495377323920164,
+              "values": [
+                0.09571535955900777,
+                0.09045352042094713,
+                0.08819844650463543
+              ]
+            },
+            "known_lexical_cross_entropy": {
+              "mean": 5.42074908503641,
+              "std": 0.004514336465787778,
+              "values": [
+                5.426130647406723,
+                5.421032852628856,
+                5.415083755073651
+              ]
+            },
+            "known_lexical_accuracy": {
+              "mean": 0.08566533409480297,
+              "std": 0.009525030983926803,
+              "values": [
+                0.07224443175328384,
+                0.09137635636778983,
+                0.09337521416333523
+              ]
+            }
+          },
+          "next_2": {
+            "cross_entropy": {
+              "mean": 5.188329863354565,
+              "std": 0.002413776268536537,
+              "values": [
+                5.18611526368814,
+                5.187187466530464,
+                5.191686859845091
+              ]
+            },
+            "accuracy": {
+              "mean": 0.08394375684095311,
+              "std": 0.0006300677589919925,
+              "values": [
+                0.08411214953271028,
+                0.08461732760798181,
+                0.08310179338216721
+              ]
+            },
+            "known_lexical_cross_entropy": {
+              "mean": 5.459180374802859,
+              "std": 0.00046799255226489075,
+              "values": [
+                5.459157602205225,
+                5.45976459318882,
+                5.458618929014533
+              ]
+            },
+            "known_lexical_accuracy": {
+              "mean": 0.08201286852972246,
+              "std": 0.01115646651797377,
+              "values": [
+                0.06741573033707865,
+                0.09449726303658888,
+                0.08412561221549986
+              ]
+            }
+          },
+          "forecast_average_cross_entropy": {
+            "mean": 5.175579925078266,
+            "std": 0.0018916763627157766,
+            "values": [
+              5.1733699217157545,
+              5.177990519745545,
+              5.175379333773499
+            ]
+          }
+        },
+        "test": {
+          "next_1": {
+            "cross_entropy": {
+              "mean": 5.230395403334158,
+              "std": 0.008203205414724996,
+              "values": [
+                5.220940614585767,
+                5.240944661319495,
+                5.229300934097212
+              ]
+            },
+            "accuracy": {
+              "mean": 0.09335337341349366,
+              "std": 0.0011264810924542464,
+              "values": [
+                0.09343687374749499,
+                0.09468937875751503,
+                0.09193386773547094
+              ]
+            },
+            "known_lexical_cross_entropy": {
+              "mean": 5.478495020260123,
+              "std": 0.004789813460539256,
+              "values": [
+                5.472559554572807,
+                5.48428961616841,
+                5.478635890039151
+              ]
+            },
+            "known_lexical_accuracy": {
+              "mean": 0.08795374845986163,
+              "std": 0.011938234405224474,
+              "values": [
+                0.0710833096388968,
+                0.09695763434745522,
+                0.09582030139323287
+              ]
+            }
+          },
+          "next_2": {
+            "cross_entropy": {
+              "mean": 5.243977155895145,
+              "std": 0.004610267927091361,
+              "values": [
+                5.2403794842537,
+                5.241067018939389,
+                5.250484964492345
+              ]
+            },
+            "accuracy": {
+              "mean": 0.08602693602693602,
+              "std": 0.0022617893674317193,
+              "values": [
+                0.08914141414141415,
+                0.08510101010101011,
+                0.08383838383838384
+              ]
+            },
+            "known_lexical_cross_entropy": {
+              "mean": 5.507048328506731,
+              "std": 0.0011233356647824145,
+              "values": [
+                5.506463067457059,
+                5.506061925548245,
+                5.50861999251489
+              ]
+            },
+            "known_lexical_accuracy": {
+              "mean": 0.08479112895516681,
+              "std": 0.008664769481789243,
+              "values": [
+                0.07427588184685976,
+                0.09549756237453398,
+                0.08459994264410668
+              ]
+            }
+          },
+          "forecast_average_cross_entropy": {
+            "mean": 5.23715895214471,
+            "std": 0.004647070242769207,
+            "values": [
+              5.230620937005915,
+              5.2410055939370475,
+              5.239850325491167
+            ]
+          }
+        }
+      }
+    },
+    "direct": {
+      "repeats": [
+        {
+          "seed": 0,
+          "selected_heads": [
+            {
+              "seed": 0,
+              "l2": 0.01,
+              "selected_epoch": 30,
+              "validation_cross_entropy": 4.443753416926991,
+              "learning_rate": 0.01,
+              "batch_size": 256,
+              "architecture": "linear_softmax",
+              "input": "standardized_fixed_ordered_pair_sensory_projection_only",
+              "horizon": 1,
+              "head_conditioning": "same_current_feature_vector; no future word",
+              "arm": "direct",
+              "dataset_sha256": "740fac37a10dc6df82a74a7613b2888e10dc282e2de82c2281905ebebd94c43f",
+              "feature_sha256": {
+                "train": "411172e6b736a5c32c4af8a098e62998703fd6769d05920696b708f294dc6d86",
+                "val": "eabeebf11c3db088edb0d43533d283fad38ee1fcb80f4f0782847539d0065f5f",
+                "test": "d91c7c3be6033817a34f387edf460d1a2fae6be1f62c518c39dff1a0e39de8bd"
+              }
+            },
+            {
+              "seed": 0,
+              "l2": 0.01,
+              "selected_epoch": 25,
+              "validation_cross_entropy": 4.935998716252595,
+              "learning_rate": 0.01,
+              "batch_size": 256,
+              "architecture": "linear_softmax",
+              "input": "standardized_fixed_ordered_pair_sensory_projection_only",
+              "horizon": 2,
+              "head_conditioning": "same_current_feature_vector; no future word",
+              "arm": "direct",
+              "dataset_sha256": "740fac37a10dc6df82a74a7613b2888e10dc282e2de82c2281905ebebd94c43f",
+              "feature_sha256": {
+                "train": "411172e6b736a5c32c4af8a098e62998703fd6769d05920696b708f294dc6d86",
+                "val": "eabeebf11c3db088edb0d43533d283fad38ee1fcb80f4f0782847539d0065f5f",
+                "test": "d91c7c3be6033817a34f387edf460d1a2fae6be1f62c518c39dff1a0e39de8bd"
+              }
+            }
+          ],
+          "metrics": {
+            "train": {
+              "horizons": {
+                "next_1": {
+                  "examples": 16017,
+                  "cross_entropy": 4.082232428968266,
+                  "perplexity": 59.27765540264723,
+                  "accuracy": 0.2183305238184429,
+                  "known_target_examples": 15377,
+                  "known_target_cross_entropy": 4.126753717654605,
+                  "known_target_perplexity": 61.976403113357414,
+                  "known_target_accuracy": 0.2191584834493074,
+                  "unknown_target_fraction": 0.03995754510832241,
+                  "known_lexical_examples": 15349,
+                  "known_lexical_cross_entropy": 4.124772844539165,
+                  "known_lexical_perplexity": 61.85375723570312,
+                  "known_lexical_accuracy": 0.21955827741220926,
+                  "interpretation": "Next-word conditional metrics, comparable to original next-word readout."
+                },
+                "next_2": {
+                  "examples": 15889,
+                  "cross_entropy": 4.530620041858356,
+                  "perplexity": 92.81609310699211,
+                  "accuracy": 0.14078922525017307,
+                  "known_target_examples": 15249,
+                  "known_target_cross_entropy": 4.5924111266338725,
+                  "known_target_perplexity": 98.73219923628199,
+                  "known_target_accuracy": 0.13699258967801167,
+                  "unknown_target_fraction": 0.04027943860532444,
+                  "known_lexical_examples": 15221,
+                  "known_lexical_cross_entropy": 4.5915363877737585,
+                  "known_lexical_perplexity": 98.64587210721729,
+                  "known_lexical_accuracy": 0.13717889757571775,
+                  "interpretation": "Second-future-word forecast from the same current state; exp(CE) is not next-word sequence perplexity."
+                }
+              },
+              "forecast_average": {
+                "valid_forecasts": 31906,
+                "cross_entropy": 4.305526818149318,
+                "exp_cross_entropy": 74.10824674014741,
+                "accuracy": 0.17971541402870933,
+                "known_lexical_forecasts": 30570,
+                "known_lexical_cross_entropy": 4.357177420645601,
+                "known_lexical_accuracy": 0.1785410533202486,
+                "interpretation": "Token-weighted mean over valid overlapping horizon forecasts, NOT standard sequence perplexity."
+              },
+              "complete_pair": {
+                "examples": 15889,
+                "exact_accuracy": 0.04411857259739442,
+                "known_lexical_pairs": 14621,
+                "known_lexical_exact_accuracy": 0.04459339306476985
+              }
+            },
+            "val": {
+              "horizons": {
+                "next_1": {
+                  "examples": 3991,
+                  "cross_entropy": 4.443753416926991,
+                  "perplexity": 85.0937352832889,
+                  "accuracy": 0.18917564520170382,
+                  "known_target_examples": 3508,
+                  "known_target_cross_entropy": 4.631517804092903,
+                  "known_target_perplexity": 102.66977851866987,
+                  "known_target_accuracy": 0.18899657924743443,
+                  "unknown_target_fraction": 0.12102230017539464,
+                  "known_lexical_examples": 3502,
+                  "known_lexical_cross_entropy": 4.628815249838297,
+                  "known_lexical_perplexity": 102.39268247411634,
+                  "known_lexical_accuracy": 0.18932038834951456,
+                  "interpretation": "Next-word conditional metrics, comparable to original next-word readout."
+                },
+                "next_2": {
+                  "examples": 3959,
+                  "cross_entropy": 4.935998716252595,
+                  "perplexity": 139.2121065210712,
+                  "accuracy": 0.10911846425865117,
+                  "known_target_examples": 3477,
+                  "known_target_cross_entropy": 5.18236875415774,
+                  "known_target_perplexity": 178.1041967732902,
+                  "known_target_accuracy": 0.10238711532930687,
+                  "unknown_target_fraction": 0.1217479161404395,
+                  "known_lexical_examples": 3471,
+                  "known_lexical_cross_entropy": 5.180133456130839,
+                  "known_lexical_perplexity": 177.70652543621998,
+                  "known_lexical_accuracy": 0.10256410256410256,
+                  "interpretation": "Second-future-word forecast from the same current state; exp(CE) is not next-word sequence perplexity."
+                }
+              },
+              "forecast_average": {
+                "valid_forecasts": 7950,
+                "cross_entropy": 4.68888538422637,
+                "exp_cross_entropy": 108.73191792894839,
+                "accuracy": 0.14930817610062894,
+                "known_lexical_forecasts": 6973,
+                "known_lexical_cross_entropy": 4.903248850016329,
+                "known_lexical_accuracy": 0.14613509249964146,
+                "interpretation": "Token-weighted mean over valid overlapping horizon forecasts, NOT standard sequence perplexity."
+              },
+              "complete_pair": {
+                "examples": 3959,
+                "exact_accuracy": 0.03965647890881536,
+                "known_lexical_pairs": 3044,
+                "known_lexical_exact_accuracy": 0.042706964520367936
+              }
+            },
+            "test": {
+              "horizons": {
+                "next_1": {
+                  "examples": 3992,
+                  "cross_entropy": 4.494383350804164,
+                  "perplexity": 89.51295387169557,
+                  "accuracy": 0.19213426853707416,
+                  "known_target_examples": 3528,
+                  "known_target_cross_entropy": 4.664807304146525,
+                  "known_target_perplexity": 106.1451295248484,
+                  "known_target_accuracy": 0.1899092970521542,
+                  "unknown_target_fraction": 0.11623246492985972,
+                  "known_lexical_examples": 3517,
+                  "known_lexical_cross_entropy": 4.659288546882352,
+                  "known_lexical_perplexity": 105.5609537650062,
+                  "known_lexical_accuracy": 0.1905032698322434,
+                  "interpretation": "Next-word conditional metrics, comparable to original next-word readout."
+                },
+                "next_2": {
+                  "examples": 3960,
+                  "cross_entropy": 4.977736880304763,
+                  "perplexity": 145.14552797331535,
+                  "accuracy": 0.11186868686868687,
+                  "known_target_examples": 3498,
+                  "known_target_cross_entropy": 5.210996375226971,
+                  "known_target_perplexity": 183.27657949225807,
+                  "known_target_accuracy": 0.10663236134934248,
+                  "unknown_target_fraction": 0.11666666666666667,
+                  "known_lexical_examples": 3487,
+                  "known_lexical_cross_entropy": 5.20857899368946,
+                  "known_lexical_perplexity": 182.83406515122894,
+                  "known_lexical_accuracy": 0.10696874103814166,
+                  "interpretation": "Second-future-word forecast from the same current state; exp(CE) is not next-word sequence perplexity."
+                }
+              },
+              "forecast_average": {
+                "valid_forecasts": 7952,
+                "cross_entropy": 4.735087573241585,
+                "exp_cross_entropy": 113.87343054701444,
+                "accuracy": 0.15216297786720323,
+                "known_lexical_forecasts": 7004,
+                "known_lexical_cross_entropy": 4.932757391544885,
+                "known_lexical_accuracy": 0.1489149057681325,
+                "interpretation": "Token-weighted mean over valid overlapping horizon forecasts, NOT standard sequence perplexity."
+              },
+              "complete_pair": {
+                "examples": 3960,
+                "exact_accuracy": 0.040656565656565655,
+                "known_lexical_pairs": 3069,
+                "known_lexical_exact_accuracy": 0.042033235581622676
+              }
+            }
+          }
+        },
+        {
+          "seed": 1,
+          "selected_heads": [
+            {
+              "seed": 1,
+              "l2": 0.01,
+              "selected_epoch": 13,
+              "validation_cross_entropy": 4.456123771657922,
+              "learning_rate": 0.01,
+              "batch_size": 256,
+              "architecture": "linear_softmax",
+              "input": "standardized_fixed_ordered_pair_sensory_projection_only",
+              "horizon": 1,
+              "head_conditioning": "same_current_feature_vector; no future word",
+              "arm": "direct",
+              "dataset_sha256": "740fac37a10dc6df82a74a7613b2888e10dc282e2de82c2281905ebebd94c43f",
+              "feature_sha256": {
+                "train": "411172e6b736a5c32c4af8a098e62998703fd6769d05920696b708f294dc6d86",
+                "val": "eabeebf11c3db088edb0d43533d283fad38ee1fcb80f4f0782847539d0065f5f",
+                "test": "d91c7c3be6033817a34f387edf460d1a2fae6be1f62c518c39dff1a0e39de8bd"
+              }
+            },
+            {
+              "seed": 1,
+              "l2": 0.01,
+              "selected_epoch": 29,
+              "validation_cross_entropy": 4.9441308094850545,
+              "learning_rate": 0.01,
+              "batch_size": 256,
+              "architecture": "linear_softmax",
+              "input": "standardized_fixed_ordered_pair_sensory_projection_only",
+              "horizon": 2,
+              "head_conditioning": "same_current_feature_vector; no future word",
+              "arm": "direct",
+              "dataset_sha256": "740fac37a10dc6df82a74a7613b2888e10dc282e2de82c2281905ebebd94c43f",
+              "feature_sha256": {
+                "train": "411172e6b736a5c32c4af8a098e62998703fd6769d05920696b708f294dc6d86",
+                "val": "eabeebf11c3db088edb0d43533d283fad38ee1fcb80f4f0782847539d0065f5f",
+                "test": "d91c7c3be6033817a34f387edf460d1a2fae6be1f62c518c39dff1a0e39de8bd"
+              }
+            }
+          ],
+          "metrics": {
+            "train": {
+              "horizons": {
+                "next_1": {
+                  "examples": 16017,
+                  "cross_entropy": 4.076794116447602,
+                  "perplexity": 58.95615997573658,
+                  "accuracy": 0.22532309421239932,
+                  "known_target_examples": 15377,
+                  "known_target_cross_entropy": 4.1200998352102,
+                  "known_target_perplexity": 61.56538835111258,
+                  "known_target_accuracy": 0.2252715093971516,
+                  "unknown_target_fraction": 0.03995754510832241,
+                  "known_lexical_examples": 15349,
+                  "known_lexical_cross_entropy": 4.118292641053624,
+                  "known_lexical_perplexity": 61.454228215264685,
+                  "known_lexical_accuracy": 0.22568245488305427,
+                  "interpretation": "Next-word conditional metrics, comparable to original next-word readout."
+                },
+                "next_2": {
+                  "examples": 15889,
+                  "cross_entropy": 4.531024788049313,
+                  "perplexity": 92.85366767070455,
+                  "accuracy": 0.14399899301403488,
+                  "known_target_examples": 15249,
+                  "known_target_cross_entropy": 4.590165193385473,
+                  "known_target_perplexity": 98.51070213428909,
+                  "known_target_accuracy": 0.14197652305069186,
+                  "unknown_target_fraction": 0.04027943860532444,
+                  "known_lexical_examples": 15221,
+                  "known_lexical_cross_entropy": 4.589264789628384,
+                  "known_lexical_perplexity": 98.4220426486308,
+                  "known_lexical_accuracy": 0.14223769791735102,
+                  "interpretation": "Second-future-word forecast from the same current state; exp(CE) is not next-word sequence perplexity."
+                }
+              },
+              "forecast_average": {
+                "valid_forecasts": 31906,
+                "cross_entropy": 4.302998314437936,
+                "exp_cross_entropy": 73.9211004629565,
+                "accuracy": 0.18482417100231932,
+                "known_lexical_forecasts": 30570,
+                "known_lexical_cross_entropy": 4.352792708880134,
+                "known_lexical_accuracy": 0.18413477265292771,
+                "interpretation": "Token-weighted mean over valid overlapping horizon forecasts, NOT standard sequence perplexity."
+              },
+              "complete_pair": {
+                "examples": 15889,
+                "exact_accuracy": 0.05481779847693373,
+                "known_lexical_pairs": 14621,
+                "known_lexical_exact_accuracy": 0.05622050475343684
+              }
+            },
+            "val": {
+              "horizons": {
+                "next_1": {
+                  "examples": 3991,
+                  "cross_entropy": 4.456123771657922,
+                  "perplexity": 86.15291266736163,
+                  "accuracy": 0.20045101478326233,
+                  "known_target_examples": 3508,
+                  "known_target_cross_entropy": 4.648373862152904,
+                  "known_target_perplexity": 104.4150541772158,
+                  "known_target_accuracy": 0.19070695553021666,
+                  "unknown_target_fraction": 0.12102230017539464,
+                  "known_lexical_examples": 3502,
+                  "known_lexical_cross_entropy": 4.64561760262174,
+                  "known_lexical_perplexity": 104.12765544363867,
+                  "known_lexical_accuracy": 0.19103369503141063,
+                  "interpretation": "Next-word conditional metrics, comparable to original next-word readout."
+                },
+                "next_2": {
+                  "examples": 3959,
+                  "cross_entropy": 4.9441308094850545,
+                  "perplexity": 140.348807967202,
+                  "accuracy": 0.1217479161404395,
+                  "known_target_examples": 3477,
+                  "known_target_cross_entropy": 5.182457661719579,
+                  "known_target_perplexity": 178.12003228711663,
+                  "known_target_accuracy": 0.11676732815645671,
+                  "unknown_target_fraction": 0.1217479161404395,
+                  "known_lexical_examples": 3471,
+                  "known_lexical_cross_entropy": 5.180855553806498,
+                  "known_lexical_perplexity": 177.8348932466577,
+                  "known_lexical_accuracy": 0.11696917314894843,
+                  "interpretation": "Second-future-word forecast from the same current state; exp(CE) is not next-word sequence perplexity."
+                }
+              },
+              "forecast_average": {
+                "valid_forecasts": 7950,
+                "cross_entropy": 4.699145138042528,
+                "exp_cross_entropy": 109.85322295970752,
+                "accuracy": 0.16125786163522013,
+                "known_lexical_forecasts": 6973,
+                "known_lexical_cross_entropy": 4.9120468193953375,
+                "known_lexical_accuracy": 0.1541660691237631,
+                "interpretation": "Token-weighted mean over valid overlapping horizon forecasts, NOT standard sequence perplexity."
+              },
+              "complete_pair": {
+                "examples": 3959,
+                "exact_accuracy": 0.053296286941146756,
+                "known_lexical_pairs": 3044,
+                "known_lexical_exact_accuracy": 0.06208935611038108
+              }
+            },
+            "test": {
+              "horizons": {
+                "next_1": {
+                  "examples": 3992,
+                  "cross_entropy": 4.503528685557221,
+                  "perplexity": 90.33533454105519,
+                  "accuracy": 0.19939879759519039,
+                  "known_target_examples": 3528,
+                  "known_target_cross_entropy": 4.6799343167688034,
+                  "known_target_perplexity": 107.76299411727813,
+                  "known_target_accuracy": 0.19359410430839002,
+                  "unknown_target_fraction": 0.11623246492985972,
+                  "known_lexical_examples": 3517,
+                  "known_lexical_cross_entropy": 4.675146064824057,
+                  "known_lexical_perplexity": 107.24823114204548,
+                  "known_lexical_accuracy": 0.19419960193346603,
+                  "interpretation": "Next-word conditional metrics, comparable to original next-word readout."
+                },
+                "next_2": {
+                  "examples": 3960,
+                  "cross_entropy": 4.964870047919226,
+                  "perplexity": 143.28992823905548,
+                  "accuracy": 0.13055555555555556,
+                  "known_target_examples": 3498,
+                  "known_target_cross_entropy": 5.19456523658975,
+                  "known_target_perplexity": 180.28974237219987,
+                  "known_target_accuracy": 0.1269296740994854,
+                  "unknown_target_fraction": 0.11666666666666667,
+                  "known_lexical_examples": 3487,
+                  "known_lexical_cross_entropy": 5.191716285350331,
+                  "known_lexical_perplexity": 179.7768366558198,
+                  "known_lexical_accuracy": 0.1273300831660453,
+                  "interpretation": "Second-future-word forecast from the same current state; exp(CE) is not next-word sequence perplexity."
+                }
+              },
+              "forecast_average": {
+                "valid_forecasts": 7952,
+                "cross_entropy": 4.733271114500071,
+                "exp_cross_entropy": 113.66677190893886,
+                "accuracy": 0.16511569416498995,
+                "known_lexical_forecasts": 7004,
+                "known_lexical_cross_entropy": 4.932324871074075,
+                "known_lexical_accuracy": 0.16090805254140492,
+                "interpretation": "Token-weighted mean over valid overlapping horizon forecasts, NOT standard sequence perplexity."
+              },
+              "complete_pair": {
+                "examples": 3960,
+                "exact_accuracy": 0.05126262626262626,
+                "known_lexical_pairs": 3069,
+                "known_lexical_exact_accuracy": 0.05604431410883024
+              }
+            }
+          }
+        },
+        {
+          "seed": 2,
+          "selected_heads": [
+            {
+              "seed": 2,
+              "l2": 0.01,
+              "selected_epoch": 13,
+              "validation_cross_entropy": 4.453397876117962,
+              "learning_rate": 0.01,
+              "batch_size": 256,
+              "architecture": "linear_softmax",
+              "input": "standardized_fixed_ordered_pair_sensory_projection_only",
+              "horizon": 1,
+              "head_conditioning": "same_current_feature_vector; no future word",
+              "arm": "direct",
+              "dataset_sha256": "740fac37a10dc6df82a74a7613b2888e10dc282e2de82c2281905ebebd94c43f",
+              "feature_sha256": {
+                "train": "411172e6b736a5c32c4af8a098e62998703fd6769d05920696b708f294dc6d86",
+                "val": "eabeebf11c3db088edb0d43533d283fad38ee1fcb80f4f0782847539d0065f5f",
+                "test": "d91c7c3be6033817a34f387edf460d1a2fae6be1f62c518c39dff1a0e39de8bd"
+              }
+            },
+            {
+              "seed": 2,
+              "l2": 0.01,
+              "selected_epoch": 13,
+              "validation_cross_entropy": 4.948528492339116,
+              "learning_rate": 0.01,
+              "batch_size": 256,
+              "architecture": "linear_softmax",
+              "input": "standardized_fixed_ordered_pair_sensory_projection_only",
+              "horizon": 2,
+              "head_conditioning": "same_current_feature_vector; no future word",
+              "arm": "direct",
+              "dataset_sha256": "740fac37a10dc6df82a74a7613b2888e10dc282e2de82c2281905ebebd94c43f",
+              "feature_sha256": {
+                "train": "411172e6b736a5c32c4af8a098e62998703fd6769d05920696b708f294dc6d86",
+                "val": "eabeebf11c3db088edb0d43533d283fad38ee1fcb80f4f0782847539d0065f5f",
+                "test": "d91c7c3be6033817a34f387edf460d1a2fae6be1f62c518c39dff1a0e39de8bd"
+              }
+            }
+          ],
+          "metrics": {
+            "train": {
+              "horizons": {
+                "next_1": {
+                  "examples": 16017,
+                  "cross_entropy": 4.101969813908122,
+                  "perplexity": 60.45926387718604,
+                  "accuracy": 0.2230754823000562,
+                  "known_target_examples": 15377,
+                  "known_target_cross_entropy": 4.1478618375490415,
+                  "known_target_perplexity": 63.29851299911715,
+                  "known_target_accuracy": 0.22293035052350912,
+                  "unknown_target_fraction": 0.03995754510832241,
+                  "known_lexical_examples": 15349,
+                  "known_lexical_cross_entropy": 4.145174262972986,
+                  "known_lexical_perplexity": 63.12862192460597,
+                  "known_lexical_accuracy": 0.22333702521336896,
+                  "interpretation": "Next-word conditional metrics, comparable to original next-word readout."
+                },
+                "next_2": {
+                  "examples": 15889,
+                  "cross_entropy": 4.546968136972865,
+                  "perplexity": 94.34593031545936,
+                  "accuracy": 0.14072628862735226,
+                  "known_target_examples": 15249,
+                  "known_target_cross_entropy": 4.607580343935011,
+                  "known_target_perplexity": 100.24130647123694,
+                  "known_target_accuracy": 0.13791068266771592,
+                  "unknown_target_fraction": 0.04027943860532444,
+                  "known_lexical_examples": 15221,
+                  "known_lexical_cross_entropy": 4.60548952122797,
+                  "known_lexical_perplexity": 100.03193862328038,
+                  "known_lexical_accuracy": 0.1381643781617502,
+                  "interpretation": "Second-future-word forecast from the same current state; exp(CE) is not next-word sequence perplexity."
+                }
+              },
+              "forecast_average": {
+                "valid_forecasts": 31906,
+                "cross_entropy": 4.3235763567268926,
+                "exp_cross_entropy": 75.45801106592444,
+                "accuracy": 0.1820660690779164,
+                "known_lexical_forecasts": 30570,
+                "known_lexical_cross_entropy": 4.374368196433866,
+                "known_lexical_accuracy": 0.18092901537455022,
+                "interpretation": "Token-weighted mean over valid overlapping horizon forecasts, NOT standard sequence perplexity."
+              },
+              "complete_pair": {
+                "examples": 15889,
+                "exact_accuracy": 0.05135628422178866,
+                "known_lexical_pairs": 14621,
+                "known_lexical_exact_accuracy": 0.05129608097941317
+              }
+            },
+            "val": {
+              "horizons": {
+                "next_1": {
+                  "examples": 3991,
+                  "cross_entropy": 4.453397876117962,
+                  "perplexity": 85.91838861621896,
+                  "accuracy": 0.19794537709847157,
+                  "known_target_examples": 3508,
+                  "known_target_cross_entropy": 4.65355376250821,
+                  "known_target_perplexity": 104.95731697460558,
+                  "known_target_accuracy": 0.19469783352337514,
+                  "unknown_target_fraction": 0.12102230017539464,
+                  "known_lexical_examples": 3502,
+                  "known_lexical_cross_entropy": 4.650360356075961,
+                  "known_lexical_perplexity": 104.62268020345708,
+                  "known_lexical_accuracy": 0.19503141062250143,
+                  "interpretation": "Next-word conditional metrics, comparable to original next-word readout."
+                },
+                "next_2": {
+                  "examples": 3959,
+                  "cross_entropy": 4.948528492339116,
+                  "perplexity": 140.96737665112863,
+                  "accuracy": 0.11467542308663804,
+                  "known_target_examples": 3477,
+                  "known_target_cross_entropy": 5.179481695896041,
+                  "known_target_perplexity": 177.59074112538,
+                  "known_target_accuracy": 0.11072763876905378,
+                  "unknown_target_fraction": 0.1217479161404395,
+                  "known_lexical_examples": 3471,
+                  "known_lexical_cross_entropy": 5.177873242337356,
+                  "known_lexical_perplexity": 177.305324267242,
+                  "known_lexical_accuracy": 0.11091904350331316,
+                  "interpretation": "Second-future-word forecast from the same current state; exp(CE) is not next-word sequence perplexity."
+                }
+              },
+              "forecast_average": {
+                "valid_forecasts": 7950,
+                "cross_entropy": 4.6999666949380305,
+                "exp_cross_entropy": 109.94351071570914,
+                "accuracy": 0.15647798742138364,
+                "known_lexical_forecasts": 6973,
+                "known_lexical_cross_entropy": 4.912944212122612,
+                "known_lexical_accuracy": 0.15316219704574788,
+                "interpretation": "Token-weighted mean over valid overlapping horizon forecasts, NOT standard sequence perplexity."
+              },
+              "complete_pair": {
+                "examples": 3959,
+                "exact_accuracy": 0.049002273301338724,
+                "known_lexical_pairs": 3044,
+                "known_lexical_exact_accuracy": 0.05551905387647832
+              }
+            },
+            "test": {
+              "horizons": {
+                "next_1": {
+                  "examples": 3992,
+                  "cross_entropy": 4.496007286376116,
+                  "perplexity": 89.6584352358479,
+                  "accuracy": 0.19889779559118237,
+                  "known_target_examples": 3528,
+                  "known_target_cross_entropy": 4.688102600684225,
+                  "known_target_perplexity": 108.6468376771426,
+                  "known_target_accuracy": 0.1927437641723356,
+                  "unknown_target_fraction": 0.11623246492985972,
+                  "known_lexical_examples": 3517,
+                  "known_lexical_cross_entropy": 4.682665023225036,
+                  "known_lexical_perplexity": 108.0576653682933,
+                  "known_lexical_accuracy": 0.19334660221779926,
+                  "interpretation": "Next-word conditional metrics, comparable to original next-word readout."
+                },
+                "next_2": {
+                  "examples": 3960,
+                  "cross_entropy": 4.977265730384511,
+                  "perplexity": 145.07715877672135,
+                  "accuracy": 0.12222222222222222,
+                  "known_target_examples": 3498,
+                  "known_target_cross_entropy": 5.203368246185781,
+                  "known_target_perplexity": 181.88384084215917,
+                  "known_target_accuracy": 0.11635220125786164,
+                  "unknown_target_fraction": 0.11666666666666667,
+                  "known_lexical_examples": 3487,
+                  "known_lexical_cross_entropy": 5.1994124898179015,
+                  "known_lexical_perplexity": 181.1657738658999,
+                  "known_lexical_accuracy": 0.1167192429022082,
+                  "interpretation": "Second-future-word forecast from the same current state; exp(CE) is not next-word sequence perplexity."
+                }
+              },
+              "forecast_average": {
+                "valid_forecasts": 7952,
+                "cross_entropy": 4.735668181531202,
+                "exp_cross_entropy": 113.93956560217993,
+                "accuracy": 0.16071428571428573,
+                "known_lexical_forecasts": 7004,
+                "known_lexical_cross_entropy": 4.93993207291226,
+                "known_lexical_accuracy": 0.15519703026841805,
+                "interpretation": "Token-weighted mean over valid overlapping horizon forecasts, NOT standard sequence perplexity."
+              },
+              "complete_pair": {
+                "examples": 3960,
+                "exact_accuracy": 0.047979797979797977,
+                "known_lexical_pairs": 3069,
+                "known_lexical_exact_accuracy": 0.04920169436298469
+              }
+            }
+          }
+        }
+      ],
+      "aggregate": {
+        "train": {
+          "next_1": {
+            "cross_entropy": {
+              "mean": 4.08699878644133,
+              "std": 0.010816424496313575,
+              "values": [
+                4.082232428968266,
+                4.076794116447602,
+                4.101969813908122
+              ]
+            },
+            "accuracy": {
+              "mean": 0.2222430334436328,
+              "std": 0.0029147599675364284,
+              "values": [
+                0.2183305238184429,
+                0.22532309421239932,
+                0.2230754823000562
+              ]
+            },
+            "known_lexical_cross_entropy": {
+              "mean": 4.129413249521925,
+              "std": 0.011454414521831244,
+              "values": [
+                4.124772844539165,
+                4.118292641053624,
+                4.145174262972986
+              ]
+            },
+            "known_lexical_accuracy": {
+              "mean": 0.2228592525028775,
+              "std": 0.0025229067225152764,
+              "values": [
+                0.21955827741220926,
+                0.22568245488305427,
+                0.22333702521336896
+              ]
+            }
+          },
+          "next_2": {
+            "cross_entropy": {
+              "mean": 4.536204322293512,
+              "std": 0.007612959770828185,
+              "values": [
+                4.530620041858356,
+                4.531024788049313,
+                4.546968136972865
+              ]
+            },
+            "accuracy": {
+              "mean": 0.1418381689638534,
+              "std": 0.001528149357121227,
+              "values": [
+                0.14078922525017307,
+                0.14399899301403488,
+                0.14072628862735226
+              ]
+            },
+            "known_lexical_cross_entropy": {
+              "mean": 4.595430232876704,
+              "std": 0.007173190881513731,
+              "values": [
+                4.5915363877737585,
+                4.589264789628384,
+                4.60548952122797
+              ]
+            },
+            "known_lexical_accuracy": {
+              "mean": 0.13919365788493965,
+              "std": 0.0021897378512132403,
+              "values": [
+                0.13717889757571775,
+                0.14223769791735102,
+                0.1381643781617502
+              ]
+            }
+          },
+          "forecast_average_cross_entropy": {
+            "mean": 4.310700496438049,
+            "std": 0.009162938625717137,
+            "values": [
+              4.305526818149318,
+              4.302998314437936,
+              4.3235763567268926
+            ]
+          }
+        },
+        "val": {
+          "next_1": {
+            "cross_entropy": {
+              "mean": 4.451091688234292,
+              "std": 0.0053069323190433814,
+              "values": [
+                4.443753416926991,
+                4.456123771657922,
+                4.453397876117962
+              ]
+            },
+            "accuracy": {
+              "mean": 0.19585734569447924,
+              "std": 0.004834142196103829,
+              "values": [
+                0.18917564520170382,
+                0.20045101478326233,
+                0.19794537709847157
+              ]
+            },
+            "known_lexical_cross_entropy": {
+              "mean": 4.6415977361786664,
+              "std": 0.009243642693338574,
+              "values": [
+                4.628815249838297,
+                4.64561760262174,
+                4.650360356075961
+              ]
+            },
+            "known_lexical_accuracy": {
+              "mean": 0.19179516466780888,
+              "std": 0.002392881227865321,
+              "values": [
+                0.18932038834951456,
+                0.19103369503141063,
+                0.19503141062250143
+              ]
+            }
+          },
+          "next_2": {
+            "cross_entropy": {
+              "mean": 4.942886006025589,
+              "std": 0.005190438256005811,
+              "values": [
+                4.935998716252595,
+                4.9441308094850545,
+                4.948528492339116
+              ]
+            },
+            "accuracy": {
+              "mean": 0.11518060116190958,
+              "std": 0.005168311611761493,
+              "values": [
+                0.10911846425865117,
+                0.1217479161404395,
+                0.11467542308663804
+              ]
+            },
+            "known_lexical_cross_entropy": {
+              "mean": 5.1796207507582315,
+              "std": 0.0012703531068352907,
+              "values": [
+                5.180133456130839,
+                5.180855553806498,
+                5.177873242337356
+              ]
+            },
+            "known_lexical_accuracy": {
+              "mean": 0.11015077307212139,
+              "std": 0.00590588374590293,
+              "values": [
+                0.10256410256410256,
+                0.11696917314894843,
+                0.11091904350331316
+              ]
+            }
+          },
+          "forecast_average_cross_entropy": {
+            "mean": 4.6959990724023095,
+            "std": 0.005041306611816374,
+            "values": [
+              4.68888538422637,
+              4.699145138042528,
+              4.6999666949380305
+            ]
+          }
+        },
+        "test": {
+          "next_1": {
+            "cross_entropy": {
+              "mean": 4.497973107579167,
+              "std": 0.003983936636723331,
+              "values": [
+                4.494383350804164,
+                4.503528685557221,
+                4.496007286376116
+              ]
+            },
+            "accuracy": {
+              "mean": 0.196810287241149,
+              "std": 0.003312764600012918,
+              "values": [
+                0.19213426853707416,
+                0.19939879759519039,
+                0.19889779559118237
+              ]
+            },
+            "known_lexical_cross_entropy": {
+              "mean": 4.672366544977149,
+              "std": 0.009743688879972116,
+              "values": [
+                4.659288546882352,
+                4.675146064824057,
+                4.682665023225036
+              ]
+            },
+            "known_lexical_accuracy": {
+              "mean": 0.1926831579945029,
+              "std": 0.001580260828408026,
+              "values": [
+                0.1905032698322434,
+                0.19419960193346603,
+                0.19334660221779926
+              ]
+            }
+          },
+          "next_2": {
+            "cross_entropy": {
+              "mean": 4.973290886202833,
+              "std": 0.005957537724644024,
+              "values": [
+                4.977736880304763,
+                4.964870047919226,
+                4.977265730384511
+              ]
+            },
+            "accuracy": {
+              "mean": 0.12154882154882156,
+              "std": 0.007643728003196295,
+              "values": [
+                0.11186868686868687,
+                0.13055555555555556,
+                0.12222222222222222
+              ]
+            },
+            "known_lexical_cross_entropy": {
+              "mean": 5.1999025896192315,
+              "std": 0.006892889161741246,
+              "values": [
+                5.20857899368946,
+                5.191716285350331,
+                5.1994124898179015
+              ]
+            },
+            "known_lexical_accuracy": {
+              "mean": 0.11700602236879838,
+              "std": 0.008314956209915927,
+              "values": [
+                0.10696874103814166,
+                0.1273300831660453,
+                0.1167192429022082
+              ]
+            }
+          },
+          "forecast_average_cross_entropy": {
+            "mean": 4.734675623090953,
+            "std": 0.0010210320866287995,
+            "values": [
+              4.735087573241585,
+              4.733271114500071,
+              4.735668181531202
+            ]
+          }
+        }
+      }
+    },
+    "single_word_brain": {
+      "repeats": [
+        {
+          "seed": 0,
+          "selected_heads": [
+            {
+              "seed": 0,
+              "l2": 0.01,
+              "selected_epoch": 25,
+              "validation_cross_entropy": 5.162051748375163,
+              "learning_rate": 0.01,
+              "batch_size": 256,
+              "architecture": "linear_softmax",
+              "input": "standardized_frozen_single_word_input_brain_features_only",
+              "horizon": 1,
+              "head_conditioning": "same_current_feature_vector; no future word",
+              "arm": "single_word_brain",
+              "dataset_sha256": "740fac37a10dc6df82a74a7613b2888e10dc282e2de82c2281905ebebd94c43f",
+              "feature_sha256": {
+                "test": "2412f380f52a0dd5f55117002d69e3bcd3dc23125c95d56f3e1b1680b7ce6031",
+                "train": "7c81e9586de8e7dfaf9fe106dfe4cb85bc42b6f2d2e3e9efb8fa94b4213cb641",
+                "val": "9b0cae730983c9c306a0c7c6062a68e8513edfa0077c84309525eac1f6e91204"
+              }
+            },
+            {
+              "seed": 0,
+              "l2": 0.01,
+              "selected_epoch": 15,
+              "validation_cross_entropy": 5.181389930527954,
+              "learning_rate": 0.01,
+              "batch_size": 256,
+              "architecture": "linear_softmax",
+              "input": "standardized_frozen_single_word_input_brain_features_only",
+              "horizon": 2,
+              "head_conditioning": "same_current_feature_vector; no future word",
+              "arm": "single_word_brain",
+              "dataset_sha256": "740fac37a10dc6df82a74a7613b2888e10dc282e2de82c2281905ebebd94c43f",
+              "feature_sha256": {
+                "test": "2412f380f52a0dd5f55117002d69e3bcd3dc23125c95d56f3e1b1680b7ce6031",
+                "train": "7c81e9586de8e7dfaf9fe106dfe4cb85bc42b6f2d2e3e9efb8fa94b4213cb641",
+                "val": "9b0cae730983c9c306a0c7c6062a68e8513edfa0077c84309525eac1f6e91204"
+              }
+            }
+          ],
+          "metrics": {
+            "train": {
+              "horizons": {
+                "next_1": {
+                  "examples": 16017,
+                  "cross_entropy": 5.440282483523486,
+                  "perplexity": 230.50728877574232,
+                  "accuracy": 0.08178810014359743,
+                  "known_target_examples": 15377,
+                  "known_target_cross_entropy": 5.534404314908574,
+                  "known_target_perplexity": 253.25688134671844,
+                  "known_target_accuracy": 0.07764843597580802,
+                  "unknown_target_fraction": 0.03995754510832241,
+                  "known_lexical_examples": 15349,
+                  "known_lexical_cross_entropy": 5.532549713561027,
+                  "known_lexical_perplexity": 252.78762606853485,
+                  "known_lexical_accuracy": 0.07779008404456317,
+                  "interpretation": "Next-word conditional metrics, comparable to original next-word readout."
+                },
+                "next_2": {
+                  "examples": 15889,
+                  "cross_entropy": 5.46534597294766,
+                  "perplexity": 236.35761430533333,
+                  "accuracy": 0.0871042859840141,
+                  "known_target_examples": 15249,
+                  "known_target_cross_entropy": 5.560007283562159,
+                  "known_target_perplexity": 259.82472876562144,
+                  "known_target_accuracy": 0.08905502000131156,
+                  "unknown_target_fraction": 0.04027943860532444,
+                  "known_lexical_examples": 15221,
+                  "known_lexical_cross_entropy": 5.558414498085488,
+                  "known_lexical_perplexity": 259.4112131194443,
+                  "known_lexical_accuracy": 0.08921884238880494,
+                  "interpretation": "Second-future-word forecast from the same current state; exp(CE) is not next-word sequence perplexity."
+                }
+              },
+              "forecast_average": {
+                "valid_forecasts": 31906,
+                "cross_entropy": 5.452763953574909,
+                "exp_cross_entropy": 233.4023885630425,
+                "accuracy": 0.08443552936751708,
+                "known_lexical_forecasts": 30570,
+                "known_lexical_cross_entropy": 5.545427956454283,
+                "known_lexical_accuracy": 0.08348053647366699,
+                "interpretation": "Token-weighted mean over valid overlapping horizon forecasts, NOT standard sequence perplexity."
+              },
+              "complete_pair": {
+                "examples": 15889,
+                "exact_accuracy": 0.025300522373969413,
+                "known_lexical_pairs": 14621,
+                "known_lexical_exact_accuracy": 0.026810751658573283
+              }
+            },
+            "val": {
+              "horizons": {
+                "next_1": {
+                  "examples": 3991,
+                  "cross_entropy": 5.162051748375163,
+                  "perplexity": 174.52216408231686,
+                  "accuracy": 0.09771986970684039,
+                  "known_target_examples": 3508,
+                  "known_target_cross_entropy": 5.427448016819688,
+                  "known_target_perplexity": 227.56775467996576,
+                  "known_target_accuracy": 0.08665906499429875,
+                  "unknown_target_fraction": 0.12102230017539464,
+                  "known_lexical_examples": 3502,
+                  "known_lexical_cross_entropy": 5.425668467187255,
+                  "known_lexical_perplexity": 227.1631466825539,
+                  "known_lexical_accuracy": 0.08680753854940035,
+                  "interpretation": "Next-word conditional metrics, comparable to original next-word readout."
+                },
+                "next_2": {
+                  "examples": 3959,
+                  "cross_entropy": 5.181389930527954,
+                  "perplexity": 177.92994946952567,
+                  "accuracy": 0.08385956049507451,
+                  "known_target_examples": 3477,
+                  "known_target_cross_entropy": 5.450373468622201,
+                  "known_target_perplexity": 232.84511001362688,
+                  "known_target_accuracy": 0.09174575783721599,
+                  "unknown_target_fraction": 0.1217479161404395,
+                  "known_lexical_examples": 3471,
+                  "known_lexical_cross_entropy": 5.448311681998451,
+                  "known_lexical_perplexity": 232.36552764853835,
+                  "known_lexical_accuracy": 0.09190435033131662,
+                  "interpretation": "Second-future-word forecast from the same current state; exp(CE) is not next-word sequence perplexity."
+                }
+              },
+              "forecast_average": {
+                "valid_forecasts": 7950,
+                "cross_entropy": 5.171681919839679,
+                "exp_cross_entropy": 176.21096109760637,
+                "accuracy": 0.09081761006289309,
+                "known_lexical_forecasts": 6973,
+                "known_lexical_cross_entropy": 5.436939741905405,
+                "known_lexical_accuracy": 0.08934461494335293,
+                "interpretation": "Token-weighted mean over valid overlapping horizon forecasts, NOT standard sequence perplexity."
+              },
+              "complete_pair": {
+                "examples": 3959,
+                "exact_accuracy": 0.03056327355392776,
+                "known_lexical_pairs": 3044,
+                "known_lexical_exact_accuracy": 0.03777923784494087
+              }
+            },
+            "test": {
+              "horizons": {
+                "next_1": {
+                  "examples": 3992,
+                  "cross_entropy": 5.242600389586422,
+                  "perplexity": 189.16135662458564,
+                  "accuracy": 0.0966933867735471,
+                  "known_target_examples": 3528,
+                  "known_target_cross_entropy": 5.503531908333437,
+                  "known_target_perplexity": 245.55768972692587,
+                  "known_target_accuracy": 0.08361678004535147,
+                  "unknown_target_fraction": 0.11623246492985972,
+                  "known_lexical_examples": 3517,
+                  "known_lexical_cross_entropy": 5.500311574340714,
+                  "known_lexical_perplexity": 244.7681838700986,
+                  "known_lexical_accuracy": 0.0838783053738982,
+                  "interpretation": "Next-word conditional metrics, comparable to original next-word readout."
+                },
+                "next_2": {
+                  "examples": 3960,
+                  "cross_entropy": 5.25390295419334,
+                  "perplexity": 191.31149321826646,
+                  "accuracy": 0.08636363636363636,
+                  "known_target_examples": 3498,
+                  "known_target_cross_entropy": 5.521009965545752,
+                  "known_target_perplexity": 249.88728733680477,
+                  "known_target_accuracy": 0.0963407661520869,
+                  "unknown_target_fraction": 0.11666666666666667,
+                  "known_lexical_examples": 3487,
+                  "known_lexical_cross_entropy": 5.518268764923894,
+                  "known_lexical_perplexity": 249.2032341412268,
+                  "known_lexical_accuracy": 0.09664468024089475,
+                  "interpretation": "Second-future-word forecast from the same current state; exp(CE) is not next-word sequence perplexity."
+                }
+              },
+              "forecast_average": {
+                "valid_forecasts": 7952,
+                "cross_entropy": 5.248228930311195,
+                "exp_cross_entropy": 190.22906101393923,
+                "accuracy": 0.09154929577464789,
+                "known_lexical_forecasts": 7004,
+                "known_lexical_cross_entropy": 5.509251711914036,
+                "known_lexical_accuracy": 0.09023415191319246,
+                "interpretation": "Token-weighted mean over valid overlapping horizon forecasts, NOT standard sequence perplexity."
+              },
+              "complete_pair": {
+                "examples": 3960,
+                "exact_accuracy": 0.027777777777777776,
+                "known_lexical_pairs": 3069,
+                "known_lexical_exact_accuracy": 0.03421309872922776
+              }
+            }
+          }
+        },
+        {
+          "seed": 1,
+          "selected_heads": [
+            {
+              "seed": 1,
+              "l2": 0.01,
+              "selected_epoch": 15,
+              "validation_cross_entropy": 5.154940692068968,
+              "learning_rate": 0.01,
+              "batch_size": 256,
+              "architecture": "linear_softmax",
+              "input": "standardized_frozen_single_word_input_brain_features_only",
+              "horizon": 1,
+              "head_conditioning": "same_current_feature_vector; no future word",
+              "arm": "single_word_brain",
+              "dataset_sha256": "740fac37a10dc6df82a74a7613b2888e10dc282e2de82c2281905ebebd94c43f",
+              "feature_sha256": {
+                "test": "2412f380f52a0dd5f55117002d69e3bcd3dc23125c95d56f3e1b1680b7ce6031",
+                "train": "7c81e9586de8e7dfaf9fe106dfe4cb85bc42b6f2d2e3e9efb8fa94b4213cb641",
+                "val": "9b0cae730983c9c306a0c7c6062a68e8513edfa0077c84309525eac1f6e91204"
+              }
+            },
+            {
+              "seed": 1,
+              "l2": 0.01,
+              "selected_epoch": 28,
+              "validation_cross_entropy": 5.180124805815354,
+              "learning_rate": 0.01,
+              "batch_size": 256,
+              "architecture": "linear_softmax",
+              "input": "standardized_frozen_single_word_input_brain_features_only",
+              "horizon": 2,
+              "head_conditioning": "same_current_feature_vector; no future word",
+              "arm": "single_word_brain",
+              "dataset_sha256": "740fac37a10dc6df82a74a7613b2888e10dc282e2de82c2281905ebebd94c43f",
+              "feature_sha256": {
+                "test": "2412f380f52a0dd5f55117002d69e3bcd3dc23125c95d56f3e1b1680b7ce6031",
+                "train": "7c81e9586de8e7dfaf9fe106dfe4cb85bc42b6f2d2e3e9efb8fa94b4213cb641",
+                "val": "9b0cae730983c9c306a0c7c6062a68e8513edfa0077c84309525eac1f6e91204"
+              }
+            }
+          ],
+          "metrics": {
+            "train": {
+              "horizons": {
+                "next_1": {
+                  "examples": 16017,
+                  "cross_entropy": 5.442513875052516,
+                  "perplexity": 231.0222150747308,
+                  "accuracy": 0.0862833239682837,
+                  "known_target_examples": 15377,
+                  "known_target_cross_entropy": 5.537940920103765,
+                  "known_target_perplexity": 254.15413663265258,
+                  "known_target_accuracy": 0.07823372569421864,
+                  "unknown_target_fraction": 0.03995754510832241,
+                  "known_lexical_examples": 15349,
+                  "known_lexical_cross_entropy": 5.536313148299268,
+                  "known_lexical_perplexity": 253.74076822104152,
+                  "known_lexical_accuracy": 0.0783764414619845,
+                  "interpretation": "Next-word conditional metrics, comparable to original next-word readout."
+                },
+                "next_2": {
+                  "examples": 15889,
+                  "cross_entropy": 5.466928253300472,
+                  "perplexity": 236.73189434457484,
+                  "accuracy": 0.0780414122978161,
+                  "known_target_examples": 15249,
+                  "known_target_cross_entropy": 5.56160433465625,
+                  "known_target_perplexity": 260.24001366029836,
+                  "known_target_accuracy": 0.07757885763000852,
+                  "unknown_target_fraction": 0.04027943860532444,
+                  "known_lexical_examples": 15221,
+                  "known_lexical_cross_entropy": 5.559899844921855,
+                  "known_lexical_perplexity": 259.79681504957813,
+                  "known_lexical_accuracy": 0.07772156888509296,
+                  "interpretation": "Second-future-word forecast from the same current state; exp(CE) is not next-word sequence perplexity."
+                }
+              },
+              "forecast_average": {
+                "valid_forecasts": 31906,
+                "cross_entropy": 5.454672091562946,
+                "exp_cross_entropy": 233.84817770549748,
+                "accuracy": 0.08217890052027832,
+                "known_lexical_forecasts": 30570,
+                "known_lexical_cross_entropy": 5.5480571165456665,
+                "known_lexical_accuracy": 0.07805037618580307,
+                "interpretation": "Token-weighted mean over valid overlapping horizon forecasts, NOT standard sequence perplexity."
+              },
+              "complete_pair": {
+                "examples": 15889,
+                "exact_accuracy": 0.02542639561961105,
+                "known_lexical_pairs": 14621,
+                "known_lexical_exact_accuracy": 0.026605567334655633
+              }
+            },
+            "val": {
+              "horizons": {
+                "next_1": {
+                  "examples": 3991,
+                  "cross_entropy": 5.154940692068968,
+                  "perplexity": 173.28552924790174,
+                  "accuracy": 0.10974693059383613,
+                  "known_target_examples": 3508,
+                  "known_target_cross_entropy": 5.423202845141581,
+                  "known_target_perplexity": 226.60373814853625,
+                  "known_target_accuracy": 0.0895096921322691,
+                  "unknown_target_fraction": 0.12102230017539464,
+                  "known_lexical_examples": 3502,
+                  "known_lexical_cross_entropy": 5.4214031978684245,
+                  "known_lexical_perplexity": 226.1962980832572,
+                  "known_lexical_accuracy": 0.08966304968589378,
+                  "interpretation": "Next-word conditional metrics, comparable to original next-word readout."
+                },
+                "next_2": {
+                  "examples": 3959,
+                  "cross_entropy": 5.180124805815354,
+                  "perplexity": 177.70498822535987,
+                  "accuracy": 0.08310179338216721,
+                  "known_target_examples": 3477,
+                  "known_target_cross_entropy": 5.454032681143109,
+                  "known_target_perplexity": 233.69870053773468,
+                  "known_target_accuracy": 0.08426804716709807,
+                  "unknown_target_fraction": 0.1217479161404395,
+                  "known_lexical_examples": 3471,
+                  "known_lexical_cross_entropy": 5.4521531583518605,
+                  "known_lexical_perplexity": 233.2598710280057,
+                  "known_lexical_accuracy": 0.08441371362719677,
+                  "interpretation": "Second-future-word forecast from the same current state; exp(CE) is not next-word sequence perplexity."
+                }
+              },
+              "forecast_average": {
+                "valid_forecasts": 7950,
+                "cross_entropy": 5.167482063933363,
+                "exp_cross_entropy": 175.47245235257344,
+                "accuracy": 0.09647798742138365,
+                "known_lexical_forecasts": 6973,
+                "known_lexical_cross_entropy": 5.4367098252652415,
+                "known_lexical_accuracy": 0.0870500501936039,
+                "interpretation": "Token-weighted mean over valid overlapping horizon forecasts, NOT standard sequence perplexity."
+              },
+              "complete_pair": {
+                "examples": 3959,
+                "exact_accuracy": 0.03132104066683506,
+                "known_lexical_pairs": 3044,
+                "known_lexical_exact_accuracy": 0.03679369250985545
+              }
+            },
+            "test": {
+              "horizons": {
+                "next_1": {
+                  "examples": 3992,
+                  "cross_entropy": 5.228929170454014,
+                  "perplexity": 186.59288732436906,
+                  "accuracy": 0.10395791583166333,
+                  "known_target_examples": 3528,
+                  "known_target_cross_entropy": 5.488006606605115,
+                  "known_target_perplexity": 241.7747739409855,
+                  "known_target_accuracy": 0.08418367346938775,
+                  "unknown_target_fraction": 0.11623246492985972,
+                  "known_lexical_examples": 3517,
+                  "known_lexical_cross_entropy": 5.48487367737961,
+                  "known_lexical_perplexity": 241.01849598695597,
+                  "known_lexical_accuracy": 0.08444697185100938,
+                  "interpretation": "Next-word conditional metrics, comparable to original next-word readout."
+                },
+                "next_2": {
+                  "examples": 3960,
+                  "cross_entropy": 5.239226785885415,
+                  "perplexity": 188.5242764041123,
+                  "accuracy": 0.07929292929292929,
+                  "known_target_examples": 3498,
+                  "known_target_cross_entropy": 5.501996429269657,
+                  "known_target_perplexity": 245.18093036248192,
+                  "known_target_accuracy": 0.08176100628930817,
+                  "unknown_target_fraction": 0.11666666666666667,
+                  "known_lexical_examples": 3487,
+                  "known_lexical_cross_entropy": 5.498991828556043,
+                  "known_lexical_perplexity": 244.44536515738736,
+                  "known_lexical_accuracy": 0.08201892744479496,
+                  "interpretation": "Second-future-word forecast from the same current state; exp(CE) is not next-word sequence perplexity."
+                }
+              },
+              "forecast_average": {
+                "valid_forecasts": 7952,
+                "cross_entropy": 5.234057258621562,
+                "exp_cross_entropy": 187.55220974468475,
+                "accuracy": 0.09167505030181086,
+                "known_lexical_forecasts": 7004,
+                "known_lexical_cross_entropy": 5.491902517064394,
+                "known_lexical_accuracy": 0.08323814962878355,
+                "interpretation": "Token-weighted mean over valid overlapping horizon forecasts, NOT standard sequence perplexity."
+              },
+              "complete_pair": {
+                "examples": 3960,
+                "exact_accuracy": 0.02904040404040404,
+                "known_lexical_pairs": 3069,
+                "known_lexical_exact_accuracy": 0.033561420658194854
+              }
+            }
+          }
+        },
+        {
+          "seed": 2,
+          "selected_heads": [
+            {
+              "seed": 2,
+              "l2": 0.01,
+              "selected_epoch": 18,
+              "validation_cross_entropy": 5.157061311497302,
+              "learning_rate": 0.01,
+              "batch_size": 256,
+              "architecture": "linear_softmax",
+              "input": "standardized_frozen_single_word_input_brain_features_only",
+              "horizon": 1,
+              "head_conditioning": "same_current_feature_vector; no future word",
+              "arm": "single_word_brain",
+              "dataset_sha256": "740fac37a10dc6df82a74a7613b2888e10dc282e2de82c2281905ebebd94c43f",
+              "feature_sha256": {
+                "test": "2412f380f52a0dd5f55117002d69e3bcd3dc23125c95d56f3e1b1680b7ce6031",
+                "train": "7c81e9586de8e7dfaf9fe106dfe4cb85bc42b6f2d2e3e9efb8fa94b4213cb641",
+                "val": "9b0cae730983c9c306a0c7c6062a68e8513edfa0077c84309525eac1f6e91204"
+              }
+            },
+            {
+              "seed": 2,
+              "l2": 0.01,
+              "selected_epoch": 14,
+              "validation_cross_entropy": 5.180991467938155,
+              "learning_rate": 0.01,
+              "batch_size": 256,
+              "architecture": "linear_softmax",
+              "input": "standardized_frozen_single_word_input_brain_features_only",
+              "horizon": 2,
+              "head_conditioning": "same_current_feature_vector; no future word",
+              "arm": "single_word_brain",
+              "dataset_sha256": "740fac37a10dc6df82a74a7613b2888e10dc282e2de82c2281905ebebd94c43f",
+              "feature_sha256": {
+                "test": "2412f380f52a0dd5f55117002d69e3bcd3dc23125c95d56f3e1b1680b7ce6031",
+                "train": "7c81e9586de8e7dfaf9fe106dfe4cb85bc42b6f2d2e3e9efb8fa94b4213cb641",
+                "val": "9b0cae730983c9c306a0c7c6062a68e8513edfa0077c84309525eac1f6e91204"
+              }
+            }
+          ],
+          "metrics": {
+            "train": {
+              "horizons": {
+                "next_1": {
+                  "examples": 16017,
+                  "cross_entropy": 5.4534930031067015,
+                  "perplexity": 233.57261250844783,
+                  "accuracy": 0.08484734969095337,
+                  "known_target_examples": 15377,
+                  "known_target_cross_entropy": 5.54778029338054,
+                  "known_target_perplexity": 256.66719724878453,
+                  "known_target_accuracy": 0.0836964297327177,
+                  "unknown_target_fraction": 0.03995754510832241,
+                  "known_lexical_examples": 15349,
+                  "known_lexical_cross_entropy": 5.54650659053264,
+                  "known_lexical_perplexity": 256.3404876183485,
+                  "known_lexical_accuracy": 0.08384911069125024,
+                  "interpretation": "Next-word conditional metrics, comparable to original next-word readout."
+                },
+                "next_2": {
+                  "examples": 15889,
+                  "cross_entropy": 5.472224426917383,
+                  "perplexity": 237.98899352703495,
+                  "accuracy": 0.0760903769903707,
+                  "known_target_examples": 15249,
+                  "known_target_cross_entropy": 5.567269439632458,
+                  "known_target_perplexity": 261.7184845489919,
+                  "known_target_accuracy": 0.0723326119745557,
+                  "unknown_target_fraction": 0.04027943860532444,
+                  "known_lexical_examples": 15221,
+                  "known_lexical_cross_entropy": 5.565725630092587,
+                  "known_lexical_perplexity": 261.31475277845004,
+                  "known_lexical_accuracy": 0.07246567242625321,
+                  "interpretation": "Second-future-word forecast from the same current state; exp(CE) is not next-word sequence perplexity."
+                }
+              },
+              "forecast_average": {
+                "valid_forecasts": 31906,
+                "cross_entropy": 5.46282114179309,
+                "exp_cross_entropy": 235.7616039664705,
+                "accuracy": 0.08048642888484925,
+                "known_lexical_forecasts": 30570,
+                "known_lexical_cross_entropy": 5.556075874181379,
+                "known_lexical_accuracy": 0.07818122342165522,
+                "interpretation": "Token-weighted mean over valid overlapping horizon forecasts, NOT standard sequence perplexity."
+              },
+              "complete_pair": {
+                "examples": 15889,
+                "exact_accuracy": 0.02542639561961105,
+                "known_lexical_pairs": 14621,
+                "known_lexical_exact_accuracy": 0.02667396210929485
+              }
+            },
+            "val": {
+              "horizons": {
+                "next_1": {
+                  "examples": 3991,
+                  "cross_entropy": 5.157061311497302,
+                  "perplexity": 173.65339181827355,
+                  "accuracy": 0.09371084941117515,
+                  "known_target_examples": 3508,
+                  "known_target_cross_entropy": 5.420589060050052,
+                  "known_target_perplexity": 226.01221806603118,
+                  "known_target_accuracy": 0.09549600912200684,
+                  "unknown_target_fraction": 0.12102230017539464,
+                  "known_lexical_examples": 3502,
+                  "known_lexical_cross_entropy": 5.418694534841638,
+                  "known_lexical_perplexity": 225.5844375699124,
+                  "known_lexical_accuracy": 0.09565962307252998,
+                  "interpretation": "Next-word conditional metrics, comparable to original next-word readout."
+                },
+                "next_2": {
+                  "examples": 3959,
+                  "cross_entropy": 5.180991467938155,
+                  "perplexity": 177.85906516436702,
+                  "accuracy": 0.09118464258651175,
+                  "known_target_examples": 3477,
+                  "known_target_cross_entropy": 5.450140644429503,
+                  "known_target_perplexity": 232.79090434930401,
+                  "known_target_accuracy": 0.08081679608858211,
+                  "unknown_target_fraction": 0.1217479161404395,
+                  "known_lexical_examples": 3471,
+                  "known_lexical_cross_entropy": 5.448484077813542,
+                  "known_lexical_perplexity": 232.40558994626338,
+                  "known_lexical_accuracy": 0.08095649668683376,
+                  "interpretation": "Second-future-word forecast from the same current state; exp(CE) is not next-word sequence perplexity."
+                }
+              },
+              "forecast_average": {
+                "valid_forecasts": 7950,
+                "cross_entropy": 5.16897822839659,
+                "exp_cross_entropy": 175.7351844962963,
+                "accuracy": 0.09245283018867924,
+                "known_lexical_forecasts": 6973,
+                "known_lexical_cross_entropy": 5.433523088355976,
+                "known_lexical_accuracy": 0.08834074286533773,
+                "interpretation": "Token-weighted mean over valid overlapping horizon forecasts, NOT standard sequence perplexity."
+              },
+              "complete_pair": {
+                "examples": 3959,
+                "exact_accuracy": 0.03207880777974236,
+                "known_lexical_pairs": 3044,
+                "known_lexical_exact_accuracy": 0.03679369250985545
+              }
+            },
+            "test": {
+              "horizons": {
+                "next_1": {
+                  "examples": 3992,
+                  "cross_entropy": 5.239744200239626,
+                  "perplexity": 188.6218468108287,
+                  "accuracy": 0.08366733466933868,
+                  "known_target_examples": 3528,
+                  "known_target_cross_entropy": 5.4955160172958175,
+                  "known_target_perplexity": 243.59719409983438,
+                  "known_target_accuracy": 0.0873015873015873,
+                  "unknown_target_fraction": 0.11623246492985972,
+                  "known_lexical_examples": 3517,
+                  "known_lexical_cross_entropy": 5.492852945012068,
+                  "known_lexical_perplexity": 242.94934018760583,
+                  "known_lexical_accuracy": 0.08757463747512084,
+                  "interpretation": "Next-word conditional metrics, comparable to original next-word readout."
+                },
+                "next_2": {
+                  "examples": 3960,
+                  "cross_entropy": 5.262644429331777,
+                  "perplexity": 192.99116860445207,
+                  "accuracy": 0.09393939393939393,
+                  "known_target_examples": 3498,
+                  "known_target_cross_entropy": 5.532157226647221,
+                  "known_target_perplexity": 252.6884297012423,
+                  "known_target_accuracy": 0.08004574042309891,
+                  "unknown_target_fraction": 0.11666666666666667,
+                  "known_lexical_examples": 3487,
+                  "known_lexical_cross_entropy": 5.528675648957226,
+                  "known_lexical_perplexity": 251.8102049927587,
+                  "known_lexical_accuracy": 0.0802982506452538,
+                  "interpretation": "Second-future-word forecast from the same current state; exp(CE) is not next-word sequence perplexity."
+                }
+              },
+              "forecast_average": {
+                "valid_forecasts": 7952,
+                "cross_entropy": 5.2511482378659995,
+                "exp_cross_entropy": 190.7852095382202,
+                "accuracy": 0.08878269617706237,
+                "known_lexical_forecasts": 7004,
+                "known_lexical_cross_entropy": 5.510687577887106,
+                "known_lexical_accuracy": 0.08395202741290692,
+                "interpretation": "Token-weighted mean over valid overlapping horizon forecasts, NOT standard sequence perplexity."
+              },
+              "complete_pair": {
+                "examples": 3960,
+                "exact_accuracy": 0.02803030303030303,
+                "known_lexical_pairs": 3069,
+                "known_lexical_exact_accuracy": 0.033235581622678395
+              }
+            }
+          }
+        }
+      ],
+      "aggregate": {
+        "train": {
+          "next_1": {
+            "cross_entropy": {
+              "mean": 5.445429787227567,
+              "std": 0.005773870150606237,
+              "values": [
+                5.440282483523486,
+                5.442513875052516,
+                5.4534930031067015
+              ]
+            },
+            "accuracy": {
+              "mean": 0.08430625793427816,
+              "std": 0.0018746278786936456,
+              "values": [
+                0.08178810014359743,
+                0.0862833239682837,
+                0.08484734969095337
+              ]
+            },
+            "known_lexical_cross_entropy": {
+              "mean": 5.538456484130978,
+              "std": 0.005895988470466158,
+              "values": [
+                5.532549713561027,
+                5.536313148299268,
+                5.54650659053264
+              ]
+            },
+            "known_lexical_accuracy": {
+              "mean": 0.08000521206593264,
+              "std": 0.0027285675407351493,
+              "values": [
+                0.07779008404456317,
+                0.0783764414619845,
+                0.08384911069125024
+              ]
+            }
+          },
+          "next_2": {
+            "cross_entropy": {
+              "mean": 5.468166217721838,
+              "std": 0.002941394134853366,
+              "values": [
+                5.46534597294766,
+                5.466928253300472,
+                5.472224426917383
+              ]
+            },
+            "accuracy": {
+              "mean": 0.08041202509073363,
+              "std": 0.004798708269977308,
+              "values": [
+                0.0871042859840141,
+                0.0780414122978161,
+                0.0760903769903707
+              ]
+            },
+            "known_lexical_cross_entropy": {
+              "mean": 5.561346657699976,
+              "std": 0.003155219296922298,
+              "values": [
+                5.558414498085488,
+                5.559899844921855,
+                5.565725630092587
+              ]
+            },
+            "known_lexical_accuracy": {
+              "mean": 0.07980202790005038,
+              "std": 0.006995875367349181,
+              "values": [
+                0.08921884238880494,
+                0.07772156888509296,
+                0.07246567242625321
+              ]
+            }
+          },
+          "forecast_average_cross_entropy": {
+            "mean": 5.456752395643648,
+            "std": 0.0043613841468904315,
+            "values": [
+              5.452763953574909,
+              5.454672091562946,
+              5.46282114179309
+            ]
+          }
+        },
+        "val": {
+          "next_1": {
+            "cross_entropy": {
+              "mean": 5.158017917313811,
+              "std": 0.0029808389717886265,
+              "values": [
+                5.162051748375163,
+                5.154940692068968,
+                5.157061311497302
+              ]
+            },
+            "accuracy": {
+              "mean": 0.10039254990395056,
+              "std": 0.006814024239328865,
+              "values": [
+                0.09771986970684039,
+                0.10974693059383613,
+                0.09371084941117515
+              ]
+            },
+            "known_lexical_cross_entropy": {
+              "mean": 5.4219220666324395,
+              "std": 0.0028706389168050516,
+              "values": [
+                5.425668467187255,
+                5.4214031978684245,
+                5.418694534841638
+              ]
+            },
+            "known_lexical_accuracy": {
+              "mean": 0.09071007043594137,
+              "std": 0.0036889058395347583,
+              "values": [
+                0.08680753854940035,
+                0.08966304968589378,
+                0.09565962307252998
+              ]
+            }
+          },
+          "next_2": {
+            "cross_entropy": {
+              "mean": 5.180835401427154,
+              "std": 0.0005281431002416797,
+              "values": [
+                5.181389930527954,
+                5.180124805815354,
+                5.180991467938155
+              ]
+            },
+            "accuracy": {
+              "mean": 0.08604866548791783,
+              "std": 0.0036448363765114755,
+              "values": [
+                0.08385956049507451,
+                0.08310179338216721,
+                0.09118464258651175
+              ]
+            },
+            "known_lexical_cross_entropy": {
+              "mean": 5.4496496393879506,
+              "std": 0.0017716537436823839,
+              "values": [
+                5.448311681998451,
+                5.4521531583518605,
+                5.448484077813542
+              ]
+            },
+            "known_lexical_accuracy": {
+              "mean": 0.08575818688178238,
+              "std": 0.004569433305817852,
+              "values": [
+                0.09190435033131662,
+                0.08441371362719677,
+                0.08095649668683376
+              ]
+            }
+          },
+          "forecast_average_cross_entropy": {
+            "mean": 5.169380737389877,
+            "std": 0.0017380463219203214,
+            "values": [
+              5.171681919839679,
+              5.167482063933363,
+              5.16897822839659
+            ]
+          }
+        },
+        "test": {
+          "next_1": {
+            "cross_entropy": {
+              "mean": 5.237091253426688,
+              "std": 0.0058880757035321045,
+              "values": [
+                5.242600389586422,
+                5.228929170454014,
+                5.239744200239626
+              ]
+            },
+            "accuracy": {
+              "mean": 0.09477287909151637,
+              "std": 0.00839417191841162,
+              "values": [
+                0.0966933867735471,
+                0.10395791583166333,
+                0.08366733466933868
+              ]
+            },
+            "known_lexical_cross_entropy": {
+              "mean": 5.492679398910798,
+              "std": 0.0063036896249929475,
+              "values": [
+                5.500311574340714,
+                5.48487367737961,
+                5.492852945012068
+              ]
+            },
+            "known_lexical_accuracy": {
+              "mean": 0.08529997156667614,
+              "std": 0.0016250998198732124,
+              "values": [
+                0.0838783053738982,
+                0.08444697185100938,
+                0.08757463747512084
+              ]
+            }
+          },
+          "next_2": {
+            "cross_entropy": {
+              "mean": 5.251924723136844,
+              "std": 0.009662006511068754,
+              "values": [
+                5.25390295419334,
+                5.239226785885415,
+                5.262644429331777
+              ]
+            },
+            "accuracy": {
+              "mean": 0.08653198653198653,
+              "std": 0.005980579012906265,
+              "values": [
+                0.08636363636363636,
+                0.07929292929292929,
+                0.09393939393939393
+              ]
+            },
+            "known_lexical_cross_entropy": {
+              "mean": 5.515312080812387,
+              "std": 0.012297392246701708,
+              "values": [
+                5.518268764923894,
+                5.498991828556043,
+                5.528675648957226
+              ]
+            },
+            "known_lexical_accuracy": {
+              "mean": 0.08632061944364783,
+              "std": 0.007333932809030351,
+              "values": [
+                0.09664468024089475,
+                0.08201892744479496,
+                0.0802982506452538
+              ]
+            }
+          },
+          "forecast_average_cross_entropy": {
+            "mean": 5.244478142266252,
+            "std": 0.0074644357278145,
+            "values": [
+              5.248228930311195,
+              5.234057258621562,
+              5.2511482378659995
+            ]
+          }
+        }
+      }
+    }
+  },
+  "references": {
+    "train": {
+      "unigram": {
+        "horizons": {
+          "next_1": {
+            "examples": 16017,
+            "cross_entropy": 5.557238433879229,
+            "perplexity": 259.10630820601335,
+            "accuracy": 0.06318286820253481,
+            "known_target_examples": 15377,
+            "known_target_cross_entropy": 5.652003983744821,
+            "known_target_perplexity": 284.8617525320162,
+            "known_target_accuracy": 0.06581257722572674,
+            "unknown_target_fraction": 0.03995754510832241,
+            "known_lexical_examples": 15349,
+            "known_lexical_cross_entropy": 5.650683104549399,
+            "known_lexical_perplexity": 284.4857329624093,
+            "known_lexical_accuracy": 0.06593263404782071,
+            "interpretation": "Next-word conditional metrics, comparable to original next-word readout."
+          },
+          "next_2": {
+            "examples": 15889,
+            "cross_entropy": 5.553641440468189,
+            "perplexity": 258.17597872023055,
+            "accuracy": 0.06362892567184845,
+            "known_target_examples": 15249,
+            "known_target_cross_entropy": 5.649367924782273,
+            "known_target_perplexity": 284.11182901173146,
+            "known_target_accuracy": 0.06629942947078497,
+            "unknown_target_fraction": 0.04027943860532444,
+            "known_lexical_examples": 15221,
+            "known_lexical_cross_entropy": 5.648044958204929,
+            "known_lexical_perplexity": 283.7362070801374,
+            "known_lexical_accuracy": 0.06642139149858747,
+            "interpretation": "Second-future-word forecast from the same current state; exp(CE) is not next-word sequence perplexity."
+          }
+        },
+        "forecast_average": {
+          "valid_forecasts": 31906,
+          "cross_entropy": 5.555447152355126,
+          "exp_cross_entropy": 258.642591311092,
+          "accuracy": 0.06340500219394471,
+          "known_lexical_forecasts": 30570,
+          "known_lexical_cross_entropy": 5.649369554483675,
+          "known_lexical_accuracy": 0.06617598953222113,
+          "interpretation": "Token-weighted mean over valid overlapping horizon forecasts, NOT standard sequence perplexity."
+        },
+        "complete_pair": {
+          "examples": 15889,
+          "exact_accuracy": 0.0,
+          "known_lexical_pairs": 14621,
+          "known_lexical_exact_accuracy": 0.0
+        }
+      },
+      "current_word": {
+        "horizons": {
+          "next_1": {
+            "examples": 16017,
+            "cross_entropy": 2.8384604318556454,
+            "perplexity": 17.089434923846262,
+            "accuracy": 0.2634076293937691,
+            "known_target_examples": 15377,
+            "known_target_cross_entropy": 2.8483661106106144,
+            "known_target_perplexity": 17.259558580373728,
+            "known_target_accuracy": 0.2648110814853352,
+            "unknown_target_fraction": 0.03995754510832241,
+            "known_lexical_examples": 15349,
+            "known_lexical_cross_entropy": 2.8490038226893453,
+            "known_lexical_perplexity": 17.27056871963026,
+            "known_lexical_accuracy": 0.26529415597107303,
+            "interpretation": "Next-word conditional metrics, comparable to original next-word readout."
+          },
+          "next_2": {
+            "examples": 15889,
+            "cross_entropy": 3.193730197594852,
+            "perplexity": 24.379197266162958,
+            "accuracy": 0.18440430486500095,
+            "known_target_examples": 15249,
+            "known_target_cross_entropy": 3.2161237146047013,
+            "known_target_perplexity": 24.931291833005233,
+            "known_target_accuracy": 0.18270050495114434,
+            "unknown_target_fraction": 0.04027943860532444,
+            "known_lexical_examples": 15221,
+            "known_lexical_cross_entropy": 3.2151985777674223,
+            "known_lexical_perplexity": 24.908237642314397,
+            "known_lexical_accuracy": 0.18297089547335918,
+            "interpretation": "Second-future-word forecast from the same current state; exp(CE) is not next-word sequence perplexity."
+          }
+        },
+        "forecast_average": {
+          "valid_forecasts": 31906,
+          "cross_entropy": 3.0153826818346543,
+          "exp_cross_entropy": 20.396894968411885,
+          "accuracy": 0.22406443929041558,
+          "known_lexical_forecasts": 30570,
+          "known_lexical_cross_entropy": 3.0313345510846155,
+          "known_lexical_accuracy": 0.2243048740595355,
+          "interpretation": "Token-weighted mean over valid overlapping horizon forecasts, NOT standard sequence perplexity."
+        },
+        "complete_pair": {
+          "examples": 15889,
+          "exact_accuracy": 0.08055887721064887,
+          "known_lexical_pairs": 14621,
+          "known_lexical_exact_accuracy": 0.08104780794747281
+        }
+      },
+      "ordered_pair": {
+        "horizons": {
+          "next_1": {
+            "examples": 16017,
+            "cross_entropy": 1.209755525475588,
+            "perplexity": 3.3526649111904914,
+            "accuracy": 0.6298932384341637,
+            "known_target_examples": 15377,
+            "known_target_cross_entropy": 1.2033563442144037,
+            "known_target_perplexity": 3.331279099536545,
+            "known_target_accuracy": 0.6285361253820642,
+            "unknown_target_fraction": 0.03995754510832241,
+            "known_lexical_examples": 15349,
+            "known_lexical_cross_entropy": 1.2032161558133607,
+            "known_lexical_perplexity": 3.330812125579084,
+            "known_lexical_accuracy": 0.6289009055964558,
+            "interpretation": "Next-word conditional metrics, comparable to original next-word readout."
+          },
+          "next_2": {
+            "examples": 15889,
+            "cross_entropy": 1.3671724340372922,
+            "perplexity": 3.9242389487943057,
+            "accuracy": 0.5776952608723016,
+            "known_target_examples": 15249,
+            "known_target_cross_entropy": 1.3705911614284965,
+            "known_target_perplexity": 3.937677810791879,
+            "known_target_accuracy": 0.5721686667978229,
+            "unknown_target_fraction": 0.04027943860532444,
+            "known_lexical_examples": 15221,
+            "known_lexical_cross_entropy": 1.3702202063268176,
+            "known_lexical_perplexity": 3.936217380013069,
+            "known_lexical_accuracy": 0.5726299191905919,
+            "interpretation": "Second-future-word forecast from the same current state; exp(CE) is not next-word sequence perplexity."
+          }
+        },
+        "forecast_average": {
+          "valid_forecasts": 31906,
+          "cross_entropy": 1.288148218390304,
+          "exp_cross_entropy": 3.6260656531593773,
+          "accuracy": 0.6038989531749515,
+          "known_lexical_forecasts": 30570,
+          "known_lexical_cross_entropy": 1.2863685487759164,
+          "known_lexical_accuracy": 0.6008832188420019,
+          "interpretation": "Token-weighted mean over valid overlapping horizon forecasts, NOT standard sequence perplexity."
+        },
+        "complete_pair": {
+          "examples": 15889,
+          "exact_accuracy": 0.4795141292718233,
+          "known_lexical_pairs": 14621,
+          "known_lexical_exact_accuracy": 0.4767799740099856
+        }
+      }
+    },
+    "val": {
+      "unigram": {
+        "horizons": {
+          "next_1": {
+            "examples": 3991,
+            "cross_entropy": 5.178947461877303,
+            "perplexity": 177.49589144827578,
+            "accuracy": 0.056376847907792536,
+            "known_target_examples": 3508,
+            "known_target_cross_entropy": 5.440356677086981,
+            "known_target_perplexity": 230.52439156735878,
+            "known_target_accuracy": 0.06413911060433296,
+            "unknown_target_fraction": 0.12102230017539464,
+            "known_lexical_examples": 3502,
+            "known_lexical_cross_entropy": 5.438753493231411,
+            "known_lexical_perplexity": 230.15511467295366,
+            "known_lexical_accuracy": 0.06424900057110222,
+            "interpretation": "Next-word conditional metrics, comparable to original next-word readout."
+          },
+          "next_2": {
+            "examples": 3959,
+            "cross_entropy": 5.1759290818712556,
+            "perplexity": 176.9609491341034,
+            "accuracy": 0.05683253346804749,
+            "known_target_examples": 3477,
+            "known_target_cross_entropy": 5.439749668226797,
+            "known_target_perplexity": 230.38450368007778,
+            "known_target_accuracy": 0.06471095772217429,
+            "unknown_target_fraction": 0.1217479161404395,
+            "known_lexical_examples": 3471,
+            "known_lexical_cross_entropy": 5.438144149924704,
+            "known_lexical_perplexity": 230.01491391385832,
+            "known_lexical_accuracy": 0.06482281763180639,
+            "interpretation": "Second-future-word forecast from the same current state; exp(CE) is not next-word sequence perplexity."
+          }
+        },
+        "forecast_average": {
+          "valid_forecasts": 7950,
+          "cross_entropy": 5.177444346601335,
+          "exp_cross_entropy": 177.2292950751535,
+          "accuracy": 0.05660377358490566,
+          "known_lexical_forecasts": 6973,
+          "known_lexical_cross_entropy": 5.438450176062677,
+          "known_lexical_accuracy": 0.06453463358669152,
+          "interpretation": "Token-weighted mean over valid overlapping horizon forecasts, NOT standard sequence perplexity."
+        },
+        "complete_pair": {
+          "examples": 3959,
+          "exact_accuracy": 0.0,
+          "known_lexical_pairs": 3044,
+          "known_lexical_exact_accuracy": 0.0
+        }
+      },
+      "current_word": {
+        "horizons": {
+          "next_1": {
+            "examples": 3991,
+            "cross_entropy": 4.820782300051718,
+            "perplexity": 124.06210661955267,
+            "accuracy": 0.21072412929090453,
+            "known_target_examples": 3508,
+            "known_target_cross_entropy": 5.027993437229099,
+            "known_target_perplexity": 152.62645067672403,
+            "known_target_accuracy": 0.20610034207525654,
+            "unknown_target_fraction": 0.12102230017539464,
+            "known_lexical_examples": 3502,
+            "known_lexical_cross_entropy": 5.028208301081556,
+            "known_lexical_perplexity": 152.65924810726833,
+            "known_lexical_accuracy": 0.20645345516847516,
+            "interpretation": "Next-word conditional metrics, comparable to original next-word readout."
+          },
+          "next_2": {
+            "examples": 3959,
+            "cross_entropy": 5.823692211399568,
+            "perplexity": 338.21852539040583,
+            "accuracy": 0.12932558726951252,
+            "known_target_examples": 3477,
+            "known_target_cross_entropy": 6.148267807839055,
+            "known_target_perplexity": 467.9061809843304,
+            "known_target_accuracy": 0.13459879206212252,
+            "unknown_target_fraction": 0.1217479161404395,
+            "known_lexical_examples": 3471,
+            "known_lexical_cross_entropy": 6.142871583189215,
+            "known_lexical_perplexity": 465.3880544155126,
+            "known_lexical_accuracy": 0.1348314606741573,
+            "interpretation": "Second-future-word forecast from the same current state; exp(CE) is not next-word sequence perplexity."
+          }
+        },
+        "forecast_average": {
+          "valid_forecasts": 7950,
+          "cross_entropy": 5.3202188206839365,
+          "exp_cross_entropy": 204.42861030737302,
+          "accuracy": 0.17018867924528303,
+          "known_lexical_forecasts": 6973,
+          "known_lexical_cross_entropy": 5.583062202156515,
+          "known_lexical_accuracy": 0.17080166355944357,
+          "interpretation": "Token-weighted mean over valid overlapping horizon forecasts, NOT standard sequence perplexity."
+        },
+        "complete_pair": {
+          "examples": 3959,
+          "exact_accuracy": 0.059863601919676684,
+          "known_lexical_pairs": 3044,
+          "known_lexical_exact_accuracy": 0.06865965834428384
+        }
+      },
+      "ordered_pair": {
+        "horizons": {
+          "next_1": {
+            "examples": 3991,
+            "cross_entropy": 5.31031971568651,
+            "perplexity": 202.41493327336434,
+            "accuracy": 0.22751190177900277,
+            "known_target_examples": 3508,
+            "known_target_cross_entropy": 5.538114309266414,
+            "known_target_perplexity": 254.1982080262277,
+            "known_target_accuracy": 0.23432155074116306,
+            "unknown_target_fraction": 0.12102230017539464,
+            "known_lexical_examples": 3502,
+            "known_lexical_cross_entropy": 5.538467444497294,
+            "known_lexical_perplexity": 254.28799022080338,
+            "known_lexical_accuracy": 0.23472301541976015,
+            "interpretation": "Next-word conditional metrics, comparable to original next-word readout."
+          },
+          "next_2": {
+            "examples": 3959,
+            "cross_entropy": 6.593216116858088,
+            "perplexity": 730.125266128869,
+            "accuracy": 0.13134629957059862,
+            "known_target_examples": 3477,
+            "known_target_cross_entropy": 6.955849934643118,
+            "known_target_perplexity": 1049.2699699666045,
+            "known_target_accuracy": 0.1351740005752085,
+            "unknown_target_fraction": 0.1217479161404395,
+            "known_lexical_examples": 3471,
+            "known_lexical_cross_entropy": 6.948973682453782,
+            "known_lexical_perplexity": 1042.079674512293,
+            "known_lexical_accuracy": 0.13540766349755115,
+            "interpretation": "Second-future-word forecast from the same current state; exp(CE) is not next-word sequence perplexity."
+          }
+        },
+        "forecast_average": {
+          "valid_forecasts": 7950,
+          "cross_entropy": 5.949185986408305,
+          "exp_cross_entropy": 383.44108573372614,
+          "accuracy": 0.17962264150943397,
+          "known_lexical_forecasts": 6973,
+          "known_lexical_cross_entropy": 6.240585206141775,
+          "known_lexical_accuracy": 0.18528610354223432,
+          "interpretation": "Token-weighted mean over valid overlapping horizon forecasts, NOT standard sequence perplexity."
+        },
+        "complete_pair": {
+          "examples": 3959,
+          "exact_accuracy": 0.06920939631220005,
+          "known_lexical_pairs": 3044,
+          "known_lexical_exact_accuracy": 0.08245729303547963
+        }
+      }
+    },
+    "test": {
+      "unigram": {
+        "horizons": {
+          "next_1": {
+            "examples": 3992,
+            "cross_entropy": 5.215772515059012,
+            "perplexity": 184.15402780377391,
+            "accuracy": 0.06412825651302605,
+            "known_target_examples": 3528,
+            "known_target_cross_entropy": 5.470318139314324,
+            "known_target_perplexity": 237.53575020233012,
+            "known_target_accuracy": 0.07256235827664399,
+            "unknown_target_fraction": 0.11623246492985972,
+            "known_lexical_examples": 3517,
+            "known_lexical_cross_entropy": 5.46748521390549,
+            "known_lexical_perplexity": 236.8637814082159,
+            "known_lexical_accuracy": 0.0727893090702303,
+            "interpretation": "Next-word conditional metrics, comparable to original next-word readout."
+          },
+          "next_2": {
+            "examples": 3960,
+            "cross_entropy": 5.211154035460973,
+            "perplexity": 183.3054771986177,
+            "accuracy": 0.06439393939393939,
+            "known_target_examples": 3498,
+            "known_target_cross_entropy": 5.467161952344995,
+            "known_target_perplexity": 236.78722482717978,
+            "known_target_accuracy": 0.07289879931389365,
+            "unknown_target_fraction": 0.11666666666666667,
+            "known_lexical_examples": 3487,
+            "known_lexical_cross_entropy": 5.464318482144231,
+            "known_lexical_perplexity": 236.11488375337396,
+            "known_lexical_accuracy": 0.073128763980499,
+            "interpretation": "Second-future-word forecast from the same current state; exp(CE) is not next-word sequence perplexity."
+          }
+        },
+        "forecast_average": {
+          "valid_forecasts": 7952,
+          "cross_entropy": 5.213472567975481,
+          "exp_cross_entropy": 183.73096997640374,
+          "accuracy": 0.06426056338028169,
+          "known_lexical_forecasts": 7004,
+          "known_lexical_cross_entropy": 5.465908630003218,
+          "known_lexical_accuracy": 0.0729583095374072,
+          "interpretation": "Token-weighted mean over valid overlapping horizon forecasts, NOT standard sequence perplexity."
+        },
+        "complete_pair": {
+          "examples": 3960,
+          "exact_accuracy": 0.0,
+          "known_lexical_pairs": 3069,
+          "known_lexical_exact_accuracy": 0.0
+        }
+      },
+      "current_word": {
+        "horizons": {
+          "next_1": {
+            "examples": 3992,
+            "cross_entropy": 4.822695034832759,
+            "perplexity": 124.29963161463635,
+            "accuracy": 0.21442885771543085,
+            "known_target_examples": 3528,
+            "known_target_cross_entropy": 5.013429298561028,
+            "known_target_perplexity": 150.41968669995026,
+            "known_target_accuracy": 0.20804988662131518,
+            "unknown_target_fraction": 0.11623246492985972,
+            "known_lexical_examples": 3517,
+            "known_lexical_cross_entropy": 5.004941321721364,
+            "known_lexical_perplexity": 149.1483311342811,
+            "known_lexical_accuracy": 0.20870059709980096,
+            "interpretation": "Next-word conditional metrics, comparable to original next-word readout."
+          },
+          "next_2": {
+            "examples": 3960,
+            "cross_entropy": 5.875974950599536,
+            "perplexity": 356.3719363879762,
+            "accuracy": 0.12904040404040404,
+            "known_target_examples": 3498,
+            "known_target_cross_entropy": 6.19844222840552,
+            "known_target_perplexity": 491.982048188816,
+            "known_target_accuracy": 0.13379073756432247,
+            "unknown_target_fraction": 0.11666666666666667,
+            "known_lexical_examples": 3487,
+            "known_lexical_cross_entropy": 6.197698862463415,
+            "known_lexical_perplexity": 491.61646138928825,
+            "known_lexical_accuracy": 0.13392601089761974,
+            "interpretation": "Second-future-word forecast from the same current state; exp(CE) is not next-word sequence perplexity."
+          }
+        },
+        "forecast_average": {
+          "valid_forecasts": 7952,
+          "cross_entropy": 5.347215717231706,
+          "exp_cross_entropy": 210.022720396988,
+          "accuracy": 0.17190643863179075,
+          "known_lexical_forecasts": 7004,
+          "known_lexical_cross_entropy": 5.598765642761846,
+          "known_lexical_accuracy": 0.17147344374643061,
+          "interpretation": "Token-weighted mean over valid overlapping horizon forecasts, NOT standard sequence perplexity."
+        },
+        "complete_pair": {
+          "examples": 3960,
+          "exact_accuracy": 0.0547979797979798,
+          "known_lexical_pairs": 3069,
+          "known_lexical_exact_accuracy": 0.061909416748126424
+        }
+      },
+      "ordered_pair": {
+        "horizons": {
+          "next_1": {
+            "examples": 3992,
+            "cross_entropy": 5.3168210852091455,
+            "perplexity": 203.73519465465122,
+            "accuracy": 0.22369739478957915,
+            "known_target_examples": 3528,
+            "known_target_cross_entropy": 5.521220871951844,
+            "known_target_perplexity": 249.9399957245779,
+            "known_target_accuracy": 0.23015873015873015,
+            "unknown_target_fraction": 0.11623246492985972,
+            "known_lexical_examples": 3517,
+            "known_lexical_cross_entropy": 5.512062786061329,
+            "known_lexical_perplexity": 247.66147315401346,
+            "known_lexical_accuracy": 0.23059425646858117,
+            "interpretation": "Next-word conditional metrics, comparable to original next-word readout."
+          },
+          "next_2": {
+            "examples": 3960,
+            "cross_entropy": 6.594718910118143,
+            "perplexity": 731.2233183238702,
+            "accuracy": 0.13585858585858585,
+            "known_target_examples": 3498,
+            "known_target_cross_entropy": 6.946928659527137,
+            "known_target_perplexity": 1039.950775252364,
+            "known_target_accuracy": 0.13836477987421383,
+            "unknown_target_fraction": 0.11666666666666667,
+            "known_lexical_examples": 3487,
+            "known_lexical_cross_entropy": 6.94345014397052,
+            "known_lexical_perplexity": 1036.3395747524064,
+            "known_lexical_accuracy": 0.1385144823630628,
+            "interpretation": "Second-future-word forecast from the same current state; exp(CE) is not next-word sequence perplexity."
+          }
+        },
+        "forecast_average": {
+          "valid_forecasts": 7952,
+          "cross_entropy": 5.9531987746759,
+          "exp_cross_entropy": 384.98284493163897,
+          "accuracy": 0.17995472837022133,
+          "known_lexical_forecasts": 7004,
+          "known_lexical_cross_entropy": 6.224690958110066,
+          "known_lexical_accuracy": 0.18475157053112506,
+          "interpretation": "Token-weighted mean over valid overlapping horizon forecasts, NOT standard sequence perplexity."
+        },
+        "complete_pair": {
+          "examples": 3960,
+          "exact_accuracy": 0.0659090909090909,
+          "known_lexical_pairs": 3069,
+          "known_lexical_exact_accuracy": 0.07917888563049853
+        }
+      }
+    }
+  }
+}

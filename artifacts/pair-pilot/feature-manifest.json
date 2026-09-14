@@ -1,0 +1,95 @@
+{
+  "schema": 1,
+  "task": "ordered bigram input, independent two-future-word readout",
+  "dataset_sha256": "740fac37a10dc6df82a74a7613b2888e10dc282e2de82c2281905ebebd94c43f",
+  "brain": {
+    "upstream_commit": "71ecf53d78eaffaf1a57ed7b0ccf5d458abc9f33",
+    "upstream_python_sha256": {
+      "native.py": "81ff083d7d863d53ef1b264b7de3c123c0f9cc4e38d397ad36cbfa328649e234",
+      "engine.py": "5fc0ce73c05a49ff58af01729a9169018080bb5b913cedb2268116a95c04aeb3",
+      "transmitters.py": "fc9868a935b90a1658192a1717f6a4b425865c8ecea8cd2e6bd1c78ed57bfcf7"
+    },
+    "sensory_arrays_sha256": "f5435f87cebbee0ad734849f3778699495def8ea9ee116e2995f8af3a0dcd56e",
+    "superclasses_sha256": "6e6f3fbca28ceac601d66b7ee4b7bf1677e30cfbd721761a9d96f3f43f756498",
+    "neurons": 166700,
+    "edges": 25582938,
+    "synaptic_contacts": 124177617,
+    "graph_sha256": "19f1fe72719f8fdf5769ac50be6c18b8a02afc52a1bedb6b2527b05369b70210",
+    "dt_ms": 0.1,
+    "word_ms": 20.0,
+    "warmup_ms": 100.0,
+    "retinal_inputs": 3335,
+    "readout_population": "all descending_neuron annotations",
+    "readout_neurons": 1314,
+    "feature_dimensions": 256,
+    "features": "fixed pooled spike rates and end-of-word voltages",
+    "encoder_sha256": "9928f5d67315347d7063dc2d88fc3c3fa18c751c045c6fac96df4c1aeb00c521",
+    "projection_sha256": "9c085a13bb7e259e88974e7884b0b1598e7ba7a8bd089093f91c25a934bd5ff5",
+    "encoder_seed": 1729,
+    "encoder_high": 0.02,
+    "kernel": {
+      "kernel_source_sha256": "2dc0939d5efb5b3b53551a7836b24385e30976b6dfb8ece9edbb0a6983bed337",
+      "binary_sha256": "ec712780142207e6131aa603d574a5f6f1c7c607d815bdee3bbade6bfb7572e3",
+      "model_revision": "lif-r2-refractory-write-protection",
+      "compile_flags": [
+        "-O3",
+        "-std=c++17",
+        "-shared",
+        "-fPIC"
+      ]
+    },
+    "plasticity": false,
+    "lamina_bias": 12.0,
+    "decoder_temporal_memory": false,
+    "input_encoding": {
+      "type": "fixed_ordered_disjoint_receptor_roles",
+      "version": 1,
+      "seed": 1729,
+      "partition_seed": 3636,
+      "role_code_seeds": [
+        1729,
+        1730
+      ],
+      "bank_sizes": [
+        1667,
+        1668
+      ],
+      "illuminated_per_role": [
+        417,
+        417
+      ],
+      "high": 0.02,
+      "sha256": "9928f5d67315347d7063dc2d88fc3c3fa18c751c045c6fac96df4c1aeb00c521",
+      "learned": false
+    },
+    "external_input_context_words": 2,
+    "advancement": "one new word per neural interval; ordered previous/current code",
+    "direct_control": {
+      "type": "signed_countsketch_of_current_retinal_stimulus",
+      "dimensions": 256,
+      "seed": 3187,
+      "sha256": "bcbebbf8b1069dc4cd68013ddf83b1b03d3028db88881addedb9b28485665bab",
+      "temporal_memory": false,
+      "learned": false
+    }
+  },
+  "workers": 4,
+  "code_sha256": {
+    "brain.py": "f9785b2005ac1fa6392f568d361f08000803420d5b8c7a04fd4b7f2facb449eb",
+    "pair_brain.py": "d22948354773010cfdef558d3de463e8f08c2afd23e3d2fec39e2b48ef095b13",
+    "extract.py": "2d9a6e9342d708fbf37fc053356ce06dd50c27d6217ea446d154e56f20d32835",
+    "pair_extract.py": "376ac52c332f45ac798a607d7099e034d16a0f6b8ebeb269f4e1cdb54fb5a70f"
+  },
+  "target_contract": "row p sees ids[p-1],ids[p]; targets ids[p+1],ids[p+2]; missing tail masked",
+  "context_contract": "Reset each story; <=128 lexical context words; BOS excluded",
+  "scoring_contract": "Two forecast horizons overlap across rows; head1 is ordinary next-word CE",
+  "identity": "8042c47167de0a248ecbb49a20984974067386ad8177eb5c0e9c5f4a4b3bb119",
+  "final_graph_sha256": "19f1fe72719f8fdf5769ac50be6c18b8a02afc52a1bedb6b2527b05369b70210",
+  "completed": true,
+  "elapsed_seconds": 140.8993365,
+  "split_hashes": {
+    "train": "411172e6b736a5c32c4af8a098e62998703fd6769d05920696b708f294dc6d86",
+    "val": "eabeebf11c3db088edb0d43533d283fad38ee1fcb80f4f0782847539d0065f5f",
+    "test": "d91c7c3be6033817a34f387edf460d1a2fae6be1f62c518c39dff1a0e39de8bd"
+  }
+}

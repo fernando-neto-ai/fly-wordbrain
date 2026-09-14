@@ -4,6 +4,20 @@ A complete frozen Doomfly connectome receives fixed word codes. Only a linear
 next-word decoder is trained. The first experiment runs on macm3's CPU; the
 native sparse spiking kernel does not require MPS or a GPU.
 
+The follow-up [pair protocol](PAIR_PROTOCOL.md) uses ordered bigram inputs and
+two independent future-word heads, with 526,336 trainable parameters. It keeps
+the original graph and adds direct-input and cached single-word controls.
+After the original run, reproduce it in a new output directory with:
+
+```bash
+PYTHON=.venv/bin/python bash scripts/run_pair_pilot.sh results/pair-reproduction results/pilot-verified
+```
+
+The second argument is the original run directory containing its `features/`
+and `decoder/` artifacts. Pair extraction uses the same corpus and word timing.
+Results are described in [PAIR_REPORT.md](PAIR_REPORT.md); the original report
+and checkpoints remain intact.
+
 ## What is preserved
 
 The project vendors byte-identical source from
