@@ -13,11 +13,15 @@ DEFAULT_REMOTE_RUN = '/Users/fernando/fly_wordbrain_connectorch/results/connecto
 ARTIFACT_NAMES = ('manifest.json', 'launch.json', 'status.json', 'process-status.json', 'metrics.jsonl',
                   'selected-checkpoints.json', 'results.json', 'failure.json', 'accepted-early-stop.json', 'stop-receipt.json')
 FILES = ['manifest.json', 'launch.json', 'campaign-status.json', 'readiness.json', 'results.json',
-         'partial-results.json', 'failure.json', 'smoke-results.json', 'preflight/parity.json', 'preflight/quality.json']
+         'partial-results.json', 'failure.json', 'smoke-results.json', 'preflight/parity.json', 'preflight/quality.json',
+         'continuation-disposition.json']
 FILES += [f'{phase}/{arm}/{name}' for phase in ('arms', 'smokes') for arm in ARMS for name in ARTIFACT_NAMES]
 BASELINE_NAMES = ('manifest.json', 'launch.json', 'status.json', 'metrics.jsonl', 'selected-checkpoints.json',
                   'accepted-early-stop.json', 'stop-receipt.json')
-SNAPSHOT_FILES = set(FILES) | {'baseline/' + name for name in BASELINE_NAMES} | {'baseline/quality.json'}
+PARENT_NAMES = ('manifest.json', 'launch.json', 'campaign-status.json', 'partial-results.json',
+                'failure.json', 'continuation-disposition.json')
+SNAPSHOT_FILES = (set(FILES) | {'baseline/' + name for name in BASELINE_NAMES} | {'baseline/quality.json'}
+                  | {'parent/' + name for name in PARENT_NAMES})
 EXPECTED_COUNTS = {
     'B32fixed': {'encoder': 482816, 'readout': 50578432, 'neurons': 148179, 'layernorm': 98786, 'edge_gains': 0, 'total': 51308213},
     'E32rank128fixed': {'encoder': 482816, 'readout': 6453376, 'neurons': 148179, 'layernorm': 98786, 'edge_gains': 0, 'total': 7183157},
@@ -27,7 +31,11 @@ SELECTORS = ('minimum_validation_ce', 'maximum_validation_accuracy')
 
 REMOTE = '''from pathlib import Path
 import hashlib,json,sys
-request=json.loads(sys.argv[1]);root=Path(request['root']).resolve();files={};sources={}
+request=json.loads(sys.argv[1]);files={};sources={}
+if request.get('root'):root=Path(request['root']).resolve()
+else:
+ candidates=[Path(path).resolve() for path in request['candidates']]
+ root=next((path for path in candidates[:-1] if (path/'manifest.json').exists() and (path/'launch.json').exists()),candidates[-1])
 def fetch(path,name,expected=None):
  path=Path(path)
  if not path.exists():
@@ -41,6 +49,32 @@ def fetch(path,name,expected=None):
  files[name]={'text':body.decode(),'sha256':digest};sources[name]=str(path)
 for name in request['files']:fetch(root/name,name)
 manifest=json.loads(files.get('manifest.json',{}).get('text','{}'))
+parent_entry=manifest.get('parent_campaign')
+if parent_entry:
+ parent_manifest=Path(parent_entry['path']).resolve();parent=parent_manifest.parent
+ if parent_manifest.name!='manifest.json' or parent==root or manifest.get('continuation_arms')!=['F32rank128bounded']:
+  raise ValueError('Unexpected decoder continuation parent or arm selection')
+ fetch(parent_manifest,'parent/manifest.json',parent_entry['sha256'])
+ parent_manifest_data=json.loads(files['parent/manifest.json']['text'])
+ if parent_entry.get('launch_id')!=parent_manifest_data.get('launch_id'):
+  raise ValueError('Decoder parent launch identity differs')
+ for key in ('baseline_run','baseline_acceptance','baseline_quality'):
+  if key in manifest and manifest[key]!=parent_manifest_data.get(key):raise ValueError('Continuation changed B baseline: '+key)
+  if key in parent_manifest_data:manifest[key]=parent_manifest_data[key]
+ bindings=manifest.get('input_files_sha256',{})
+ for name in request.get('parent_names',()):
+  if name!='manifest.json':fetch(parent/name,'parent/'+name,bindings.get(str(parent/name)))
+ prefix='arms/E32rank128fixed/'
+ if any(name.startswith(prefix) for name in files):raise ValueError('Unexpected E artifacts in F-only continuation')
+ accepted=manifest['accepted_early_stopped_arm']
+ if accepted.get('name')!='E32rank128fixed' or Path(accepted['output']).resolve()!=parent/prefix:
+  raise ValueError('Unexpected preserved E output')
+ entry=manifest['accepted_arm_receipt'];acceptance=Path(entry['path']).resolve()
+ if acceptance!=parent/prefix/'accepted-early-stop.json':raise ValueError('Unexpected preserved E acceptance path')
+ for name in request['files']:
+  if name.startswith(prefix) or name.startswith('smokes/') or name in ('preflight/parity.json','smoke-results.json'):
+   fetch(parent/name,name,bindings.get(str(parent/name)))
+ fetch(acceptance,prefix+'accepted-early-stop.json',entry['sha256'])
 if manifest:
  entry=manifest['baseline_acceptance'];baseline=Path(manifest['baseline_run']).resolve()
  acceptance=Path(entry['path']).resolve()
@@ -68,7 +102,8 @@ for arm in request['arms']:
  if receipt.get('arm')!=arm or receipt.get('process_cessation',{}).get('confirmed') is not True or receipt.get('accepted_by') not in ('user','agent_under_standing_user_authorization'):
   raise ValueError('Invalid accepted arm stop: '+arm)
  stop=receipt['stop_receipt']
- if Path(stop['path']).resolve()!=root/prefix/'stop-receipt.json':raise ValueError('Unexpected arm stop receipt path')
+ expected_stop=Path(sources[prefix+'accepted-early-stop.json']).parent/'stop-receipt.json'
+ if Path(stop['path']).resolve()!=expected_stop:raise ValueError('Unexpected arm stop receipt path')
  fetch(Path(stop['path']),prefix+'stop-receipt.json',stop['sha256'])
 print(json.dumps({'remote_run':str(root),'files':files,'source_paths':sources}))
 '''
@@ -152,13 +187,18 @@ def arm_summary(files, arm, mapping, prefix=None):
 
 def summarize_snapshot(files, host, now):
     manifest = read(files, 'manifest.json')
+    parent = read(files, 'parent/manifest.json')
     status = read(files, 'campaign-status.json') or read(files, 'readiness.json')
-    mapping = manifest.get('experiment_branches') or {}
+    mapping = manifest.get('experiment_branches') or parent.get('experiment_branches') or {}
     baseline = arm_summary(files, 'B32fixed', mapping, 'baseline/')
     arms = {arm:arm_summary(files, arm, mapping) for arm in ARMS}
     return {'format_version':1, 'snapshot_at_utc':now, 'host':host, 'status':status,
             'baseline':baseline, 'arms':arms, 'campaign_sources_sha256':manifest.get('sources_sha256', {}),
             'baseline_acceptance':manifest.get('baseline_acceptance'), 'baseline_quality':manifest.get('baseline_quality'),
+            'parent_campaign':manifest.get('parent_campaign'), 'continuation_arms':manifest.get('continuation_arms'),
+            'unequal_training_budgets':manifest.get('unequal_training_budgets', False),
+            'preflight_reused_and_verified':manifest.get('preflight_reused_and_verified', False),
+            'smoke_checks_reused_and_verified':manifest.get('smoke_checks_reused_and_verified', False),
             'preflight':read(files, 'preflight/parity.json'), 'smokes':read(files, 'smoke-results.json'),
             'failure':read(files, 'failure.json'), 'results':read(files, 'results.json'),
             'validation_split':{'stories':100, 'targets':21874, 'unit':'next-BPE-token'},
@@ -203,6 +243,13 @@ def render_report(summary):
                       f"{arm['updates']:,} | {selected_cell(arm, SELECTORS[0])} | {selected_cell(arm, SELECTORS[1])} |")
     if not summary['baseline']['accepted_stop']:
         report.extend(['', 'Baseline acceptance receipt has not yet been fetched; baseline results are pending.'])
+    if summary['parent_campaign']:
+        e = summary['arms']['E32rank128fixed']
+        report.extend(['', f"F-only continuation: E's accepted early stop at {e['updates']:,} durable updates, "
+                       "complete validation history and both preserved winners are fetched from the bound parent campaign. "
+                       "B remains the full-head comparison baseline. Parent preflight and smoke evidence is reused; "
+                       "parent interruption records do not indicate failure of this continuation. "
+                       "E/F budgets may now differ; compare their common recorded updates alongside retained-best results."])
     report.extend(['', 'B stopped early. Compare E/F with B at common recorded updates, and report retained-best results separately for unequal budgets. '
                    'Partial scores are next-BPE-token validation on 100 stories / 21,874 targets. The reserved test remains untouched.',
                    'The neuron parameters number 148,179 and output LayerNorm adds 98,786 in every arm. '
@@ -236,11 +283,12 @@ def render_report(summary):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--host', default='macm3')
-    parser.add_argument('--remote-run', default=DEFAULT_REMOTE_RUN)
+    parser.add_argument('--remote-run', help='Exact run; default selects a decoder continuation with manifest and launch receipt, otherwise the original decoder campaign')
     parser.add_argument('--output', type=Path, default=ROOT/'results/connectorch-decoder-v1')
     args = parser.parse_args()
     import cluster_runner as cr
-    request = {'root':args.remote_run, 'files':FILES, 'baseline_names':BASELINE_NAMES, 'arms':ARMS}
+    request = {'root':args.remote_run, 'candidates':[DEFAULT_REMOTE_RUN+'-continuation', DEFAULT_REMOTE_RUN],
+               'files':FILES, 'baseline_names':BASELINE_NAMES, 'parent_names':PARENT_NAMES, 'arms':ARMS}
     command = 'python3 -c ' + shlex.quote(REMOTE) + ' ' + shlex.quote(json.dumps(request))
     fetched = cr.run(command, host=args.host, timeout=30)
     if fetched.exit_code:
