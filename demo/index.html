@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0c171b" />
+  <meta name="description" content="Stories from a fruit-fly connectome, with recorded neural activity." />
+  <title>Fly Stories — A little mind, an unfolding story</title>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="masthead">
+      <a class="wordmark" href="./" aria-label="Fly Stories home"><span class="wing-mark" aria-hidden="true"></span>fly<span>stories</span></a>
+      <span class="masthead-note">AN EXPERIMENT IN LITTLE MINDS</span>
+      <div class="masthead-right"><span class="status-dot"></span><span id="model-status">PREPARING THE STORY</span><button class="about-button" id="about-button">Behind the story <span>↗</span></button></div>
+    </header>
+    <main class="experience">
+      <section class="specimen" aria-label="Illustrated fruit fly and recorded neural activity">
+        <div id="fly-stage" class="fly-stage"></div>
+        <div class="hero-copy"><p class="eyebrow"><span></span> A FRUIT-FLY CONNECTOME, REIMAGINED</p><h1>A little mind.<br>An unfolding <em>story.</em></h1><p class="hero-description">Follow the words. See the brain<br>that brings them into being.</p></div>
+        <div class="specimen-id"><span>SPECIMEN 01</span><span>DROSOPHILA MELANOGASTER</span></div>
+        <div class="orbit-hint"><span>↔</span> DRAG TO EXPLORE</div>
+        <div class="view-controls" aria-label="Camera view"><button id="view-fly" class="active" aria-pressed="true">The fly</button><button id="view-brain" aria-pressed="false">Closer look</button><button id="reset-view" title="Reset camera" aria-label="Reset camera">↺</button></div>
+        <aside class="brain-monitor"><div class="monitor-top"><span><i></i> INSIDE THE BRAIN</span><span id="activity-value">—</span></div><div id="brain-stage" class="brain-stage"></div><div class="monitor-bottom"><span id="neuron-label">AWAITING RECORDED ACTIVITY</span><canvas id="activity-spark" width="140" height="28" aria-label="Recorded mean neuron activity"></canvas></div></aside>
+        <div class="specimen-facts"><div><strong>49,393</strong><span>NEURONS</span></div><span class="fact-rule"></span><div><strong>9.05<span>M</span></strong><span>CONNECTIONS</span></div><p>A small brain.<br>A new kind of storyteller.</p></div>
+      </section>
+      <section class="story-paper" aria-label="Generated story">
+        <div class="paper-top"><div class="chapter-number" id="chapter-number">01</div><div class="story-choice"><label for="story-select">A STORY FROM THE FLY</label><select id="story-select" disabled><option>A story is on its way</option></select></div><button id="narration-button" class="sound-button" aria-label="Enable browser narration" aria-pressed="false" title="Browser narration"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 4 5 9H2v6h3l6 5V4Z"/><path d="M15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></svg></button></div>
+        <div class="story-scroll" id="story-scroll"><p class="seed-label">THE BEGINNING</p><p id="prompt-text" class="prompt-text">Loading the story’s opening words.</p><div class="story-divider"><span></span>✳<span></span></div><div id="waiting-state" class="waiting-state"><h2>A little thought<br>is on its way.</h2><p id="loading-detail">Loading preserved stories and neural traces.</p><span class="loading-line"></span></div><div id="story-text" class="story-text" aria-live="off"></div><div id="story-end" class="story-end" hidden>✳<span>THE END OF THIS RECORDING</span></div></div>
+        <div class="token-lens"><div><span class="micro-label">THE NEXT TOKEN</span><strong id="current-token">—</strong></div><div class="token-prob"><span class="micro-label">PROBABILITY</span><strong id="token-probability">—</strong></div></div>
+        <div class="paper-footer"><span><i></i> <span id="trace-label">RECORDED MODEL REPLAY</span></span><span id="token-counter">0 TOKENS</span></div>
+      </section>
+    </main>
+    <footer class="playback"><button id="play-button" class="play-button" disabled><span class="play-symbol" aria-hidden="true">▶</span><span id="play-label">Play story</span></button><button id="replay-button" class="replay-button" title="Replay story" aria-label="Replay story" disabled>↺</button><div class="timeline-wrap"><input id="timeline" type="range" min="0" max="1" value="0" step="1" aria-label="Story position" disabled><div class="timeline-meta"><span id="playback-status">A tiny storyteller is getting ready</span><span id="frame-counter">00 / 00</span></div></div><div class="speed-control"><label for="speed-select">PACE</label><select id="speed-select" aria-label="Playback speed"><option value="0.5">0.5×</option><option value="0.75">0.75×</option><option value="1" selected>1×</option><option value="1.5">1.5×</option><option value="2">2×</option></select></div><span class="keyboard-hint"><kbd>space</kbd> to play / pause</span></footer>
+    <div class="page-footnote"><span>A CONNECTOME LANGUAGE EXPERIMENT</span><span>SMALL BRAINS, OPEN POSSIBILITIES.</span></div>
+  </div>
+  <dialog id="about-dialog"><button id="close-about" class="dialog-close" aria-label="Close information">×</button><p class="eyebrow">BEHIND THE STORY</p><h2>A real model.<br>A little imagination.</h2><p>The words come from our preserved language model built around a fruit-fly connectome. This page replays recorded inference, with each prediction paired with the neural state that produced it.</p><dl><dt>The model</dt><dd id="about-model">Waiting for the checkpoint metadata.</dd><dt>The recording</dt><dd id="about-checkpoint">Recorded inference, not live browser generation.</dd><dt>The lights</dt><dd id="about-activity">Brightness follows the absolute recurrent neuron state. These are continuous model states, not biological spikes.</dd><dt>The anatomy</dt><dd id="about-geometry">Loading coordinate provenance.</dd><dt>The body</dt><dd id="about-body">The body and its movement are an illustration. The language model does not control locomotion. The NeuroMechFly mesh represents a female fly; the connectome is male. The brain overlay is an illustrative registration between specimens.</dd><dt>The voice</dt><dd>Optional narration uses your browser’s speech synthesis. Playback remains paced by the recorded token frames; voice timing may differ.</dd></dl><p class="about-footer">NeuroMechFly body: Apache 2.0 · MaleCNS coordinates: CC BY 4.0. <a href="/assets/NOTICE.txt" target="_blank" rel="noreferrer">Asset provenance ↗</a></p></dialog>
+  <div id="error-toast" class="error-toast" role="status" hidden></div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

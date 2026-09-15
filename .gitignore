@@ -31,3 +31,10 @@ vendor/doomfly/outputs/
 *.npy
 *.feather
 *.parquet
+
+# Browser demo build artifacts; checked-in compact recorded traces are intentional.
+demo/node_modules/
+demo/dist/
+!demo/public/data/
+!demo/public/data/*.json
+demo/assets-source/

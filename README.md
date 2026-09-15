@@ -46,6 +46,9 @@ continuation F is stopped and its partial checkpoints are preserved. See the
 
 ## Start here
 
+- [Fly Stories demo](docs/RANK128_DEMO.md): an articulated fly, recorded rank128
+  stories and the corresponding measured neuron-state replay. Run locally with
+  `cd demo && npm ci && npm run dev -- --port 8781 --strictPort`.
 - [Complete pipeline](docs/PIPELINE.md): environments, pinned downloads, data,
   training, checkpoint selection, evaluation and partial results.
 - [Experiment registry](experiments/INDEX.md): configurations, branch names,
