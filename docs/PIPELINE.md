@@ -200,8 +200,9 @@ export FLY_PARENT="$FLY_ROOT/results/connectorch-encoder-v1"
   --output "$FLY_ROOT/results/connectorch-encoder-v1-continuation" --launch
 ```
 
-This is the current campaign disposition. A stopped after10 complete epochs;
-B/C/D keep their declared schedules. The continuation records unequal budgets
+This is the historical encoder continuation. A stopped after10 complete epochs;
+B later stopped after13 complete epochs. C/D were held and their paused dispatcher
+was retired when the user selected the decoder pair below. The continuation records unequal budgets
 and a comparison at the latest validation update present in every arm. The
 refresh helper automatically combines stopped A with continuation results;
 `--remote-run` still selects an explicit campaign.
@@ -237,6 +238,44 @@ interaction `(D−C)−(B−A)` suggests adaptation reduces that penalty. One se
 cannot establish an anatomical advantage. Final test evaluation is deferred;
 additional seeds, randomized topology controls, history changes and readout
 compression are distinct subsequent experiments.
+
+## 6b. Rank128 decoder pair
+
+After the completed B quality assessment, the user selected E32rank128fixed and
+F32rank128bounded. See [the protocol](../experiments/DECODER_REDUCTION.md).
+Use fresh outputs; both scripts reject overwriting an existing execution.
+With the registered macm3 environment and pinned paths:
+
+```bash
+"$FLY_PYTHON" scripts/audit_connectorch_decoder.py \
+  --model "$FLY_MODEL" --data "$FLY_DATA" --groups "$FLY_GROUPS" \
+  --output "$FLY_ROOT/results/connectorch-decoder-preparation-v1/parity.json"
+"$FLY_PYTHON" scripts/run_connectorch_decoder_campaign.py \
+  --root "$FLY_ROOT" --python "$FLY_PYTHON" \
+  --baseline-b "$FLY_ROOT/results/connectorch-encoder-v1-continuation/arms/B32fixed" \
+  --accepted-b-receipt "$FLY_ROOT/results/connectorch-encoder-v1-continuation/arms/B32fixed/accepted-early-stop.json" \
+  --quality-results "$FLY_ROOT/results/connectorch-post-b-quality-v1/results.json" \
+  --preflight-receipt "$FLY_ROOT/results/connectorch-decoder-preparation-v1/parity.json" \
+  --experiment-branches "$FLY_ROOT/experiments/records/decoder-branch-mapping.json" \
+  --output "$FLY_ROOT/results/connectorch-decoder-v1" --launch
+```
+
+The first command performs initialization and CPU/MPS gradient checks on macm3.
+The detached controller verifies B's accepted stop and completed quality audit,
+then runs eight-update smokes for both arms before full E followed by F. It binds
+configs and experiment-branch commits to actual training arguments. A failure
+halts the queue and requires review. A deliberate plateau stop also requires a
+receipt-verified handoff before F can continue; it is not schedule completion.
+
+From the control host:
+
+```bash
+python scripts/refresh_connectorch_decoder_progress.py
+```
+
+Read `results/connectorch-decoder-v1/progress.md` for B/E/F comparison and both
+checkpoint selectors. The older A/B quality evaluator accepts only full heads;
+use a rank-aware evaluation extension before scoring E/F retained checkpoints.
 
 ## 7. Quality scoring and generated-text comparison
 

@@ -83,6 +83,16 @@ def test_a_legacy_receipt_and_parent_manifest_still_render():
     assert "B training continues" in report
 
 
+def test_unicode_line_separators_inside_json_strings_do_not_split_records():
+    files = snapshot()
+    row = {"event": "validation", "updates": 100, "epoch": 0,
+           "validation": {"cross_entropy": 5.4, "top1_accuracy": .3},
+           "note": "first\u2028second\u2029third\u0085fourth"}
+    files["arms/B32fixed/metrics.jsonl"] = {"text": json.dumps(row, ensure_ascii=False) + "\n"}
+    report = "\n".join(m.render_report(files, "macm3", "now"))
+    assert "| 100 | 0 | 5.4000 | 30.00% |" in report
+
+
 @pytest.mark.parametrize("field,value", [("accepted_by", "unrecognized"), ("arm", "A128fixed"),
                                          ("process_cessation", {"confirmed": False})])
 def test_invalid_stop_receipt_is_not_silently_treated_as_success(field, value):

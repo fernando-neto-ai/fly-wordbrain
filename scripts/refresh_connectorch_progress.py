@@ -168,13 +168,17 @@ def render_report(files, host, now):
     for arm in ARMS:
         prefix = "arms/" + arm + "/"
         arm_status = read(prefix + "status.json") or read(prefix + "process-status.json")
-        lines = files.get(prefix + "metrics.jsonl", {}).get("text", "").splitlines(keepends=True)
+        metrics_text = files.get(prefix + "metrics.jsonl", {}).get("text", "")
+        # JSON Lines uses physical LF; Unicode separators may be string data.
+        lines = metrics_text.split("\n")
         rows = []
         for i, line in enumerate(lines):
+            if i == len(lines) - 1 and not line:
+                continue
             try:
                 row = json.loads(line)
             except json.JSONDecodeError:
-                if i == len(lines) - 1 and not line.endswith("\n"):
+                if i == len(lines) - 1 and not metrics_text.endswith("\n"):
                     continue
                 raise
             if row.get("event") == "validation":

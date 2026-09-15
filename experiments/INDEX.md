@@ -11,6 +11,8 @@ run manifests and stop/completion receipts are authoritative for execution.
 | B32fixed | `exp/encoder32-fixed` | [B](configs/B32fixed.json) | 51,308,213 |
 | C128bounded | `exp/encoder128-bounded` | [C](configs/C128bounded.json) | 52,774,983 |
 | D32bounded | `exp/encoder32-bounded` | [D](configs/D32bounded.json) | 51,326,535 |
+| E32rank128fixed | `exp/encoder32-readout128-fixed` | [E](configs/E32rank128fixed.json) | 7,183,157 |
+| F32rank128bounded | `exp/encoder32-readout128-bounded` | [F](configs/F32rank128bounded.json) | 7,201,479 |
 
 ## Protocol and status
 
@@ -38,24 +40,32 @@ hashes and exact source/package revisions are explicit. Each run writes its
 actual manifest; a changed field or seed gets its own run identity and must not
 overwrite an existing result directory.
 
-## Accepted stop and active continuation
+## Accepted encoder stops
 
 A128fixed was stopped at the user's request after diminishing validation returns:
 10 complete epochs, 12,442 observed updates and a latest durable checkpoint at
 12,400. Its independent winners are CE4.728279 at3,600 and accuracy32.8975% at
 12,200. See the [stop report](reports/A128fixed-accepted-early-stop.md).
-B32fixed is running through the separate continuation controller; C128bounded
-and D32bounded follow. The bound model and trainer sources are unchanged.
+B32fixed also stopped under the standing plateau instruction at16,262 observed /
+16,200 durable updates after13 complete epochs. Its minimum-CE checkpoint is
+4.512509 at9,700; its maximum-accuracy checkpoint is33.313523% at15,200.
+The [completed post-B assessment](reports/encoder32-post-B-assessment.md) supports
+retaining width32. Bound model and trainer sources remain unchanged.
 Actual training budgets now differ. Report the shared validation-update comparison
 alongside retained-best scores, and do not claim four completed44-epoch runs.
 
-## Immediate decision after B
+## Decoder reduction
 
-B32fixed continues training, while C/D are held for the user's requested
-[post-B plasticity assessment](POST_B_REVIEW.md). The goal is to retain the
-reduced encoder and determine the smallest additional brain adaptation needed
-if quality degrades. The first existing candidate adds18,322 bounded shared
-edge gains; finer adaptation remains an untested proposal.
+The user selected the [rank128 readout pair](DECODER_REDUCTION.md) next. E keeps
+fixed base edges; F adds18,322 bounded source/destination type gains. Both keep
+width32 and eight explicit delays, with a6,453,376-parameter decoder. Rank128
+preflight, two serial eight-update smokes, and full E then F training all run on
+macm3. C/D full-head runs are deferred; their paused dispatcher was retired without
+resuming its queue. Use the new campaign's receipts for actual running status.
+
+Refresh partial validation with `scripts/refresh_connectorch_decoder_progress.py`.
+It writes `results/connectorch-decoder-v1/progress.md` and structured snapshots,
+showing preserved B alongside E/F and both independent checkpoint selectors.
 
 ## Branch and artifact workflow
 

@@ -3,7 +3,7 @@
 Train and study a language model built around a measured fruit-fly connectome,
 using native Apple GPU sparse kernels. The current pipeline reproduces the
 [ngxson Fly LLM](https://huggingface.co/ngxson/fly-llm-hf) architecture and tests
-smaller input encoders with minimally adapted synaptic weights through
+smaller input encoders and output decoders with minimally adapted synaptic weights through
 [ConnecTorch](https://github.com/us/connectorch).
 
 **All real training runs on macm3**, including pilots, fine-tuning and training
@@ -35,6 +35,12 @@ The bounded arms add 18,322 source/destination type-gain parameters. Existing
 per-neuron gains remain unconstrained, so a ±10% base-edge bound does not bound
 the complete effective recurrence. Width 32 reduces input-interface parameters
 by 75%; it reduces the full fixed model by only 2.75%.
+
+The [next decoder experiment](experiments/DECODER_REDUCTION.md) keeps width32 and
+factorizes the readout to rank128:6,453,376 decoder parameters and7,183,157 total
+with fixed base edges, or7,201,479 with bounded gains. The
+[completed encoder assessment](experiments/reports/encoder32-post-B-assessment.md)
+preserves both validation winners; decoder quality remains to be measured.
 
 ## Start here
 
