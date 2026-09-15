@@ -18,10 +18,10 @@ and `decoder/` artifacts. Pair extraction uses the same corpus and word timing.
 Results are described in [PAIR_REPORT.md](PAIR_REPORT.md); the original report
 and checkpoints remain intact.
 
-The [five-action selector prototype](ACTION_SELECTION.md) uses a count model
-to propose five words and a 1,285-parameter head to adjust their ranking from
-fly-brain activity. Its baseline and top-five accuracy ceiling have been
-measured; action-selector GPU training has not started.
+The [ten-action selector](ACTION_SELECTION.md) uses a count model to propose
+ten words and a 2,570-parameter head to adjust their ranking from fly-brain
+activity. It preserves the full graph and starts from the count baseline.
+Its action dashboard displays accuracy, baseline and candidate coverage.
 
 The new [fast-plasticity arm](PLASTIC_PROTOCOL.md) keeps the full graph and
 526,336-parameter decoder, adds 20 shared synaptic-rule parameters, and uses

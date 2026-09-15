@@ -1,11 +1,12 @@
-"""Candidate-aware, five-action readout of the unchanged full fly circuit.
+"""Candidate-aware, top-K action readout of the unchanged full fly circuit.
 
 This is a separate experimental sensory interface. Existing pair-input
 calibration is not valid for it. The frozen-brain prototype adds one affine
-256-to-5 correction to the count model's log probabilities; it does not train
+256-to-K correction to the count model's log probabilities; it does not train
 an embedding, alter graph connections, or supply target labels as inputs.
 """
 from typing import NamedTuple
+from numbers import Integral
 
 import numpy as np
 import torch
@@ -34,32 +35,37 @@ def _word_ids(values, name, device):
 
 
 class CandidateActionBrain(PlasticBrain):
-    """Seven sensory roles, using PlasticBrain.step's exact neural dynamics.
+    """Context and K candidate roles using the parent's exact neural dynamics.
 
-All five candidates must be distinct vocabulary IDs. Their probabilities are
-the original count-model probabilities, not top-five-renormalized values.
+All K candidates must be distinct vocabulary IDs. Their probabilities are
+the original count-model probabilities, not top-K-renormalized values.
 They must be strictly positive, finite, and sum to at most one. Candidate order
 defines action order. Inputs must remain valid even in inactive padding rows.
 """
 
-    def __init__(self, graph_path, vocab_size, global_scale, **brain_kwargs):
+    def __init__(self, graph_path, vocab_size, global_scale, top_k=5, **brain_kwargs):
+        if not isinstance(top_k, Integral) or isinstance(top_k, bool) or top_k < 2:
+            raise ValueError("top_k must be an integer of at least two")
+        self.action_count = int(top_k)
+        self.role_names = ("previous_word", "current_word") + tuple(
+            "candidate_" + str(i + 1) for i in range(self.action_count))
         if brain_kwargs.pop("plasticity", False):
             raise ValueError("The action prototype requires a frozen brain")
         if brain_kwargs.get("feature_dim", 256) != 256:
-            raise ValueError("The five-action prototype requires 256 brain features")
-        if vocab_size < ACTION_COUNT + 2:
-            raise ValueError("Need five distinct actions in addition to PAD/BOS")
+            raise ValueError("The action prototype requires 256 brain features")
+        if vocab_size < self.action_count + 2:
+            raise ValueError("Need top_k distinct actions in addition to PAD/BOS")
         super().__init__(graph_path, vocab_size, global_scale,
                          plasticity=False, **brain_kwargs)
-        if len(self.retina) < len(ROLE_NAMES):
-            raise ValueError("Need at least seven retinal neurons for disjoint roles")
+        if len(self.retina) < len(self.role_names):
+            raise ValueError("Need at least top_k + 2 retinal neurons for disjoint roles")
 
         order = np.random.default_rng(self.seed + 1907).permutation(len(self.retina))
-        banks = np.array_split(order, len(ROLE_NAMES))
+        banks = np.array_split(order, len(self.role_names))
         self.bank_sizes = tuple(len(bank) for bank in banks)
         self.lit_counts = tuple(max(1, int(round(len(bank) * .25))) for bank in banks)
         # Store only vocabulary x receptors values, divided across seven roles.
-        # There is no vocabulary^2 or vocabulary^5 table.
+        # There is no vocabulary^K table.
         codes = np.zeros((self.vocab_size, len(self.retina)), dtype=np.float32)
         offsets = [0]
         for role, (bank, count) in enumerate(zip(banks, self.lit_counts)):
@@ -77,10 +83,10 @@ defines action order. Inputs must remain valid even in inactive padding rows.
         for name in ("previous_codes", "current_codes", "previous_neurons", "current_neurons"):
             delattr(self, name)
         self.encoder_metadata = {
-            "type": "fixed_seven_role_candidate_sensory_code", "version": 1,
-            "roles": list(ROLE_NAMES), "seed": self.seed,
+            "type": "fixed_candidate_role_sensory_code", "version": 2,
+            "roles": list(self.role_names), "top_k": self.action_count, "seed": self.seed,
             "partition_seed": self.seed + 1907,
-            "role_code_seeds": [self.seed + i for i in range(len(ROLE_NAMES))],
+            "role_code_seeds": [self.seed + i for i in range(len(self.role_names))],
             "bank_sizes": list(self.bank_sizes), "illuminated_per_role": list(self.lit_counts),
             "stored_code_values": int(codes.size), "stored_code_bytes": int(codes.nbytes),
             "high": self.input_high, "learned": False,
@@ -107,15 +113,15 @@ defines action order. Inputs must remain valid even in inactive padding rows.
         probabilities = torch.as_tensor(probabilities, dtype=torch.float32, device=self.device)
         if previous.ndim != 1 or not len(previous) or current.shape != previous.shape:
             raise ValueError("Previous/current words require equally shaped nonempty [batch] IDs")
-        expected = (len(previous), ACTION_COUNT)
+        expected = (len(previous), self.action_count)
         if candidates.shape != expected or probabilities.shape != expected:
-            raise ValueError("Candidates/probabilities require [batch,5] shape")
+            raise ValueError("Candidates/probabilities require [batch,top_k] shape")
         for name, ids in (("previous", previous), ("current", current), ("candidates", candidates)):
             if torch.any(ids < 0) or torch.any(ids >= self.vocab_size):
                 raise ValueError(name + " word ID outside vocabulary")
         ordered = candidates.sort(dim=1).values
         if torch.any(ordered[:, 1:] == ordered[:, :-1]):
-            raise ValueError("Each row must contain five distinct candidates")
+            raise ValueError("Each row must contain top_k distinct candidates")
         if torch.any((candidates == 0) | (candidates == 2)):
             raise ValueError("PAD/BOS cannot be candidate actions")
         if (not torch.isfinite(probabilities).all() or torch.any(probabilities <= 0)
@@ -170,6 +176,7 @@ class FlyActionSelector(nn.Module):
         if brain.feature_dim != 256 or brain.trainable_parameter_count() != 0 or brain.plasticity_enabled:
             raise ValueError("Prototype requires a frozen 256-feature brain")
         self.brain = brain
+        self.action_count = brain.action_count
         if (feature_mean is None) != (feature_std is None):
             raise ValueError("Provide both training-only feature mean/std or neither")
         self.features_calibrated = feature_mean is not None
@@ -182,7 +189,7 @@ class FlyActionSelector(nn.Module):
             raise ValueError("Feature mean/std must be finite [256] vectors with positive std")
         self.register_buffer("feature_mean", mean)
         self.register_buffer("feature_std", std)
-        self.readout = nn.Linear(256, ACTION_COUNT, device=brain.device)
+        self.readout = nn.Linear(256, self.action_count, device=brain.device)
         nn.init.zeros_(self.readout.weight)
         nn.init.zeros_(self.readout.bias)
 
@@ -204,13 +211,13 @@ class FlyActionSelector(nn.Module):
 
     def metadata(self):
         return {
-            "model": "frozen_connectome_five_candidate_residual_action_selector",
-            "brain": self.brain.metadata(), "actions": ACTION_COUNT,
-            "head": "single affine 256-to-5, weight and bias initialized to zero",
+            "model": "frozen_connectome_candidate_residual_action_selector",
+            "brain": self.brain.metadata(), "actions": self.action_count,
+            "head": "single affine 256-to-K, weight and bias initialized to zero",
             "head_trainable_parameters": sum(p.numel() for p in self.readout.parameters()),
             "total_trainable_parameters": self.trainable_parameter_count(),
             "logits": "log(original_candidate_probability) + affine(normalized_brain_features)",
             "initial_prediction": "Exactly the count model's top candidate, including input-order tie breaking",
             "features_calibrated": self.features_calibrated,
-            "evaluation": "Report accuracy over all positions; absent top-five targets remain misses",
+            "evaluation": "Report accuracy over all positions; absent top-K targets remain misses",
         }

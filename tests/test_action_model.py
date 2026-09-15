@@ -170,6 +170,23 @@ class ActionModelTests(unittest.TestCase):
         with self.assertRaisesRegex(RuntimeError, "interface"):
             self.brain.verify_frozen()
 
+    def test_top_ten_keeps_encoder_size_and_expands_actions(self):
+        brain = CandidateActionBrain(self.path, top_k=10, **self.kwargs)
+        model = FlyActionSelector(brain)
+        ids = torch.tensor([[1, 3, 4, 5, 6, 7, 8, 9, 10, 11]])
+        probs = torch.tensor([[.16, .12, .10, .08, .07, .06, .05, .04, .03, .02]])
+        logits, _ = model.step(torch.tensor([2]), torch.tensor([4]), ids, probs, model.initial_state(1))
+        self.assertEqual(tuple(logits.shape), (1, 10))
+        self.assertEqual(model.trainable_parameter_count(), 2570)
+        self.assertEqual(brain.action_codes.numel(), self.brain.action_codes.numel())
+        self.assertEqual(len(brain.bank_sizes), 12)
+        self.assertEqual(model.metadata()["actions"], 10)
+        torch.testing.assert_close(logits, probs.log(), rtol=0, atol=0)
+        F.cross_entropy(logits, torch.tensor([9])).backward()
+        self.assertGreater(float(model.readout.weight.grad.abs().sum()), 0.)
+        with self.assertRaisesRegex(ValueError, "top_k"):
+            CandidateActionBrain(self.path, top_k=2.5, **self.kwargs)
+
 
 if __name__ == "__main__":
     unittest.main()
