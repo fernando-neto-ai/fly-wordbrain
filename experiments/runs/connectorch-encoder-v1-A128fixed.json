@@ -625,5 +625,15 @@
     },
     "test_evaluated": false
   },
-  "comparison_policy": "Report actual unequal budgets and compare all arms at a common recorded validation update; the late-learning-rate phase of A was not tested."
+  "comparison_policy": "Report actual unequal budgets and compare all arms at a common recorded validation update; the late-learning-rate phase of A was not tested.",
+  "post_B_assessment": {
+    "report": "experiments/reports/encoder32-post-B-assessment.md",
+    "source_commit": "45e8fbe2c85e95b37d44b149f1bddef0f801ded1",
+    "native_result_root": "macm3:/Users/fernando/fly_wordbrain_connectorch/results/connectorch-post-b-quality-v1",
+    "result_sha256": "5e9531e18be6b5d97024f1ba4fbbc3f1be05f024320dee2fd0c97edfc7251388",
+    "completed_at_utc": "2026-09-15T17:47:49.758096+00:00",
+    "all_four_checkpoint_replays_passed": true,
+    "reserved_test_evaluated": false,
+    "conclusion": "Keep width32; no additional connection gains currently required; next experiments held/proposed."
+  }
 }

@@ -1,0 +1,355 @@
+{
+  "format_version": 1,
+  "generated_at_utc": "2026-09-15T17:48:04.747317+00:00",
+  "training_host": "macm3",
+  "analysis_host": "local Mac; no model execution",
+  "validation": {
+    "stories": 100,
+    "targets": 21874,
+    "unit": "next-BPE-token",
+    "vocabulary": 1024
+  },
+  "common_budget_updates": 12400,
+  "arms": {
+    "A128fixed": {
+      "status": "accepted_early_stop",
+      "full_schedule_completed": false,
+      "observed_updates": 12442,
+      "durable_updates": 12400,
+      "completed_epochs": 10,
+      "parameter_counts": {
+        "embedding": 131072,
+        "input_projection": 1800192,
+        "neurons": 148179,
+        "edge_gains": 0,
+        "layernorm": 98786,
+        "readout": 50578432,
+        "other": 0,
+        "total": 52756661,
+        "encoder": 1931264,
+        "brain_trainable": 148179,
+        "frozen_base_edge_values": 9050172
+      },
+      "runtime_seconds": 4347.738913750043,
+      "runtime_minutes": 72.46231522916739,
+      "runtime_source": "stop-receipt.json observed trainer elapsed_seconds_this_invocation",
+      "validation_rows": 135,
+      "retained_selectors": {
+        "minimum_validation_ce": {
+          "updates": 3600,
+          "epoch": 3,
+          "cross_entropy": 4.728279257099709,
+          "top1_accuracy": 0.30488250891469326,
+          "correct": 6669,
+          "tokens": 21874,
+          "stories": 100,
+          "checkpoint_path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1/arms/A128fixed/stopped-checkpoints/best.pt",
+          "checkpoint_sha256": "2f6fad5b9c1a17d0ff616159510a8c37dc0e03f56b8aee0ff345c41f8ea9db40",
+          "retained": true
+        },
+        "maximum_validation_accuracy": {
+          "updates": 12200,
+          "epoch": 10,
+          "cross_entropy": 5.546981212239799,
+          "top1_accuracy": 0.32897503885891927,
+          "correct": 7196,
+          "tokens": 21874,
+          "stories": 100,
+          "checkpoint_path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1/arms/A128fixed/stopped-checkpoints/best-accuracy.pt",
+          "checkpoint_sha256": "eddb423ef0ff5180d9e740f357c2206c1c544f93de2b1c35549ff4cfa4e3da5f",
+          "retained": true
+        }
+      },
+      "last_logged_validation": {
+        "updates": 12400,
+        "epoch": 10,
+        "cross_entropy": 5.476233814559864,
+        "top1_accuracy": 0.3219804333912407,
+        "correct": 7043,
+        "tokens": 21874,
+        "stories": 100,
+        "elapsed_seconds_this_invocation": 4335.831266834168
+      },
+      "at_common_update": {
+        "updates": 12400,
+        "epoch": 10,
+        "cross_entropy": 5.476233814559864,
+        "top1_accuracy": 0.3219804333912407,
+        "correct": 7043,
+        "tokens": 21874,
+        "stories": 100,
+        "elapsed_seconds_this_invocation": 4335.831266834168
+      },
+      "best_through_common_update": {
+        "minimum_validation_ce": {
+          "updates": 3600,
+          "epoch": 3,
+          "cross_entropy": 4.728279257099709,
+          "top1_accuracy": 0.30488250891469326,
+          "correct": 6669,
+          "tokens": 21874,
+          "stories": 100,
+          "elapsed_seconds_this_invocation": 1294.2520654590335,
+          "checkpoint_retained": true
+        },
+        "maximum_validation_accuracy": {
+          "updates": 12200,
+          "epoch": 10,
+          "cross_entropy": 5.546981212239799,
+          "top1_accuracy": 0.32897503885891927,
+          "correct": 7196,
+          "tokens": 21874,
+          "stories": 100,
+          "elapsed_seconds_this_invocation": 4266.342009917134,
+          "checkpoint_retained": true
+        }
+      },
+      "frozen_buffers_sha256": {
+        "brain.w_offsets": "53b216d7bc2503c539c2d2b03ce56f66eb8a2e9b902f0a20deda0ec4be37ade0",
+        "brain.w_indices": "0f17b9563457fbf84404c54227db86b5adcf04a689cdff5e33d32ec5d5e0b771",
+        "brain.w_values": "e6408887d3312783c65d3f10bb69b28fe50bb06699f0a8a9341d444e6eb0549a",
+        "brain.in_index": "ee440072f6c94b59c552cb09812af5894066ae28f686cda2cd2e35a3626beda6",
+        "brain.out_index": "5ac16e2c38cf0a1b4b4aea74eadeb2d487e153113d046895a813e09d010f0a18",
+        "brain.edge_group_index": "4b9af4b1e2313aba5a9a139ae3ecfc8fcae09a440c65802207a26775700f6eca",
+        "brain.node_type_index": "9ea440846c4bfde95c8c007320ad3bc3b79cfb3b69c2ff6a136c39fd41f658be"
+      },
+      "dataset_sha256": "c1f553263545744786a8811ee6af7ace8c452820bbb99d15140b81625e40b3a8",
+      "backend": {
+        "canonical_graph_and_groups_sha256": "f530d7774df45a80da67657265596af1eaff56d41cace8b3dd0d33b4028cbd0f",
+        "plasticity": "fixed",
+        "group_count": 9161,
+        "edge_parameterization": "factorized_cell_types",
+        "lag_map": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "d_embed": 128,
+        "readout_rank": 0,
+        "neuron_gain_policy": "reference_unconstrained",
+        "sparse_backend": {
+          "backend": "metal_trainable_csr",
+          "shape": [
+            49393,
+            49393
+          ],
+          "edges": 9050172,
+          "source_sha256": "7de174281eb8abcffee9bd422bad4a362217836bca9a4e13295143b93c4659f0",
+          "topology_sha256": "94782c9a80268e4b909eeda57c5c7ead2fea5648d6cd24cb877575374837b875",
+          "edge_order": "supplied CSR order",
+          "edge_weight_gradients": true,
+          "first_order_only": true,
+          "dense_adjacency": false,
+          "edge_batch_intermediate": false,
+          "per_step_host_transfers": false,
+          "host_fallback": false,
+          "kernel_launch_count": {
+            "forward": 0,
+            "state_backward": 0,
+            "edge_backward": 0
+          },
+          "connectorch_backend": "metal_csr"
+        }
+      }
+    },
+    "B32fixed": {
+      "status": "accepted_early_stop",
+      "full_schedule_completed": false,
+      "observed_updates": 16262,
+      "durable_updates": 16200,
+      "completed_epochs": 13,
+      "parameter_counts": {
+        "embedding": 32768,
+        "input_projection": 450048,
+        "neurons": 148179,
+        "edge_gains": 0,
+        "layernorm": 98786,
+        "readout": 50578432,
+        "other": 0,
+        "total": 51308213,
+        "encoder": 482816,
+        "brain_trainable": 148179,
+        "frozen_base_edge_values": 9050172
+      },
+      "runtime_seconds": 5539.755129874917,
+      "runtime_minutes": 92.32925216458194,
+      "runtime_source": "stop-receipt.json observed trainer elapsed_seconds_this_invocation",
+      "validation_rows": 176,
+      "retained_selectors": {
+        "minimum_validation_ce": {
+          "updates": 9700,
+          "epoch": 8,
+          "cross_entropy": 4.512509241960402,
+          "top1_accuracy": 0.3152601261771967,
+          "correct": 6896,
+          "tokens": 21874,
+          "stories": 100,
+          "checkpoint_path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1-continuation/arms/B32fixed/stopped-checkpoints/best.pt",
+          "checkpoint_sha256": "19b9ad33d2b7014706ca29ec479273965114061be773125f30806813274b6229",
+          "retained": true
+        },
+        "maximum_validation_accuracy": {
+          "updates": 15200,
+          "epoch": 12,
+          "cross_entropy": 4.621846774405488,
+          "top1_accuracy": 0.3331352290390418,
+          "correct": 7287,
+          "tokens": 21874,
+          "stories": 100,
+          "checkpoint_path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1-continuation/arms/B32fixed/stopped-checkpoints/best-accuracy.pt",
+          "checkpoint_sha256": "84b2b3ec05b1b4403c3c62f0b9a97f230e2932dfaf47fc5483d7fa1972686d8a",
+          "retained": true
+        }
+      },
+      "last_logged_validation": {
+        "updates": 16200,
+        "epoch": 13,
+        "cross_entropy": 4.716794838915798,
+        "top1_accuracy": 0.3260949071957575,
+        "correct": 7133,
+        "tokens": 21874,
+        "stories": 100,
+        "elapsed_seconds_this_invocation": 5524.140243332833
+      },
+      "at_common_update": {
+        "updates": 12400,
+        "epoch": 10,
+        "cross_entropy": 4.574937506819421,
+        "top1_accuracy": 0.32344335741062447,
+        "correct": 7075,
+        "tokens": 21874,
+        "stories": 100,
+        "elapsed_seconds_this_invocation": 4250.950755042024
+      },
+      "best_through_common_update": {
+        "minimum_validation_ce": {
+          "updates": 9700,
+          "epoch": 8,
+          "cross_entropy": 4.512509241960402,
+          "top1_accuracy": 0.3152601261771967,
+          "correct": 6896,
+          "tokens": 21874,
+          "stories": 100,
+          "elapsed_seconds_this_invocation": 3347.745431416901,
+          "checkpoint_retained": true
+        },
+        "maximum_validation_accuracy": {
+          "updates": 12000,
+          "epoch": 10,
+          "cross_entropy": 4.554720227620474,
+          "top1_accuracy": 0.32710066745908384,
+          "correct": 7155,
+          "tokens": 21874,
+          "stories": 100,
+          "elapsed_seconds_this_invocation": 4120.512717667036,
+          "checkpoint_retained": false
+        }
+      },
+      "frozen_buffers_sha256": {
+        "brain.w_offsets": "53b216d7bc2503c539c2d2b03ce56f66eb8a2e9b902f0a20deda0ec4be37ade0",
+        "brain.w_indices": "0f17b9563457fbf84404c54227db86b5adcf04a689cdff5e33d32ec5d5e0b771",
+        "brain.w_values": "e6408887d3312783c65d3f10bb69b28fe50bb06699f0a8a9341d444e6eb0549a",
+        "brain.in_index": "ee440072f6c94b59c552cb09812af5894066ae28f686cda2cd2e35a3626beda6",
+        "brain.out_index": "5ac16e2c38cf0a1b4b4aea74eadeb2d487e153113d046895a813e09d010f0a18",
+        "brain.edge_group_index": "4b9af4b1e2313aba5a9a139ae3ecfc8fcae09a440c65802207a26775700f6eca",
+        "brain.node_type_index": "9ea440846c4bfde95c8c007320ad3bc3b79cfb3b69c2ff6a136c39fd41f658be"
+      },
+      "dataset_sha256": "c1f553263545744786a8811ee6af7ace8c452820bbb99d15140b81625e40b3a8",
+      "backend": {
+        "canonical_graph_and_groups_sha256": "f530d7774df45a80da67657265596af1eaff56d41cace8b3dd0d33b4028cbd0f",
+        "plasticity": "fixed",
+        "group_count": 9161,
+        "edge_parameterization": "factorized_cell_types",
+        "lag_map": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "d_embed": 32,
+        "readout_rank": 0,
+        "neuron_gain_policy": "reference_unconstrained",
+        "sparse_backend": {
+          "backend": "metal_trainable_csr",
+          "shape": [
+            49393,
+            49393
+          ],
+          "edges": 9050172,
+          "source_sha256": "7de174281eb8abcffee9bd422bad4a362217836bca9a4e13295143b93c4659f0",
+          "topology_sha256": "94782c9a80268e4b909eeda57c5c7ead2fea5648d6cd24cb877575374837b875",
+          "edge_order": "supplied CSR order",
+          "edge_weight_gradients": true,
+          "first_order_only": true,
+          "dense_adjacency": false,
+          "edge_batch_intermediate": false,
+          "per_step_host_transfers": false,
+          "host_fallback": false,
+          "kernel_launch_count": {
+            "forward": 0,
+            "state_backward": 0,
+            "edge_backward": 0
+          },
+          "connectorch_backend": "metal_csr"
+        }
+      }
+    }
+  },
+  "comparisons": {
+    "retained_selectors_B_minus_A": {
+      "minimum_ce_delta_nats": -0.2157700151393076,
+      "accuracy_at_minimum_ce_delta_percentage_points": 1.0377617262503414,
+      "maximum_accuracy_delta_percentage_points": 0.4160190180122536,
+      "ce_at_maximum_accuracy_delta_nats": -0.9251344378343109
+    },
+    "best_through_common_update_B_minus_A": {
+      "minimum_ce_delta_nats": -0.2157700151393076,
+      "accuracy_at_minimum_ce_delta_percentage_points": 1.0377617262503414,
+      "maximum_accuracy_delta_percentage_points": -0.18743713998354283,
+      "ce_at_maximum_accuracy_delta_nats": -0.9922609846193247
+    },
+    "at_common_update_B_minus_A": {
+      "cross_entropy_nats": -0.9012963077404423,
+      "accuracy_percentage_points": 0.1462924019383749,
+      "runtime_seconds": -84.8805117921438
+    },
+    "parameters": {
+      "encoder_parameters_removed": 1448448,
+      "encoder_reduction_percent": 75.0,
+      "total_parameters_removed": 1448448,
+      "total_reduction_percent": 2.745526294774414
+    }
+  },
+  "limitations": [
+    "One seed; no confidence intervals or anatomical-superiority claim.",
+    "Arms stopped early with unequal actual training budgets; second learning-rate phase was not tested.",
+    "Timing includes validation and checkpoint overhead and is invocation elapsed time, not pure GPU compute.",
+    "Checkpoint binaries were not reloaded by this script; hashes/retention come from accepted stop receipts.",
+    "Common-update and best-through-common entries are logged metrics; historical weights may not be retained.",
+    "No generated-text quality conclusion and no reserved-test evaluation.",
+    "Historical peak GPU memory was not recorded."
+  ],
+  "input_sha256": {
+    "arms/A128fixed/manifest.json": "1c4a7384ce349b1d4ad4fd6d1785f7cf0c4b7fe6e3fdc2347af5ae67950404d3",
+    "arms/A128fixed/status.json": "44c9ded5285d6d18b40e8c30bba5050b0f3e54394b29ba94f4062a46caa1d6c7",
+    "arms/A128fixed/metrics.jsonl": "10415bfca330e61d97cf5f3043b82149517499a35a85d57ca3351f456679bf7c",
+    "arms/A128fixed/accepted-early-stop.json": "96c8f865e4b5f40c61d067dc9e0be2601ee72656ace41b819aff97290938a031",
+    "arms/A128fixed/stop-receipt.json": "5fa70060ce19d35903cd06b97e747dfd80b56a5c196105c3bda7aff367cc4539",
+    "arms/A128fixed/selected-checkpoints.json": "ee69dde38d2ebfb33f8cf588e46abf13b6534f2373f2dc4227f31888e085ef38",
+    "arms/B32fixed/manifest.json": "89cda9bbbcbebb341828d2285cb81cfb18a642ec3451179e93d906428c5fbcc2",
+    "arms/B32fixed/status.json": "1fb6aa1d2e454d11582f27360bf050f8d0ffb53e8dfd0c4eb78c05158564ba4f",
+    "arms/B32fixed/metrics.jsonl": "6fb9eaad615eecd391670911e8b3b08953695d2a5cef7f856dc4b30f4a82a31b",
+    "arms/B32fixed/accepted-early-stop.json": "8851b16aa5dc07430baa18f5cbac1d151a3a7aa77aca165b661f791245a399d1",
+    "arms/B32fixed/stop-receipt.json": "34f52c05ea01110a266de608ed1f2d654c7b310e6f10ff0ca6adcd221c68d582",
+    "arms/B32fixed/selected-checkpoints.json": "9590813ff25f17235eca0e50fa529fbfa7d780cecf18e93c37e0b570f15d3176"
+  }
+}
