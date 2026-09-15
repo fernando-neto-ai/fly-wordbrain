@@ -19,6 +19,7 @@ def main():
     p.add_argument("--checkpoint", type=Path)
     p.add_argument("--selection", choices=("min-ce", "max-accuracy"), default="min-ce")
     p.add_argument("--selection-receipt", type=Path)
+    p.add_argument("--text-only", action="store_true")
     args = p.parse_args()
     root = args.root.resolve()
     expected_script = str(root / "scripts/train_ngxson.py")
@@ -58,12 +59,14 @@ def main():
         os.kill(args.trainer_pid, signal.SIGSTOP)
         receipt["trainer_suspended"] = True
         save()
-        argv = [sys.executable, "-u", str(root / "scripts/evaluate_ngxson_quality.py"),
+        script = "compare_ngxson_texts.py" if args.text_only else "evaluate_ngxson_quality.py"
+        argv = [sys.executable, "-u", str(root / "scripts" / script),
             "--model", str(root / "data/ngxson-fly-llm-hf/65c677b3d566a2e9793d5f72999cdb441c6c0a9f"),
             "--checkpoint", str(args.checkpoint or root / "results/ngxson-quality-snapshot-v1/best.pt"),
             "--training-data", str(root / "data/ngxson-tinystories-v1/dataset.json"),
-            "--audit-data", str(root / "data/ngxson-quality-v1/dataset.json"),
-            "--output", str(output), "--threads", "4", "--device", "mps", "--selection", args.selection]
+            "--output", str(output), "--threads", "4", "--device", "mps"]
+        if not args.text_only:
+            argv += ["--audit-data", str(root / "data/ngxson-quality-v1/dataset.json"), "--selection", args.selection]
         if args.selection_receipt:
             argv += ["--selection-receipt", str(args.selection_receipt)]
         env = dict(os.environ, PYTORCH_ENABLE_MPS_FALLBACK="0", OMP_NUM_THREADS="4", VECLIB_MAXIMUM_THREADS="4")
