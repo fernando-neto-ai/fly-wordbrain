@@ -22,6 +22,8 @@ The new [fast-plasticity arm](PLASTIC_PROTOCOL.md) keeps the full graph and
 526,336-parameter decoder, adds 20 shared synaptic-rule parameters, and uses
 explicitly different smooth rate dynamics. Its [custom Metal backend](MPS_REPORT.md)
 runs forward and backward on macm3's GPU with the existing PyTorch 2.8 runtime.
+The [expanded corpus](DATA_EXPANSION.md) increases training to 8,192 stories
+and validation/test to 1,024 each, with fresh vocabulary and calibration.
 The sections below describe the original frozen spiking experiments.
 
 ## What is preserved
