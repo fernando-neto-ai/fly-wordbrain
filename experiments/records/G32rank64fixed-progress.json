@@ -1,0 +1,130 @@
+{
+  "format_version": 1,
+  "experiment": "G32rank64fixed",
+  "status": "running",
+  "launch_id": "bd29bc14-f3a1-4971-b6bf-fed447a7622d",
+  "snapshot_at_utc": "2026-09-15T22:22:50.346472+00:00",
+  "live_verified_at_utc": "2026-09-15T22:23:29.095901+00:00",
+  "observed_updates": 2719,
+  "completed_epochs": 2,
+  "matched_validation": {
+    "updates": 2500,
+    "E32rank128fixed": {
+      "cross_entropy": 3.8231631462803115,
+      "top1_accuracy": 0.271966718478559,
+      "correct": 5949,
+      "tokens": 21874,
+      "stories": 100
+    },
+    "G32rank64fixed": {
+      "cross_entropy": 3.8963978154530436,
+      "top1_accuracy": 0.2604004754503063,
+      "correct": 5696,
+      "tokens": 21874,
+      "stories": 100
+    },
+    "rank64_minus_rank128": {
+      "cross_entropy": 0.07323466917273214,
+      "accuracy_percentage_points": -1.156624302825271
+    }
+  },
+  "selected_checkpoints": {
+    "format_version": 1,
+    "selectors": {
+      "minimum_validation_ce": {
+        "path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-rank64-v1/arms/G32rank64fixed/best.pt",
+        "sha256": "bdf3dc2de00f28e9b53dbea89b5edb4615c4ff00325d05a2930340b2889053ec",
+        "cursor": {
+          "epoch": 2,
+          "batch": 11,
+          "offset": 96,
+          "updates": 2500,
+          "phase": 0,
+          "epoch_loss_sum": 89582.97878789902,
+          "epoch_tokens": 22720,
+          "epoch_correct": 5428
+        },
+        "validation": {
+          "cross_entropy": 3.8963978154530436,
+          "top1_accuracy": 0.2604004754503063,
+          "correct": 5696,
+          "tokens": 21874,
+          "stories": 100
+        },
+        "frozen_buffers_preserved": true,
+        "frozen_buffers_sha256": {
+          "brain.w_offsets": "53b216d7bc2503c539c2d2b03ce56f66eb8a2e9b902f0a20deda0ec4be37ade0",
+          "brain.w_indices": "0f17b9563457fbf84404c54227db86b5adcf04a689cdff5e33d32ec5d5e0b771",
+          "brain.w_values": "e6408887d3312783c65d3f10bb69b28fe50bb06699f0a8a9341d444e6eb0549a",
+          "brain.in_index": "ee440072f6c94b59c552cb09812af5894066ae28f686cda2cd2e35a3626beda6",
+          "brain.out_index": "5ac16e2c38cf0a1b4b4aea74eadeb2d487e153113d046895a813e09d010f0a18",
+          "brain.edge_group_index": "4b9af4b1e2313aba5a9a139ae3ecfc8fcae09a440c65802207a26775700f6eca",
+          "brain.node_type_index": "9ea440846c4bfde95c8c007320ad3bc3b79cfb3b69c2ff6a136c39fd41f658be"
+        }
+      },
+      "maximum_validation_accuracy": {
+        "path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-rank64-v1/arms/G32rank64fixed/best-accuracy.pt",
+        "sha256": "6de3d85e7384c065f3ffab2d9d419d3806da46612b3eff97513f86e652001ed0",
+        "cursor": {
+          "epoch": 2,
+          "batch": 11,
+          "offset": 96,
+          "updates": 2500,
+          "phase": 0,
+          "epoch_loss_sum": 89582.97878789902,
+          "epoch_tokens": 22720,
+          "epoch_correct": 5428
+        },
+        "validation": {
+          "cross_entropy": 3.8963978154530436,
+          "top1_accuracy": 0.2604004754503063,
+          "correct": 5696,
+          "tokens": 21874,
+          "stories": 100
+        },
+        "frozen_buffers_preserved": true,
+        "frozen_buffers_sha256": {
+          "brain.w_offsets": "53b216d7bc2503c539c2d2b03ce56f66eb8a2e9b902f0a20deda0ec4be37ade0",
+          "brain.w_indices": "0f17b9563457fbf84404c54227db86b5adcf04a689cdff5e33d32ec5d5e0b771",
+          "brain.w_values": "e6408887d3312783c65d3f10bb69b28fe50bb06699f0a8a9341d444e6eb0549a",
+          "brain.in_index": "ee440072f6c94b59c552cb09812af5894066ae28f686cda2cd2e35a3626beda6",
+          "brain.out_index": "5ac16e2c38cf0a1b4b4aea74eadeb2d487e153113d046895a813e09d010f0a18",
+          "brain.edge_group_index": "4b9af4b1e2313aba5a9a139ae3ecfc8fcae09a440c65802207a26775700f6eca",
+          "brain.node_type_index": "9ea440846c4bfde95c8c007320ad3bc3b79cfb3b69c2ff6a136c39fd41f658be"
+        }
+      }
+    }
+  },
+  "snapshot_sha256": {
+    "manifest.json": "412bbd505baf6da2be16f603d01dde865f0fc7bd65fd917f0656e8da764b5df0",
+    "launch.json": "7141923211f17dc42d23f05270f8a8672af41e18dc79dd91091cb1a5fddd38ce",
+    "campaign-status.json": "57c2563fb7e0b423d69b1b211ab76566814554828716d81ff798c0aa08ec824e",
+    "smoke-results.json": "c8f68d0a019f26eda044c70481e7e83862e1b748922f98f41bcc369d7bad480d",
+    "preflight/parity.json": "1e0c7c64f210b14217b0bdca45e4717581be88f82c4cab941792ab5a32340d64",
+    "arms/G32rank64fixed/manifest.json": "b73e0b9d6b44b0c31ab71670fc474b577a0d9153860b13f1a8ffe979f75177e1",
+    "arms/G32rank64fixed/launch.json": "21119cb405f893acb704c4f22acc34e382e0f7c3840f2a04a966c84899cf206f",
+    "arms/G32rank64fixed/status.json": "28de10375b9343c87f8c840c5b91ac4146bd6b1983deeced327a20cf81a9a70c",
+    "arms/G32rank64fixed/process-status.json": "af113f11b4f44d4da109c107b7b553aad97939c0ddc7d27863ca37d7c12383e6",
+    "arms/G32rank64fixed/metrics.jsonl": "390dbd5062ba376bb8e65dff6eba3357e90479e0e29f605cc0ddc3f6399143a8",
+    "arms/G32rank64fixed/selected-checkpoints.json": "d7d3e85858c5fc81476bd9af3aba52904d59c80c4f3c70e1b430e4a46fb8d745",
+    "smokes/G32rank64fixed/manifest.json": "154e5c35ff6c6d000e4f87fa70ecb166644aeb190c4040c622a7cd0df6526070",
+    "smokes/G32rank64fixed/launch.json": "5bd49a37a10465480693ca1bfa40c7c45024c3bfdaf0ab1aa2053e263457b6e5",
+    "smokes/G32rank64fixed/status.json": "32292bff336c9c92f0012bbceab4073e8488989d1a50df98e394520a82510961",
+    "smokes/G32rank64fixed/process-status.json": "84f2b74fbc06f4088686fdf8055b292106bf1cca73eb7c743eb75661f5ec8a7f",
+    "smokes/G32rank64fixed/metrics.jsonl": "5f7a10d10e4552c85d441a3285cd09a7af78de2b8050ecaff7be28ecbb763792",
+    "smokes/G32rank64fixed/selected-checkpoints.json": "a14b6144c839206a53918dcd81559a1e7641a4d9040b717476c9b72de0da3a1f",
+    "parent/manifest.json": "5390f71e07c0fbbd70a29e925bdce558d3cda30ca8fc057ada640a961ad741b3",
+    "baseline/accepted-early-stop.json": "a738b07f32dade3731ab9ef6bfe2ebe00dd48089dd118720e2e24e865505e49e",
+    "baseline/manifest.json": "40c3084568447346dd2eb5f3b4715318298034d8cba3f53d19bba11aca11a533",
+    "baseline/launch.json": "fb284712127b906d0386f8fef8688fa75286aa8b63dec42e2879b4a00bed3e02",
+    "baseline/status.json": "fdea6b86401796184525054e545b9b96697cce1eb23700dd52aff82369f8d461",
+    "baseline/metrics.jsonl": "72dd10c33dda7b138fec1af0b44ebbb7842d2a53f0e7e74c982f2d47cfdf8f5e",
+    "baseline/selected-checkpoints.json": "9feb380e65932c120a2faa285482a7d93b647143b590ed07eb757185a7b7c556",
+    "baseline/stop-receipt.json": "b3b8163b4d4822bb00dd3316bf470087057bcb6fc9d4daa98ef46c54269cdf8b"
+  },
+  "source_input_and_baseline_bindings_verified": true,
+  "no_competing_gpu_worker": true,
+  "decision": "Continue; only2 completeepochs; CE improved0.506778 and accuracy5.060803pp over updates1500-2500",
+  "checkpoint_binary_contents_reloaded_this_snapshot": false,
+  "test_evaluated": false
+}
