@@ -23,9 +23,11 @@ Raw measurements and source snapshots are stored under `results/plastic-probe-ma
 
 `fly_wordbrain/metal_sparse.py` compiles an FP32 Metal shader with PyTorch's `torch.mps.compile_shader`. A 32-lane SIMD group reduces each sparse row. The backward pass uses the explicitly transposed sparse graph. This avoids a dense adjacency matrix, gradients for frozen base weights, and edge-by-batch-by-time intermediates. Canonical graph arrays remain separately fingerprinted; sorted runtime indices preserve every edge and weight.
 
+Select MPS when constructing or loading the model, as the CLI does. Moving an already constructed native sparse CPU model with `.to("mps")` is not the supported conversion path.
+
 Independent tests compare the actual Metal kernel with a CPU float64 dense oracle on small asymmetric graphs, including empty rows, long rows, self-edges, signed/zero weights, batches 1/2/8, and noncontiguous states and gradients. Full small-model tests compare outputs, recurrent states, initial-state gradients, and all 20 plasticity-rule gradients. They prohibit native `torch.sparse.mm` in the Metal path and require custom-kernel launch counters to increase. The full-graph probe also verifies both forward and transpose kernels ran and that training tensors stayed on MPS.
 
-The macm3 backend/model/trainer test selection passed **32 tests** on PyTorch 2.8.0. Only pytest and its small test dependencies were installed in the project's existing virtual environment; PyTorch was not replaced.
+The macm3 backend/model/trainer test selection passed **32 tests** on PyTorch 2.8.0; the complete local suite passed **94 tests**. Only pytest and its small test dependencies were installed in the project's existing virtual environment; PyTorch was not replaced.
 
 ## Scientific status
 
@@ -60,6 +62,32 @@ PYTORCH_ENABLE_MPS_FALLBACK=0 .venv/bin/python -m fly_wordbrain.plastic_probe \
 Require the probe to complete successfully and use its `calibration.npz` in the training command. A fresh corpus or changed dynamics requires a fresh calibration assessment.
 
 The neuron physiology remains the explicitly declared smooth rate model, not Doomfly's original spiking simulation. No evidence of 128-word memory or a special language advantage from connectome geometry follows from a successful hardware benchmark.
+
+## Complete-corpus pipeline check
+
+The short integration run uses the existing 128 training / 32 validation / 32 test stories, one epoch per arm, batch size 8, and scale `.002`. Each epoch makes 16 optimizer updates. All model selections are locked before test evaluation.
+
+| Arm | Epoch including validation | Validation next-word CE |
+|---|---:|---:|
+| Frozen rate circuit | 139.74 s | 5.91148047 |
+| Fixed fast-plasticity rule | 147.29 s | 5.91147284 |
+| Learned fast-plasticity rule | 269.20 s | 5.91147157 |
+
+All **20 internal rule scalars changed** in the learned arm; frozen/fixed rule scalars remained identical. A fresh CPU process loaded the GPU-trained checkpoint with strict source/graph identity checks and produced finite outputs through the full graph. The selected checkpoint is only **2,152,898 bytes** because the fixed graph is stored separately.
+
+The near-identical validation losses triggered a wiring audit. All source/data/calibration identities and every actual causal row/mask matched, the arm switches executed correctly, the checkpoint readouts differed, and internal gradients and changes were verified. This establishes functioning training mechanics. One epoch here shows no substantive plasticity advantage and is not a completed geometry or memory-capacity experiment.
+
+The entire run, including all three training passes, selected-checkpoint evaluations, and midpoint interventions, completed in **1,202.54 seconds (20.0 minutes)**. The graph fingerprint remained unchanged.
+
+| Arm | Test next-word CE | Test next-word perplexity |
+|---|---:|---:|
+| Frozen rate circuit | 5.94176649 | 380.6067 |
+| Fixed fast-plasticity rule | 5.94175946 | 380.6040 |
+| Learned fast-plasticity rule | 5.94175825 | 380.6035 |
+
+Resetting fast state changed learned-arm second-half next-word CE by only **+0.00000228**. Resetting neural activity increased it by about **+5.45** in both the frozen and learned arms. This shared reset penalty cannot be attributed to learned fast memory; the intervention also disrupts the normal neural dynamics and calibrated readout. These results provide no substantive forecasting benefit at this one-epoch setting.
+
+Complete checkpoints, per-forecast losses, and audit receipts are available under `results/plastic-mps-smoke-3arms-e1/` on both hosts. Its selected learned checkpoint is `learned_fast/best.pt`; `checkpoint-reload.json` records the fresh CPU reload and verification that all 20 rule scalars changed.
 
 ## References
 
