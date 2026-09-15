@@ -1,5 +1,11 @@
 # Frozen fly brain word-prediction pilot
 
+The [ngxson reference replication](NGXSON_REPLICATION.md) is a separate,
+faithful reproduction of the Hugging Face Fly LLM: a frozen 49,393-neuron
+central-brain reservoir, an eight-token delay line, and 52,756,661 trainable
+parameters including its full-state readout. It includes a pinned checkpoint
+loader and an adapter for our Apple GPU sparse kernels.
+
 A complete frozen Doomfly connectome receives fixed word codes. Only a linear
 next-word decoder is trained. The first experiment runs on macm3's CPU; the
 native sparse spiking kernel does not require MPS or a GPU.

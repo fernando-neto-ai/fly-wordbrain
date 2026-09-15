@@ -1,0 +1,8 @@
+# Tested separately from the older Doomfly environment; Python 3.13.
+torch==2.11.0
+transformers==5.9.0
+numpy==2.2.6
+scipy==1.15.3
+safetensors==0.7.0
+tokenizers==0.22.2
+pytest==8.4.2
