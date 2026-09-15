@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 ARMS = ("A128fixed", "B32fixed", "C128bounded", "D32bounded")
 DEFAULT_REMOTE_RUN = "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1"
 FILES = ["manifest.json", "launch.json", "campaign-status.json", "readiness.json", "results.json", "partial-results.json",
-         "failure.json", "smoke-results.json", "preflight/parity.json", "continuation-disposition.json"]
+         "failure.json", "smoke-results.json", "preflight/parity.json", "continuation-disposition.json", "queue-review-gate.json"]
 FILES += [f"arms/{arm}/{name}" for arm in ARMS for name in
           ("manifest.json", "launch.json", "status.json", "process-status.json", "metrics.jsonl",
            "selected-checkpoints.json", "results.json", "failure.json", "accepted-early-stop.json", "stop-receipt.json")]
@@ -87,6 +87,23 @@ def render_report(files, host, now):
     if accepted_arm and read("continuation-disposition.json") and not manifest.get("parent_campaign"):
         status = {**status, "status": "accepted_early_stop"}
         phase, active_arm = "awaiting_continuation", None
+    queue_gate = read("queue-review-gate.json")
+    queue_held = queue_gate.get("status") == "queue_paused_training_continues"
+    held_arms = set(queue_gate.get("blocked_arms", [])) if queue_held else set()
+    queue_message = None
+    if queue_held:
+        training_arm = queue_gate.get("active_arm", "B32fixed")
+        training_status = read(f"arms/{training_arm}/status.json").get("status")
+        if training_status == "completed" or read(f"arms/{training_arm}/results.json").get("status") == "completed":
+            status = {**status, "status": "awaiting_assessment"}
+            phase, active_arm = "post_B_assessment", None
+            queue_message = "B training completed; **awaiting post-B assessment**. The adaptive queue remains held."
+        elif training_status == "running":
+            queue_message = "**B training continues; adaptive queue held for post-B assessment.**"
+        else:
+            queue_message = (f"B trainer status: **{training_status or 'unavailable'}**. "
+                             "The adaptive queue remains held for post-B assessment.")
+        queue_message += " C/D will stay held while reduced-encoder quality and the necessary additional brain plasticity are assessed."
     def count(value):
         return f"{value:,}" if isinstance(value, int) else "—"
     report = ["# Connectorch encoder experiment — partial validation", "",
@@ -95,6 +112,8 @@ def render_report(files, host, now):
               f"Current arm: **{active_arm or '—'}**.", "", baseline,
               "All arms retain the full output head, eight explicit input lags, 49,393 neurons and 9,050,172 base edges.",
               "Bounded arms add 18,322 source/destination cell-type gains; base-edge multipliers stay within 0.9–1.1. Original neuron gains remain unconstrained.", ""]
+    if queue_message:
+        report.extend([queue_message, ""])
     if accepted_arm:
         report.extend([f"A128fixed: **accepted early stop**, {accepted_arm.get('epochs', '—')} completed epochs; "
                        f"{count(accepted_arm.get('updates'))} durable updates and {count(accepted_arm.get('observed_updates'))} observed updates. "
@@ -142,6 +161,8 @@ def render_report(files, host, now):
         arm_state = arm_status.get("status", "pending")
         if arm == accepted_arm.get("name"):
             arm_state = "accepted early stop"
+        elif arm in held_arms and arm_state in ("pending", "waiting"):
+            arm_state = "held for post-B assessment"
         elif arm_status.get("activity"):
             arm_state += " / " + arm_status["activity"]
         updates = arm_status.get("updates", rows[-1]["updates"] if rows else 0)

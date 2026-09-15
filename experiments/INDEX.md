@@ -49,6 +49,14 @@ and D32bounded follow. The bound model and trainer sources are unchanged.
 Actual training budgets now differ. Report the shared validation-update comparison
 alongside retained-best scores, and do not claim four completed44-epoch runs.
 
+## Immediate decision after B
+
+B32fixed continues training, while C/D are held for the user's requested
+[post-B plasticity assessment](POST_B_REVIEW.md). The goal is to retain the
+reduced encoder and determine the smallest additional brain adaptation needed
+if quality degrades. The first existing candidate adds18,322 bounded shared
+edge gains; finer adaptation remains an untested proposal.
+
 ## Branch and artifact workflow
 
 Keep `main` as the common tested pipeline and protocol. Create each experiment
