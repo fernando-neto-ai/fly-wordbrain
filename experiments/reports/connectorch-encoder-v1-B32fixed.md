@@ -1,6 +1,6 @@
 # Connectorch encoder experiment — partial validation
 
-Snapshot: 2026-09-15T16:56:37.654973+00:00. Host: macm3.
+Snapshot: 2026-09-15T17:08:36.091985+00:00. Host: macm3.
 
 Campaign status: **running**. Phase: **training**. Current arm: **B32fixed**.
 
@@ -15,7 +15,7 @@ A128fixed: **accepted early stop**, 10 completed epochs; 12,400 durable updates 
 | Arm | Width | Edge gains | Status | Updates | Minimum CE (accuracy; update) | Maximum accuracy (CE; update) |
 |---|---:|---|---|---:|---|---|
 | A128fixed | 128 | fixed | accepted early stop | 12,400 | 4.7283 (30.49%; 3,600) | 32.90% (5.5470; 12,200) |
-| B32fixed | 32 | fixed | running / training | 7,993 | 4.6071 (30.80%; 7,200) | 31.13% (4.6526; 7,800) |
+| B32fixed | 32 | fixed | running / validation | 10,100 | 4.5125 (31.53%; 9,700) | 31.87% (4.5715; 10,000) |
 | C128bounded | 128 | bounded10 | held for post-B assessment | 0 | — | — |
 | D32bounded | 32 | bounded10 | held for post-B assessment | 0 | — | — |
 
@@ -171,9 +171,9 @@ Saved maximum_validation_accuracy: `/Users/fernando/fly_wordbrain_connectorch/re
 
 Branch: `exp/encoder32-fixed`. Commit: `68d721ef82de4401f2665c6fdf33579f2865014a`. Repository: https://github.com/fernando-neto-ai/fly-wordbrain.
 
-Saved minimum_validation_ce: `/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1-continuation/arms/B32fixed/best.pt`; SHA256 `63906cab7b962dec0ca026ee8dd0b8a881da793c528491c4a2386b332638f892`.
+Saved minimum_validation_ce: `/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1-continuation/arms/B32fixed/best.pt`; SHA256 `19b9ad33d2b7014706ca29ec479273965114061be773125f30806813274b6229`.
 
-Saved maximum_validation_accuracy: `/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1-continuation/arms/B32fixed/best-accuracy.pt`; SHA256 `c6242ce9c1372f5c55e7ede6ebd661182331049b8de2417e3b7aae55ae4ef988`.
+Saved maximum_validation_accuracy: `/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1-continuation/arms/B32fixed/best-accuracy.pt`; SHA256 `de45f5211fb9ea9c4b6ba08ae281f57f6a255ec95a00a98eacbfd241dbc31623`.
 
 | Updates | Epoch | Validation CE | Accuracy |
 |---:|---:|---:|---:|
@@ -263,6 +263,29 @@ Saved maximum_validation_accuracy: `/Users/fernando/fly_wordbrain_connectorch/re
 | 7,700 | 6 | 4.6885 | 29.79% |
 | 7,800 | 6 | 4.6526 | 31.13% |
 | 7,900 | 6 | 4.6261 | 30.44% |
+| 8,000 | 6 | 4.6368 | 30.32% |
+| 8,100 | 6 | 4.5698 | 29.91% |
+| 8,200 | 6 | 4.5993 | 30.45% |
+| 8,300 | 6 | 4.5294 | 31.48% |
+| 8,371 | 7 | 4.5530 | 31.76% |
+| 8,400 | 7 | 4.5785 | 31.05% |
+| 8,500 | 7 | 4.5724 | 31.77% |
+| 8,600 | 7 | 4.6537 | 31.38% |
+| 8,700 | 7 | 4.6406 | 30.39% |
+| 8,800 | 7 | 4.6380 | 30.18% |
+| 8,900 | 7 | 4.5745 | 31.37% |
+| 9,000 | 7 | 4.6042 | 31.16% |
+| 9,100 | 7 | 4.5630 | 31.27% |
+| 9,200 | 7 | 4.5779 | 31.05% |
+| 9,300 | 7 | 4.6242 | 31.31% |
+| 9,400 | 7 | 4.5708 | 30.91% |
+| 9,500 | 7 | 4.5313 | 31.70% |
+| 9,563 | 8 | 4.5565 | 31.53% |
+| 9,600 | 8 | 4.5200 | 31.73% |
+| 9,700 | 8 | 4.5125 | 31.53% |
+| 9,800 | 8 | 4.5439 | 30.96% |
+| 9,900 | 8 | 4.5592 | 31.35% |
+| 10,000 | 8 | 4.5715 | 31.87% |
 
 ## C128bounded
 
