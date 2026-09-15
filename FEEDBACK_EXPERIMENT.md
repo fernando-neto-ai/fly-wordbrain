@@ -95,6 +95,23 @@ PYTORCH_ENABLE_MPS_FALLBACK=0 .venv/bin/python -u -m fly_wordbrain.feedback_trai
   --probe-steps 8 --minimum-feature-effect .01 --minimum-action-tv .001
 ```
 
+A bounded mechanism comparison runs three arms with the same train-only
+calibration and 32-update budget: original selection, expanded shared rules,
+and expanded rules plus per-edge susceptibility. The two probe sets use
+separate training stories excluded from calibration and gradient updates.
+Their count proposals still use whole-current-story exclusion. These probes
+are not validation results and do not select a checkpoint.
+
+```bash
+PYTHONPATH=. PYTORCH_ENABLE_MPS_FALLBACK=0 .venv/bin/python -u scripts/scout_fast_structures.py \
+  --dataset data/expanded-8k/dataset.json --graph data/plastic-graph \
+  --structure data/fast-structures/anatomical-8192.npz \
+  --output results/feedback-anatomical8192-scout-v1.json --shuffled-feedback
+```
+
+The explicit script path avoids an unrelated installed `scripts` package on
+macm3 shadowing this repository's namespace directory.
+
 ## Data and scoring
 
 The existing 8,192 training stories yield **126,600 nonoverlapping windows**.
