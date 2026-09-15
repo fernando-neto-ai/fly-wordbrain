@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "experiment_id": "G32rank64fixed",
+  "configuration": "experiments/configs/G32rank64fixed.json",
+  "configuration_sha256": "c7f9e813c00c470a74a437cdfa79f2917d19f6b4edc2d4a2ab5a51d40571c1ef",
+  "common_pipeline_commit": "4ce1c33c250d10c3c94283f4f712cac7e40345db",
+  "training_source_commit": "3aaa2120cb01c30c670009d33e716c9c8e0318fc",
+  "training_host": "macm3",
+  "status": "planned_not_launched",
+  "dependency": "Finish and assess the current rank128 E/F pair first",
+  "required_preflight": "Separate rank64 CPU/MPS gradient parity and eight-update optimizer smoke on macm3; not yet executed",
+  "artifact_root": "macm3:/Users/fernando/fly_wordbrain_connectorch/results/connectorch-rank64-v1/arms/G32rank64fixed"
+}
