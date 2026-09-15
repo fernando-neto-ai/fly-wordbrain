@@ -1,21 +1,25 @@
 # Connectorch encoder experiment — partial validation
 
-Snapshot: 2026-09-15T17:21:21.685755+00:00. Host: macm3.
+Snapshot: 2026-09-15T17:43:39.289637+00:00. Host: macm3.
 
-Campaign status: **running**. Phase: **training**. Current arm: **B32fixed**.
+Campaign status: **awaiting_assessment**. Phase: **post_B_assessment**. Current arm: **—**.
 
 Baseline: **accepted by the user after early stopping**. Its minimum-CE and maximum-accuracy checkpoints are preserved; the 44-epoch reference recipe was not completed.
 All arms retain the full output head, eight explicit input lags, 49,393 neurons and 9,050,172 base edges.
 Bounded arms add 18,322 source/destination cell-type gains; base-edge multipliers stay within 0.9–1.1. Original neuron gains remain unconstrained.
 
-**B training continues; adaptive queue held for post-B assessment.** C/D will stay held while reduced-encoder quality and the necessary additional brain plasticity are assessed.
+B training **stopped early under user authorization; awaiting post-B assessment**. Both checkpoint winners and the latest resumable checkpoint are preserved. Raw trainer/process status is retained and may still show its pre-stop state. C/D will stay held while reduced-encoder quality and the necessary additional brain plasticity are assessed.
 
-A128fixed: **accepted early stop**, 10 completed epochs; 12,400 durable updates and 12,442 observed updates. Its complete history and both checkpoint winners are retained from the parent campaign. Retained-best comparisons use unequal training budgets; A did not complete the 44-epoch schedule.
+A128fixed: **accepted early stop**, 10 completed epochs; 12,400 durable updates and 12,442 observed updates. Its complete history and both checkpoint winners are retained from the parent campaign. Retained-best comparisons use unequal training budgets; A128fixed did not complete the 44-epoch schedule.
+
+B32fixed: **accepted early stop**, 13 completed epochs; 16,200 durable updates and 16,262 observed updates. Its complete history and both checkpoint winners are retained. Retained-best comparisons use unequal training budgets; B32fixed did not complete the 44-epoch schedule.
+
+The agent made the operational stop under standing user authorization; this receipt does not represent a new, arm-specific user approval.
 
 | Arm | Width | Edge gains | Status | Updates | Minimum CE (accuracy; update) | Maximum accuracy (CE; update) |
 |---|---:|---|---|---:|---|---|
 | A128fixed | 128 | fixed | accepted early stop | 12,400 | 4.7283 (30.49%; 3,600) | 32.90% (5.5470; 12,200) |
-| B32fixed | 32 | fixed | running / training | 12,387 | 4.5125 (31.53%; 9,700) | 32.71% (4.5547; 12,000) |
+| B32fixed | 32 | fixed | accepted early stop | 16,200 | 4.5125 (31.53%; 9,700) | 33.31% (4.6218; 15,200) |
 | C128bounded | 128 | bounded10 | held for post-B assessment | 0 | — | — |
 | D32bounded | 32 | bounded10 | held for post-B assessment | 0 | — | — |
 
@@ -25,9 +29,9 @@ Winner columns use the saved checkpoint receipts when available. A newer validat
 
 Branch: `exp/encoder128-fixed`. Commit: `3641b9af124d0eb905715265073b576e2324aa59`. Repository: https://github.com/fernando-neto-ai/fly-wordbrain.
 
-Saved minimum_validation_ce: `/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1/arms/A128fixed/best.pt`; SHA256 `2f6fad5b9c1a17d0ff616159510a8c37dc0e03f56b8aee0ff345c41f8ea9db40`.
+Saved minimum_validation_ce: `/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1/arms/A128fixed/stopped-checkpoints/best.pt`; SHA256 `2f6fad5b9c1a17d0ff616159510a8c37dc0e03f56b8aee0ff345c41f8ea9db40`.
 
-Saved maximum_validation_accuracy: `/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1/arms/A128fixed/best-accuracy.pt`; SHA256 `eddb423ef0ff5180d9e740f357c2206c1c544f93de2b1c35549ff4cfa4e3da5f`.
+Saved maximum_validation_accuracy: `/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1/arms/A128fixed/stopped-checkpoints/best-accuracy.pt`; SHA256 `eddb423ef0ff5180d9e740f357c2206c1c544f93de2b1c35549ff4cfa4e3da5f`.
 
 | Updates | Epoch | Validation CE | Accuracy |
 |---:|---:|---:|---:|
@@ -171,9 +175,9 @@ Saved maximum_validation_accuracy: `/Users/fernando/fly_wordbrain_connectorch/re
 
 Branch: `exp/encoder32-fixed`. Commit: `68d721ef82de4401f2665c6fdf33579f2865014a`. Repository: https://github.com/fernando-neto-ai/fly-wordbrain.
 
-Saved minimum_validation_ce: `/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1-continuation/arms/B32fixed/best.pt`; SHA256 `19b9ad33d2b7014706ca29ec479273965114061be773125f30806813274b6229`.
+Saved minimum_validation_ce: `/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1-continuation/arms/B32fixed/stopped-checkpoints/best.pt`; SHA256 `19b9ad33d2b7014706ca29ec479273965114061be773125f30806813274b6229`.
 
-Saved maximum_validation_accuracy: `/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1-continuation/arms/B32fixed/best-accuracy.pt`; SHA256 `f2ffa647f82309d68e90e09bdda8672705f50f441ea343d46d522047af5049c2`.
+Saved maximum_validation_accuracy: `/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1-continuation/arms/B32fixed/stopped-checkpoints/best-accuracy.pt`; SHA256 `84b2b3ec05b1b4403c3c62f0b9a97f230e2932dfaf47fc5483d7fa1972686d8a`.
 
 | Updates | Epoch | Validation CE | Accuracy |
 |---:|---:|---:|---:|
@@ -311,6 +315,48 @@ Saved maximum_validation_accuracy: `/Users/fernando/fly_wordbrain_connectorch/re
 | 12,100 | 10 | 4.5956 | 32.29% |
 | 12,200 | 10 | 4.6302 | 32.04% |
 | 12,300 | 10 | 4.6382 | 31.75% |
+| 12,400 | 10 | 4.5749 | 32.34% |
+| 12,500 | 10 | 4.5911 | 32.22% |
+| 12,600 | 10 | 4.5851 | 32.60% |
+| 12,700 | 10 | 4.5849 | 32.26% |
+| 12,800 | 10 | 4.5543 | 31.72% |
+| 12,900 | 10 | 4.5604 | 32.20% |
+| 13,000 | 10 | 4.5660 | 31.89% |
+| 13,100 | 10 | 4.5414 | 32.35% |
+| 13,161 | 11 | 4.5918 | 31.43% |
+| 13,200 | 11 | 4.6364 | 31.72% |
+| 13,300 | 11 | 4.5649 | 32.67% |
+| 13,400 | 11 | 4.5957 | 32.46% |
+| 13,500 | 11 | 4.6025 | 31.81% |
+| 13,600 | 11 | 4.6080 | 31.61% |
+| 13,700 | 11 | 4.5846 | 33.11% |
+| 13,800 | 11 | 4.6299 | 31.73% |
+| 13,900 | 11 | 4.6311 | 32.05% |
+| 14,000 | 11 | 4.6276 | 31.85% |
+| 14,100 | 11 | 4.6283 | 31.80% |
+| 14,200 | 11 | 4.6456 | 31.26% |
+| 14,300 | 11 | 4.6104 | 31.58% |
+| 14,356 | 12 | 4.5960 | 32.45% |
+| 14,400 | 12 | 4.6017 | 33.00% |
+| 14,500 | 12 | 4.6462 | 32.64% |
+| 14,600 | 12 | 4.6325 | 32.34% |
+| 14,700 | 12 | 4.6205 | 32.49% |
+| 14,800 | 12 | 4.6407 | 32.72% |
+| 14,900 | 12 | 4.6386 | 32.32% |
+| 15,000 | 12 | 4.6385 | 32.71% |
+| 15,100 | 12 | 4.6323 | 32.93% |
+| 15,200 | 12 | 4.6218 | 33.31% |
+| 15,300 | 12 | 4.6205 | 32.36% |
+| 15,400 | 12 | 4.6437 | 32.01% |
+| 15,500 | 12 | 4.6355 | 32.48% |
+| 15,552 | 13 | 4.6385 | 32.33% |
+| 15,600 | 13 | 4.6667 | 33.09% |
+| 15,700 | 13 | 4.6968 | 33.14% |
+| 15,800 | 13 | 4.6835 | 32.94% |
+| 15,900 | 13 | 4.6658 | 32.47% |
+| 16,000 | 13 | 4.6842 | 32.52% |
+| 16,100 | 13 | 4.6811 | 32.38% |
+| 16,200 | 13 | 4.7168 | 32.61% |
 
 ## C128bounded
 
@@ -326,7 +372,3 @@ No full-arm validation yet.
 
 All partial scores are next-BPE-token results on the 100-story validation split. Test evaluation is deferred.
 This is a timestamped snapshot; each refresh verifies artifact SHA256 checksums. Checkpoint hashes are copied from trainer receipts; checkpoint binaries are not fetched by this command.
-
-## Partial matched-budget comparison
-
-At 12,300 updates, the minimum validation CE differs by -0.215770 (B minus A), and maximum accuracy differs by -0.187437 percentage points. These are independent selector scores from a single seed. B training continues; generated text has not yet been compared.

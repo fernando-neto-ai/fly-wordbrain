@@ -1,0 +1,197 @@
+{
+  "format_version": 1,
+  "status": "accepted_early_stop",
+  "arm": "B32fixed",
+  "training_host": "macm3",
+  "accepted_at_utc": "2026-09-15T17:43:03.520505+00:00",
+  "accepted_by": "agent_under_standing_user_authorization",
+  "acceptance_basis": "Agent operational early stop under standing user authorization, with separate B-specific plateau decision; not a new user approval or completed recipe.",
+  "full_schedule_completed": false,
+  "observed_updates": 16262,
+  "durable_updates": 16200,
+  "completed_epochs": 13,
+  "planned_updates": 52609,
+  "selected_checkpoints": {
+    "format_version": 1,
+    "selectors": {
+      "minimum_validation_ce": {
+        "path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1-continuation/arms/B32fixed/stopped-checkpoints/best.pt",
+        "sha256": "19b9ad33d2b7014706ca29ec479273965114061be773125f30806813274b6229",
+        "cursor": {
+          "epoch": 8,
+          "batch": 14,
+          "offset": 32,
+          "updates": 9700,
+          "phase": 0,
+          "epoch_loss_sum": 28261.541033325717,
+          "epoch_tokens": 26650,
+          "epoch_correct": 19225
+        },
+        "validation": {
+          "cross_entropy": 4.512509241960402,
+          "top1_accuracy": 0.3152601261771967,
+          "correct": 6896,
+          "tokens": 21874,
+          "stories": 100
+        },
+        "frozen_buffers_preserved": true,
+        "frozen_buffers_sha256": {
+          "brain.w_offsets": "53b216d7bc2503c539c2d2b03ce56f66eb8a2e9b902f0a20deda0ec4be37ade0",
+          "brain.w_indices": "0f17b9563457fbf84404c54227db86b5adcf04a689cdff5e33d32ec5d5e0b771",
+          "brain.w_values": "e6408887d3312783c65d3f10bb69b28fe50bb06699f0a8a9341d444e6eb0549a",
+          "brain.in_index": "ee440072f6c94b59c552cb09812af5894066ae28f686cda2cd2e35a3626beda6",
+          "brain.out_index": "5ac16e2c38cf0a1b4b4aea74eadeb2d487e153113d046895a813e09d010f0a18",
+          "brain.edge_group_index": "4b9af4b1e2313aba5a9a139ae3ecfc8fcae09a440c65802207a26775700f6eca",
+          "brain.node_type_index": "9ea440846c4bfde95c8c007320ad3bc3b79cfb3b69c2ff6a136c39fd41f658be"
+        },
+        "original_path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1-continuation/arms/B32fixed/best.pt"
+      },
+      "maximum_validation_accuracy": {
+        "path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1-continuation/arms/B32fixed/stopped-checkpoints/best-accuracy.pt",
+        "sha256": "84b2b3ec05b1b4403c3c62f0b9a97f230e2932dfaf47fc5483d7fa1972686d8a",
+        "cursor": {
+          "epoch": 12,
+          "batch": 88,
+          "offset": 32,
+          "updates": 15200,
+          "phase": 0,
+          "epoch_loss_sum": 88781.5790458034,
+          "epoch_tokens": 165756,
+          "epoch_correct": 143849
+        },
+        "validation": {
+          "cross_entropy": 4.621846774405488,
+          "top1_accuracy": 0.3331352290390418,
+          "correct": 7287,
+          "tokens": 21874,
+          "stories": 100
+        },
+        "frozen_buffers_preserved": true,
+        "frozen_buffers_sha256": {
+          "brain.w_offsets": "53b216d7bc2503c539c2d2b03ce56f66eb8a2e9b902f0a20deda0ec4be37ade0",
+          "brain.w_indices": "0f17b9563457fbf84404c54227db86b5adcf04a689cdff5e33d32ec5d5e0b771",
+          "brain.w_values": "e6408887d3312783c65d3f10bb69b28fe50bb06699f0a8a9341d444e6eb0549a",
+          "brain.in_index": "ee440072f6c94b59c552cb09812af5894066ae28f686cda2cd2e35a3626beda6",
+          "brain.out_index": "5ac16e2c38cf0a1b4b4aea74eadeb2d487e153113d046895a813e09d010f0a18",
+          "brain.edge_group_index": "4b9af4b1e2313aba5a9a139ae3ecfc8fcae09a440c65802207a26775700f6eca",
+          "brain.node_type_index": "9ea440846c4bfde95c8c007320ad3bc3b79cfb3b69c2ff6a136c39fd41f658be"
+        },
+        "original_path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1-continuation/arms/B32fixed/best-accuracy.pt"
+      }
+    }
+  },
+  "latest_checkpoint": {
+    "path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1-continuation/arms/B32fixed/stopped-checkpoints/latest.pt",
+    "sha256": "f9dfe8483b2499a5deca444c1be706e7c41b2f30be3f2ff339116771c63cadc2",
+    "cursor": {
+      "epoch": 13,
+      "batch": 66,
+      "offset": 288,
+      "updates": 16200,
+      "phase": 0,
+      "epoch_loss_sum": 54220.84498308866,
+      "epoch_tokens": 126378,
+      "epoch_correct": 114052
+    },
+    "frozen_buffers_sha256": {
+      "brain.w_offsets": "53b216d7bc2503c539c2d2b03ce56f66eb8a2e9b902f0a20deda0ec4be37ade0",
+      "brain.w_indices": "0f17b9563457fbf84404c54227db86b5adcf04a689cdff5e33d32ec5d5e0b771",
+      "brain.w_values": "e6408887d3312783c65d3f10bb69b28fe50bb06699f0a8a9341d444e6eb0549a",
+      "brain.in_index": "ee440072f6c94b59c552cb09812af5894066ae28f686cda2cd2e35a3626beda6",
+      "brain.out_index": "5ac16e2c38cf0a1b4b4aea74eadeb2d487e153113d046895a813e09d010f0a18",
+      "brain.edge_group_index": "4b9af4b1e2313aba5a9a139ae3ecfc8fcae09a440c65802207a26775700f6eca",
+      "brain.node_type_index": "9ea440846c4bfde95c8c007320ad3bc3b79cfb3b69c2ff6a136c39fd41f658be"
+    },
+    "frozen_buffers_preserved": true,
+    "optimizer_rng_and_cache_retained": true
+  },
+  "plateau_evidence": {
+    "decision_at_utc": "2026-09-15T17:43:01.673693+00:00",
+    "decision_validation_update": 16200,
+    "trailing_updates": 2000,
+    "minimum_ce_improvement": 0.0,
+    "maximum_accuracy_improvement_percentage_points": 0.2057236902258397,
+    "completed_epochs": 13,
+    "criterion": {
+      "minimum_completed_epochs": 8,
+      "minimum_ce_improvement": 0.1,
+      "maximum_accuracy_improvement_percentage_points": 0.5
+    },
+    "qualification": "Operational diminishing returns; later training or scheduled learning-rate changes may still improve results.",
+    "last_completed_epoch_training": [
+      {
+        "epoch": 11,
+        "cross_entropy": 0.8416956482821927,
+        "top1_accuracy": 0.776141842280107,
+        "tokens": 234796
+      },
+      {
+        "epoch": 12,
+        "cross_entropy": 0.6855766179155379,
+        "top1_accuracy": 0.821398149883303,
+        "tokens": 234796
+      },
+      {
+        "epoch": 13,
+        "cross_entropy": 0.5588569059823996,
+        "top1_accuracy": 0.8610410739535597,
+        "tokens": 234796
+      }
+    ],
+    "validation_windows": [
+      {
+        "start_exclusive": 14200,
+        "end_inclusive": 15200,
+        "count": 10,
+        "median_ce": 4.632414264304879,
+        "median_accuracy": 0.3267577946420408
+      },
+      {
+        "start_exclusive": 15200,
+        "end_inclusive": 16200,
+        "count": 10,
+        "median_ce": 4.673899535419105,
+        "median_accuracy": 0.3249977141812197
+      }
+    ]
+  },
+  "process_cessation": {
+    "confirmed": true,
+    "confirmed_at_utc": "2026-09-15T17:43:03.512579+00:00",
+    "processes": [
+      {
+        "pid": 96485,
+        "birth": "Tue Sep 15 13:10:40 2026",
+        "alive": false,
+        "kernel_state": null,
+        "exited": true,
+        "resources_released": true,
+        "pending_parent_reap": false
+      }
+    ],
+    "held_controller": {
+      "pid": 96472,
+      "birth": "Tue Sep 15 13:10:34 2026",
+      "kernel_state": "Ts",
+      "resumed": false
+    },
+    "exit_event": true,
+    "os_exit_code_not_reaped": true
+  },
+  "test_evaluated": false,
+  "stop_receipt": {
+    "path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1-continuation/arms/B32fixed/stop-receipt.json",
+    "sha256": "34f52c05ea01110a266de608ed1f2d654c7b310e6f10ff0ca6adcd221c68d582"
+  },
+  "decision_receipt": {
+    "path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1-continuation/arms/B32fixed/early-stop-decision.json",
+    "sha256": "dfafa8c4445e56679635ea848b5cd45445d2b806fa411da3405622e424c3dd25"
+  },
+  "artifact_sha256": {
+    "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1-continuation/arms/B32fixed/manifest.json": "89cda9bbbcbebb341828d2285cb81cfb18a642ec3451179e93d906428c5fbcc2",
+    "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1-continuation/arms/B32fixed/launch.json": "94ab7d5c41d4d56a56dbb760df996cdf7ea50f3b655290a8cc27aadcd809d029",
+    "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1-continuation/arms/B32fixed/metrics.jsonl": "6fb9eaad615eecd391670911e8b3b08953695d2a5cef7f856dc4b30f4a82a31b",
+    "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1-continuation/arms/B32fixed/selected-checkpoints.json": "9590813ff25f17235eca0e50fa529fbfa7d780cecf18e93c37e0b570f15d3176"
+  },
+  "comparison_policy": "Compare A/B at common recorded updates through12400, and report each retained winner with unequal total budgets. C/D remain held."
+}
