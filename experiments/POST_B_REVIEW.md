@@ -2,7 +2,10 @@
 
 The user requested this assessment immediately after B32fixed. It precedes the
 queued adaptive experiments and the later decoder-compression decision.
-Width32 training continues. Its dispatcher is intentionally paused; C/D wait.
+B has stopped under the standing plateau-stop authorization at 16,262 observed
+updates / 16,200 durable updates after 13 completed epochs. Its dispatcher stays
+paused; C/D wait. The completed assessment is in
+[encoder32-post-B-assessment.md](reports/encoder32-post-B-assessment.md).
 The verified gate is stored at the continuation output's queue-review-gate.json.
 Do not mistake the paused dispatcher for a stopped training worker or resume it
 before assessment: its original queue would automatically launch C then D.
