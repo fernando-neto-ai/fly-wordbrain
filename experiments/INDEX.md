@@ -135,3 +135,8 @@ G full training launched at22:09:21UTC after its native M3 parity and eight-upda
 smoke passed; more than100full updates were verified. See the
 [rank64 launch report](reports/G32rank64fixed-launch.md) and
 [launch receipt](runs/rank64-v1-launch.json).
+
+The [latest partial comparison](reports/G32rank64fixed-progress.md) records the
+13,000-update snapshot. An immediate recheck found renewed accuracy gains, so
+the earlier plateau observation was superseded and G continues. No stop signal
+or concurrent GPU quality evaluation was issued.

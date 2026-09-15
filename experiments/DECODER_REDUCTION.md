@@ -89,3 +89,30 @@ obsolete F queue must not resume.
 The configuration is experiments/configs/G32rank64fixed.json and its branch is
 exp/encoder32-readout64-fixed. All actual training remains serial on macm3.
 Additional rank64 edge adaptation or further rank reductions remain unselected.
+
+The current launch has a dedicated review helper,
+`scripts/stop_connectorch_rank64_plateau.py`. Run it from the staged macm3
+checkout to inspect; `--execute` additionally permits the standing-authorized
+stop, after fresh plateau, process-identity and coherent-checkpoint checks.
+It is bound to this launch and never starts a successor. A `not_ready_no_signal`
+result leaves training running; recompute the metrics before considering another
+attempt. Renewed accuracy gains superseded the first plateau observation at
+13,000 updates; see the [partial report](reports/G32rank64fixed-progress.md).
+
+After G has an accepted stop and all its processes have exited, use the new
+rank-aware evaluator on idle macm3:
+
+```bash
+PYTORCH_ENABLE_MPS_FALLBACK=0 .venv-connectorch/bin/python \
+  scripts/evaluate_connectorch_decoder_quality.py \
+  --arm-e results/connectorch-decoder-v1/arms/E32rank128fixed \
+  --arm-g results/connectorch-rank64-v1/arms/G32rank64fixed \
+  --output results/connectorch-post-g-quality-v1 --threads 4
+```
+
+This preparation has passed CPU contract tests; full MPS evaluation remains
+pending. It compares both retained selectors, identical text prompts, training
+overlap, exact training-target budgets, and neuron changes from initialization
+and between E/G. It preserves the reserved test and verifies graph/parameter
+immutability during inference. The earlier encoder-only A/B evaluator remains
+unchanged and is not the E/G entry point.

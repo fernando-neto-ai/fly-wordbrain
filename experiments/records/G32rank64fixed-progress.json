@@ -3,29 +3,40 @@
   "experiment": "G32rank64fixed",
   "status": "running",
   "launch_id": "bd29bc14-f3a1-4971-b6bf-fed447a7622d",
-  "snapshot_at_utc": "2026-09-15T22:22:50.346472+00:00",
-  "live_verified_at_utc": "2026-09-15T22:23:29.095901+00:00",
-  "observed_updates": 2719,
-  "completed_epochs": 2,
+  "snapshot_at_utc": "2026-09-15T23:17:46.026963+00:00",
+  "observed_updates": 13029,
+  "completed_epochs": 10,
+  "latest_validation_update": 13000,
   "matched_validation": {
-    "updates": 2500,
+    "updates": 13000,
     "E32rank128fixed": {
-      "cross_entropy": 3.8231631462803115,
-      "top1_accuracy": 0.271966718478559,
-      "correct": 5949,
+      "cross_entropy": 3.1642968695724187,
+      "top1_accuracy": 0.36257657492913964,
+      "correct": 7931,
       "tokens": 21874,
       "stories": 100
     },
     "G32rank64fixed": {
-      "cross_entropy": 3.8963978154530436,
-      "top1_accuracy": 0.2604004754503063,
-      "correct": 5696,
+      "cross_entropy": 3.1306326071043453,
+      "top1_accuracy": 0.3608850690317272,
+      "correct": 7894,
       "tokens": 21874,
       "stories": 100
     },
     "rank64_minus_rank128": {
-      "cross_entropy": 0.07323466917273214,
-      "accuracy_percentage_points": -1.156624302825271
+      "cross_entropy": -0.033664262468073414,
+      "accuracy_percentage_points": -0.16915058974124597
+    }
+  },
+  "best_at_common_budget": {
+    "updates": 13000,
+    "E32rank128fixed": {
+      "ce": 3.1515134185173834,
+      "accuracy_percent": 36.49538264606382
+    },
+    "G32rank64fixed": {
+      "ce": 3.124713271324951,
+      "accuracy_percent": 36.25308585535339
     }
   },
   "selected_checkpoints": {
@@ -33,21 +44,21 @@
     "selectors": {
       "minimum_validation_ce": {
         "path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-rank64-v1/arms/G32rank64fixed/best.pt",
-        "sha256": "bdf3dc2de00f28e9b53dbea89b5edb4615c4ff00325d05a2930340b2889053ec",
+        "sha256": "437f5449b5a864baf37cbdc456001d114d6158eda720dab1135091bdfb0f0e94",
         "cursor": {
-          "epoch": 2,
-          "batch": 11,
-          "offset": 96,
-          "updates": 2500,
+          "epoch": 10,
+          "batch": 87,
+          "offset": 128,
+          "updates": 12800,
           "phase": 0,
-          "epoch_loss_sum": 89582.97878789902,
-          "epoch_tokens": 22720,
-          "epoch_correct": 5428
+          "epoch_loss_sum": 438018.8559462428,
+          "epoch_tokens": 164280,
+          "epoch_correct": 68950
         },
         "validation": {
-          "cross_entropy": 3.8963978154530436,
-          "top1_accuracy": 0.2604004754503063,
-          "correct": 5696,
+          "cross_entropy": 3.124713271324951,
+          "top1_accuracy": 0.35814208649538265,
+          "correct": 7834,
           "tokens": 21874,
           "stories": 100
         },
@@ -64,21 +75,21 @@
       },
       "maximum_validation_accuracy": {
         "path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-rank64-v1/arms/G32rank64fixed/best-accuracy.pt",
-        "sha256": "6de3d85e7384c065f3ffab2d9d419d3806da46612b3eff97513f86e652001ed0",
+        "sha256": "98e7cdf0de0c1245b19e4a73b6053804e3947798df922f52b6beb4c6b9f9c5dc",
         "cursor": {
-          "epoch": 2,
-          "batch": 11,
-          "offset": 96,
-          "updates": 2500,
+          "epoch": 9,
+          "batch": 107,
+          "offset": 128,
+          "updates": 11800,
           "phase": 0,
-          "epoch_loss_sum": 89582.97878789902,
-          "epoch_tokens": 22720,
-          "epoch_correct": 5428
+          "epoch_loss_sum": 558802.6447722837,
+          "epoch_tokens": 202222,
+          "epoch_correct": 81561
         },
         "validation": {
-          "cross_entropy": 3.8963978154530436,
-          "top1_accuracy": 0.2604004754503063,
-          "correct": 5696,
+          "cross_entropy": 3.1298106926673617,
+          "top1_accuracy": 0.3625308585535339,
+          "correct": 7930,
           "tokens": 21874,
           "stories": 100
         },
@@ -103,10 +114,10 @@
     "preflight/parity.json": "1e0c7c64f210b14217b0bdca45e4717581be88f82c4cab941792ab5a32340d64",
     "arms/G32rank64fixed/manifest.json": "b73e0b9d6b44b0c31ab71670fc474b577a0d9153860b13f1a8ffe979f75177e1",
     "arms/G32rank64fixed/launch.json": "21119cb405f893acb704c4f22acc34e382e0f7c3840f2a04a966c84899cf206f",
-    "arms/G32rank64fixed/status.json": "28de10375b9343c87f8c840c5b91ac4146bd6b1983deeced327a20cf81a9a70c",
+    "arms/G32rank64fixed/status.json": "eb1413adffc0b6a7305013afeb1d12fddceb59fcb5c6367655ad1cdce357e016",
     "arms/G32rank64fixed/process-status.json": "af113f11b4f44d4da109c107b7b553aad97939c0ddc7d27863ca37d7c12383e6",
-    "arms/G32rank64fixed/metrics.jsonl": "390dbd5062ba376bb8e65dff6eba3357e90479e0e29f605cc0ddc3f6399143a8",
-    "arms/G32rank64fixed/selected-checkpoints.json": "d7d3e85858c5fc81476bd9af3aba52904d59c80c4f3c70e1b430e4a46fb8d745",
+    "arms/G32rank64fixed/metrics.jsonl": "cbee612b741b4e6ff155db56a1568e2c1c7bc0a8bfa0f4476718245f53d7b76b",
+    "arms/G32rank64fixed/selected-checkpoints.json": "3a5b9a1d32e6eeb09e6114277d1430ebcf8618005ade1dd3f3901108c6742c3b",
     "smokes/G32rank64fixed/manifest.json": "154e5c35ff6c6d000e4f87fa70ecb166644aeb190c4040c622a7cd0df6526070",
     "smokes/G32rank64fixed/launch.json": "5bd49a37a10465480693ca1bfa40c7c45024c3bfdaf0ab1aa2053e263457b6e5",
     "smokes/G32rank64fixed/status.json": "32292bff336c9c92f0012bbceab4073e8488989d1a50df98e394520a82510961",
@@ -122,9 +133,80 @@
     "baseline/selected-checkpoints.json": "9feb380e65932c120a2faa285482a7d93b647143b590ed07eb757185a7b7c556",
     "baseline/stop-receipt.json": "b3b8163b4d4822bb00dd3316bf470087057bcb6fc9d4daa98ef46c54269cdf8b"
   },
-  "source_input_and_baseline_bindings_verified": true,
-  "no_competing_gpu_worker": true,
-  "decision": "Continue; only2 completeepochs; CE improved0.506778 and accuracy5.060803pp over updates1500-2500",
+  "plateau_review": {
+    "status": "continue_accuracy_gain_exceeds_plateau_threshold",
+    "latest_complete_validation_update": 13000,
+    "completed_epochs": 10,
+    "window_start": 11000,
+    "window_end": 13000,
+    "global_best_ce_gain": 0.035130783606242666,
+    "global_best_accuracy_gain_percentage_points": 0.5897412453140731,
+    "thresholds": {
+      "minimum_completed_epochs": 8,
+      "ce_gain_below": 0.1,
+      "accuracy_gain_pp_below": 0.5
+    },
+    "both_gates_met": false,
+    "validation_windows": [
+      {
+        "start_exclusive": 11000,
+        "end_inclusive": 12000,
+        "validations": 10,
+        "mean_ce": 3.1582997924134664,
+        "mean_accuracy_percent": 35.57922647892475
+      },
+      {
+        "start_exclusive": 12000,
+        "end_inclusive": 13000,
+        "validations": 10,
+        "mean_ce": 3.1431443014953215,
+        "mean_accuracy_percent": 35.91249885709061
+      }
+    ],
+    "training_epoch_trend": [
+      {
+        "epoch": 8,
+        "cross_entropy": 2.96342907114272,
+        "top1_accuracy": 0.3704322049779383,
+        "tokens": 234796
+      },
+      {
+        "epoch": 9,
+        "cross_entropy": 2.866572345879395,
+        "top1_accuracy": 0.3859307654304162,
+        "tokens": 234796
+      },
+      {
+        "epoch": 10,
+        "cross_entropy": 2.7677764759069254,
+        "top1_accuracy": 0.4022811291504114,
+        "tokens": 234796
+      }
+    ],
+    "decision": "Continue G. Immediate recheck supersedes earlier11400-point plateau observation. No signal sent; no stop or new GPU job authorized by this snapshot."
+  },
+  "pre_stop_attempt": {
+    "signal_sent": false,
+    "status": "not_ready_no_signal",
+    "observed_updates": 12900,
+    "activity": "validation",
+    "checkpoint_binary_contents_loaded": false,
+    "helper_sha256": "0a60abfe1254705fd40b786e1778091cce78f17bc8f9080a55b6669d16d698db"
+  },
   "checkpoint_binary_contents_reloaded_this_snapshot": false,
-  "test_evaluated": false
+  "test_evaluated": false,
+  "quality_evaluation": "deferred while G owns GPU; new rank-aware evaluator uploaded and verified, not executed",
+  "prepared_tool_receipts": {
+    "scripts/stop_connectorch_rank64_plateau.py": {
+      "sha256": "0a60abfe1254705fd40b786e1778091cce78f17bc8f9080a55b6669d16d698db",
+      "remote_path": "/Users/fernando/fly_wordbrain_connectorch/scripts/stop_connectorch_rank64_plateau.py",
+      "uploaded_and_checksum_verified": true
+    },
+    "scripts/evaluate_connectorch_decoder_quality.py": {
+      "sha256": "91149f651ab1a85fa5217fb9288067516c8a314eafade66aacd8ecc2c4a4d10b",
+      "remote_path": "/Users/fernando/fly_wordbrain_connectorch/scripts/evaluate_connectorch_decoder_quality.py",
+      "uploaded_and_checksum_verified": true
+    }
+  },
+  "prepared_tools_validation": "43 focused CPU/fake tests; full post-stop MPS quality evaluation deferred"
 }
