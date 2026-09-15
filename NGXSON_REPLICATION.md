@@ -176,6 +176,33 @@ measurements, not our results, and exact scores are not directly comparable
 across different splits. A geometry claim needs independently trained matched
 controls; a successful story-generation reproduction alone does not establish it.
 
+## Launched run and partial results
+
+The full reconstruction launched on macm3 at 2026-09-15 12:50:33 UTC under
+`results/ngxson-reconstructed-v1`, source commit
+`f64c31465ac9506cb1c8cdebd8e4c15a11cf535d`. It schedules 35,877 first-phase
+updates and 16,732 second-phase updates. There are no debug limits.
+The remote `launch.json` records the exact command and environment; the
+detached runner records worker identity and completion status.
+
+`metrics.jsonl` contains full validation measurements every 100 updates and at
+epoch boundaries. `training.jsonl` records each training update. `latest.pt`
+includes model parameters, optimizer/scheduler state, RNG, and the detached
+within-story cache; `best.pt` follows validation selection. Frozen graph buffers
+are referenced by checksum from the pinned source checkpoint.
+
+Refresh a checksum-verified local snapshot and a readable history table with:
+
+```bash
+/opt/anaconda3/bin/python scripts/refresh_ngxson_progress.py
+```
+
+The local snapshot report is
+`results/ngxson-reconstructed-v1/progress.md`. It explicitly displays its
+retrieval time; it is not an automatically refreshing web dashboard.
+Validation accuracy is over the 1,024 BPE tokens, so it is not comparable to
+our earlier word-level bigram accuracy.
+
 Model/data attribution: ngxson and MaleCNS/FlyEM, HHMI Janelia, University of
 Cambridge, MRC LMB, Google Research, CC BY 4.0. Upstream modeling code is MIT.
 TinyStories is by Eldan and Li; retain its dataset license and source receipts.
