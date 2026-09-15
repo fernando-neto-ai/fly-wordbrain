@@ -130,3 +130,8 @@ preserved rank128 comparator. No automatic F restart is selected.
 
 Refresh G and E comparison with `scripts/refresh_connectorch_rank64_progress.py`;
 its output is `results/connectorch-rank64-v1/progress.md`.
+
+The [latest partial comparison](reports/G32rank64fixed-progress.md) records the
+13,000-update snapshot. An immediate recheck found renewed accuracy gains, so
+the earlier plateau observation was superseded and G continues. No stop signal
+or concurrent GPU quality evaluation was issued.
