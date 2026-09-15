@@ -90,7 +90,13 @@ language-learning results.
 The trainer's strict `load_calibration` check passed in a fresh process.
 `results/plastic-probe-expanded-8k-s002/readiness.json` records the bound data,
 calibration and probe hashes. Calibration artifacts are verified on both
-hosts. The full expanded training run has **not** been launched.
+hosts. The expanded three-arm run has now **launched on macm3** at
+`results/plastic-expanded-8k-3arms-e1/`. Its first optimizer update completed
+on MPS with finite loss and gradients. `launch.json` records the exact command
+and input/source hashes; `process-status.json` records running/completed/failed
+status and the eventual exit code, while `stdout.log` records training events.
+The detached runner uses macOS `caffeinate` and survives the launching SSH
+connection closing. Its runner PID at launch was 44960.
 
 ## Expanded training command
 
