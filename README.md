@@ -23,6 +23,12 @@ ten words and a 2,570-parameter head to adjust their ranking from fly-brain
 activity. It preserves the full graph and starts from the count baseline.
 Its action dashboard displays accuracy, baseline and candidate coverage.
 
+The [seven-word feedback experiment](FEEDBACK_EXPERIMENT.md) learns a 136-parameter
+rule that updates temporary weights on 347 existing edges after observing each
+historical word, then selects the eighth word from ten candidates. Including its
+small action head, it trains 2,706 parameters and keeps the complete base graph.
+Its separate dashboard reports partial validation over eight-word windows.
+
 The new [fast-plasticity arm](PLASTIC_PROTOCOL.md) keeps the full graph and
 526,336-parameter decoder, adds 20 shared synaptic-rule parameters, and uses
 explicitly different smooth rate dynamics. Its [custom Metal backend](MPS_REPORT.md)

@@ -13,7 +13,7 @@ import time
 
 
 ARMS = ("frozen", "fixed_fast", "learned_fast")
-FILES = ("protocol.json", "process-status.json", "launch.json", "superseded.json",
+FILES = ("protocol.json", "process-status.json", "launch.json", "superseded.json", "progress.json",
          "events.jsonl", "validation.jsonl", "metrics.json") + tuple(
     arm + "/" + filename for arm in ARMS
     for filename in ("validation-history.json", "history.json", "selection.json", "metrics.json"))
