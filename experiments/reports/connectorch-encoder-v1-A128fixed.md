@@ -1,6 +1,6 @@
 # Connectorch encoder experiment — partial validation
 
-Snapshot: 2026-09-15T15:18:38.000034+00:00. Host: macm3.
+Snapshot: 2026-09-15T15:40:16.842876+00:00. Host: macm3.
 
 Campaign status: **running**. Phase: **training**. Current arm: **A128fixed**.
 
@@ -10,7 +10,7 @@ Bounded arms add 18,322 source/destination cell-type gains; base-edge multiplier
 
 | Arm | Width | Edge gains | Status | Updates | Minimum CE (accuracy; update) | Maximum accuracy (CE; update) |
 |---|---:|---|---|---:|---|---|
-| A128fixed | 128 | fixed | running / training | 4,077 | 4.7283 (30.49%; 3,600) | 30.49% (4.7283; 3,600) |
+| A128fixed | 128 | fixed | running / training | 7,866 | 4.7283 (30.49%; 3,600) | 32.34% (5.0447; 7,500) |
 | B32fixed | 32 | fixed | pending | 0 | — | — |
 | C128bounded | 128 | bounded10 | pending | 0 | — | — |
 | D32bounded | 32 | bounded10 | pending | 0 | — | — |
@@ -23,7 +23,7 @@ Branch: `exp/encoder128-fixed`. Commit: `3641b9af124d0eb905715265073b576e2324aa5
 
 Saved minimum_validation_ce: `/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1/arms/A128fixed/best.pt`; SHA256 `2f6fad5b9c1a17d0ff616159510a8c37dc0e03f56b8aee0ff345c41f8ea9db40`.
 
-Saved maximum_validation_accuracy: `/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1/arms/A128fixed/best-accuracy.pt`; SHA256 `1ae1121063e11dc64769c40fc3809c7736bf00350fc7d446874cbdbf0b4ade9e`.
+Saved maximum_validation_accuracy: `/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1/arms/A128fixed/best-accuracy.pt`; SHA256 `9ff2f9ba652a3297529cf81a88abebc86af278305a24194982f91414323f7001`.
 
 | Updates | Epoch | Validation CE | Accuracy |
 |---:|---:|---:|---:|
@@ -71,6 +71,47 @@ Saved maximum_validation_accuracy: `/Users/fernando/fly_wordbrain_connectorch/re
 | 3,800 | 3 | 4.8950 | 29.02% |
 | 3,900 | 3 | 4.7903 | 29.74% |
 | 4,000 | 3 | 4.7928 | 30.04% |
+| 4,100 | 3 | 4.9961 | 29.40% |
+| 4,200 | 3 | 4.8744 | 30.06% |
+| 4,300 | 3 | 4.8425 | 29.54% |
+| 4,400 | 3 | 4.8973 | 29.72% |
+| 4,500 | 3 | 4.8244 | 30.36% |
+| 4,600 | 3 | 4.8079 | 30.42% |
+| 4,700 | 3 | 4.8220 | 30.62% |
+| 4,783 | 4 | 4.8492 | 29.94% |
+| 4,800 | 4 | 4.7642 | 30.70% |
+| 4,900 | 4 | 4.7970 | 30.62% |
+| 5,000 | 4 | 4.9050 | 30.17% |
+| 5,100 | 4 | 4.8493 | 30.83% |
+| 5,200 | 4 | 4.9530 | 29.50% |
+| 5,300 | 4 | 4.9203 | 30.10% |
+| 5,400 | 4 | 4.8980 | 30.28% |
+| 5,500 | 4 | 4.9705 | 30.73% |
+| 5,600 | 4 | 4.9120 | 31.03% |
+| 5,700 | 4 | 4.9116 | 30.89% |
+| 5,800 | 4 | 4.8538 | 30.93% |
+| 5,900 | 4 | 4.9511 | 30.67% |
+| 5,978 | 5 | 4.9020 | 30.74% |
+| 6,000 | 5 | 4.9482 | 31.28% |
+| 6,100 | 5 | 4.9609 | 31.29% |
+| 6,200 | 5 | 4.9836 | 31.02% |
+| 6,300 | 5 | 5.0798 | 30.00% |
+| 6,400 | 5 | 5.0358 | 30.92% |
+| 6,500 | 5 | 5.0273 | 30.48% |
+| 6,600 | 5 | 5.0190 | 30.90% |
+| 6,700 | 5 | 5.0508 | 30.28% |
+| 6,800 | 5 | 5.0574 | 30.73% |
+| 6,900 | 5 | 5.0294 | 30.97% |
+| 7,000 | 5 | 5.0125 | 31.41% |
+| 7,100 | 5 | 5.0036 | 31.61% |
+| 7,173 | 6 | 5.0195 | 30.70% |
+| 7,200 | 6 | 4.9968 | 31.89% |
+| 7,300 | 6 | 5.0329 | 31.56% |
+| 7,400 | 6 | 5.0355 | 31.94% |
+| 7,500 | 6 | 5.0447 | 32.34% |
+| 7,600 | 6 | 5.1053 | 31.30% |
+| 7,700 | 6 | 5.0898 | 31.45% |
+| 7,800 | 6 | 5.0750 | 31.99% |
 
 ## B32fixed
 
