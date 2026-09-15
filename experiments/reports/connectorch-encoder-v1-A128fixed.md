@@ -1,6 +1,6 @@
 # Connectorch encoder experiment — partial validation
 
-Snapshot: 2026-09-15T14:55:14.043315+00:00. Host: macm3.
+Snapshot: 2026-09-15T15:18:38.000034+00:00. Host: macm3.
 
 Campaign status: **running**. Phase: **training**. Current arm: **A128fixed**.
 
@@ -10,7 +10,7 @@ Bounded arms add 18,322 source/destination cell-type gains; base-edge multiplier
 
 | Arm | Width | Edge gains | Status | Updates | Minimum CE (accuracy; update) | Maximum accuracy (CE; update) |
 |---|---:|---|---|---:|---|---|
-| A128fixed | 128 | fixed | running / validation | 100 | 7.3587 (8.72%; 100) | 8.72% (7.3587; 100) |
+| A128fixed | 128 | fixed | running / training | 4,077 | 4.7283 (30.49%; 3,600) | 30.49% (4.7283; 3,600) |
 | B32fixed | 32 | fixed | pending | 0 | — | — |
 | C128bounded | 128 | bounded10 | pending | 0 | — | — |
 | D32bounded | 32 | bounded10 | pending | 0 | — | — |
@@ -21,14 +21,56 @@ Winner columns use the saved checkpoint receipts when available. A newer validat
 
 Branch: `exp/encoder128-fixed`. Commit: `3641b9af124d0eb905715265073b576e2324aa59`. Repository: https://github.com/fernando-neto-ai/fly-wordbrain.
 
-Saved minimum_validation_ce: `/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1/arms/A128fixed/best.pt`; SHA256 `d5e211b6949c28cde8c333a928dcef7e02777291574f84f2befbf0602575dc1b`.
+Saved minimum_validation_ce: `/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1/arms/A128fixed/best.pt`; SHA256 `2f6fad5b9c1a17d0ff616159510a8c37dc0e03f56b8aee0ff345c41f8ea9db40`.
 
-Saved maximum_validation_accuracy: `/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1/arms/A128fixed/best-accuracy.pt`; SHA256 `d4c4ac775e59c1580f147cef1d8c65b5c4bef7e7460db25d88a239f5c337fe4b`.
+Saved maximum_validation_accuracy: `/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1/arms/A128fixed/best-accuracy.pt`; SHA256 `1ae1121063e11dc64769c40fc3809c7736bf00350fc7d446874cbdbf0b4ade9e`.
 
 | Updates | Epoch | Validation CE | Accuracy |
 |---:|---:|---:|---:|
 | 0 | 0 | 7.4866 | 0.06% |
 | 100 | 0 | 7.3587 | 8.72% |
+| 200 | 0 | 6.7804 | 13.94% |
+| 300 | 0 | 6.8102 | 12.40% |
+| 400 | 0 | 6.6162 | 14.03% |
+| 500 | 0 | 5.9686 | 17.66% |
+| 600 | 0 | 6.1641 | 17.05% |
+| 700 | 0 | 6.4587 | 17.14% |
+| 800 | 0 | 6.2773 | 16.85% |
+| 900 | 0 | 5.7290 | 22.08% |
+| 1,000 | 0 | 5.4291 | 23.96% |
+| 1,100 | 0 | 6.2302 | 17.75% |
+| 1,196 | 1 | 5.2699 | 23.54% |
+| 1,200 | 1 | 5.2525 | 24.43% |
+| 1,300 | 1 | 5.6708 | 21.08% |
+| 1,400 | 1 | 5.3085 | 23.61% |
+| 1,500 | 1 | 5.2508 | 25.38% |
+| 1,600 | 1 | 5.0721 | 26.36% |
+| 1,700 | 1 | 5.1213 | 25.52% |
+| 1,800 | 1 | 5.1047 | 26.14% |
+| 1,900 | 1 | 5.2566 | 24.96% |
+| 2,000 | 1 | 4.9693 | 26.84% |
+| 2,100 | 1 | 4.9847 | 26.52% |
+| 2,200 | 1 | 5.0210 | 27.21% |
+| 2,300 | 1 | 4.9416 | 27.19% |
+| 2,389 | 2 | 5.2238 | 25.64% |
+| 2,400 | 2 | 5.0754 | 26.95% |
+| 2,500 | 2 | 4.8367 | 27.93% |
+| 2,600 | 2 | 4.8161 | 28.39% |
+| 2,700 | 2 | 4.9058 | 27.94% |
+| 2,800 | 2 | 4.9597 | 27.75% |
+| 2,900 | 2 | 4.8625 | 29.22% |
+| 3,000 | 2 | 4.9799 | 27.65% |
+| 3,100 | 2 | 5.0002 | 27.46% |
+| 3,200 | 2 | 4.8477 | 29.09% |
+| 3,300 | 2 | 4.8625 | 27.70% |
+| 3,400 | 2 | 4.9478 | 28.28% |
+| 3,500 | 2 | 4.7585 | 29.32% |
+| 3,587 | 3 | 4.8137 | 29.06% |
+| 3,600 | 3 | 4.7283 | 30.49% |
+| 3,700 | 3 | 4.8217 | 29.11% |
+| 3,800 | 3 | 4.8950 | 29.02% |
+| 3,900 | 3 | 4.7903 | 29.74% |
+| 4,000 | 3 | 4.7928 | 30.04% |
 
 ## B32fixed
 
