@@ -196,6 +196,10 @@ def test_http_exact_routes_page_semantics_and_cache_failure(tmp_path):
             assert "one prediction" in page.lower()
             assert "not a separately trained control" in page
             assert "same trained head" in page
+            assert "Show evaluation comparison (fast off)" in page
+            assert "The checkbox changes chart visibility only" in page
+            assert "Trained model — fast on" in page
+            assert "Fast off (evaluation only)" in page
             assert "not directly comparable" in page
             assert "setTimeout(refresh,15000)" in page
             assert "cdn." not in page

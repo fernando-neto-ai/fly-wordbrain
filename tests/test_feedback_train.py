@@ -1,5 +1,6 @@
 """Delayed-feedback trainer tests on a small real graph and causal episodes."""
 import json
+from copy import deepcopy
 from types import SimpleNamespace
 
 import pytest
@@ -99,6 +100,119 @@ def test_forward_does_not_even_read_target_tensor_and_evaluation_restores_modes(
     before = [module.training for module in model.modules()]
     training.evaluate(model, windows, proposals, batch_size=2)
     assert [module.training for module in model.modules()] == before
+
+
+def test_fast_off_evaluation_preserves_learning_and_next_training_update(model_data, monkeypatch):
+    """An interleaved ablation must match a branch that never ran evaluation."""
+    model, proposals, data = model_data
+    train_windows = make_windows(data["splits"]["train"])
+    validation = make_windows(data["splits"]["val"])
+    training.calibrate(model, train_windows, proposals, batch_size=2)
+    model.train()
+    optimizer = torch.optim.Adam(model.parameters(), lr=.001)
+    warmup = collate_feedback(train_windows[:2], proposals, exclude_own_story=True)
+    # Populate real Adam momentum, including the slow rule after head warmup.
+    for _ in range(2):
+        optimizer.zero_grad(set_to_none=True)
+        loss, covered = training.window_loss(model(warmup), warmup)
+        assert covered > 0
+        loss.backward()
+        optimizer.step()
+    assert any(optimizer.state[p]["exp_avg"].abs().sum() > 0 for p in model.brain.parameters())
+
+    untouched = FeedbackSelector(FeedbackActionBrain(model.brain.graph_path, 16, global_scale=.5,
+        top_k=10, internal_steps=4, device="cpu", strict_full_graph=False))
+    untouched.load_state_dict(model.state_dict())
+    untouched.train()
+    untouched_optimizer = torch.optim.Adam(untouched.parameters(), lr=.001)
+    untouched_optimizer.load_state_dict(deepcopy(optimizer.state_dict()))
+    parameters_before = {name: p.detach().clone() for name, p in model.named_parameters()}
+    gradients_before = {name: None if p.grad is None else p.grad.detach().clone()
+                        for name, p in model.named_parameters()}
+    scales_before = {name: value.clone() for name, value in (
+        ("feature_mean", model.feature_mean), ("feature_std", model.feature_std),
+        ("pre_scale", model.brain.pre_scale), ("post_scale", model.brain.post_scale))}
+    optimizer_before = deepcopy(optimizer.state_dict())
+    modes_before = [module.training for module in model.modules()]
+    graph_before = model.brain.verify_frozen()
+
+    def assert_tree_equal(actual, expected):
+        if isinstance(expected, torch.Tensor):
+            assert torch.equal(actual, expected)
+        elif isinstance(expected, dict):
+            assert actual.keys() == expected.keys()
+            for key in expected:
+                assert_tree_equal(actual[key], expected[key])
+        elif isinstance(expected, (tuple, list)):
+            assert len(actual) == len(expected)
+            for left, right in zip(actual, expected):
+                assert_tree_equal(left, right)
+        else:
+            assert actual == expected
+
+    forward_calls, initial_states, final_states = [], [], []
+    original_forward, original_initial, original_features = model.forward, model.initial_state, model.features
+
+    def traced_forward(batch, **kwargs):
+        forward_calls.append({"plasticity": kwargs.get("plasticity", True),
+                              "explicit_flag": "plasticity" in kwargs,
+                              "grad_enabled": torch.is_grad_enabled()})
+        return original_forward(batch, **kwargs)
+
+    def traced_initial(batch_size):
+        state = original_initial(batch_size)
+        initial_states.append(state)
+        assert torch.all(state.h == 0) and torch.all(state.fast == 0) and torch.all(state.eligibility == 0)
+        assert state.observations == 0 and not state.pending
+        return state
+
+    def traced_features(batch, plasticity=True):
+        features, state = original_features(batch, plasticity=plasticity)
+        final_states.append((plasticity, state.fast.detach().clone()))
+        return features, state
+
+    monkeypatch.setattr(model, "forward", traced_forward)
+    monkeypatch.setattr(model, "initial_state", traced_initial)
+    monkeypatch.setattr(model, "features", traced_features)
+    training.evaluate(model, validation, proposals, batch_size=1)
+    assert [call["plasticity"] for call in forward_calls] == [True, False] * len(validation)
+    assert all(not call["grad_enabled"] for call in forward_calls)
+    assert all(torch.all(fast == 0) if not enabled else fast.abs().sum() > 0
+               for enabled, fast in final_states)
+    for name, parameter in model.named_parameters():
+        assert torch.equal(parameter, parameters_before[name]), name
+        if gradients_before[name] is None:
+            assert parameter.grad is None
+        else:
+            assert torch.equal(parameter.grad, gradients_before[name]), name
+    for name, value in (("feature_mean", model.feature_mean), ("feature_std", model.feature_std),
+                        ("pre_scale", model.brain.pre_scale), ("post_scale", model.brain.post_scale)):
+        assert torch.equal(value, scales_before[name]), name
+    assert_tree_equal(optimizer.state_dict(), optimizer_before)
+    assert [module.training for module in model.modules()] == modes_before
+    assert model.brain.verify_frozen() == graph_before
+
+    # Compare the next real training window against the branch that skipped
+    # evaluation entirely, including the ensuing momentum-based update.
+    next_batch = collate_feedback(train_windows[2:4], proposals, exclude_own_story=True)
+    optimizer.zero_grad(set_to_none=True)
+    untouched_optimizer.zero_grad(set_to_none=True)
+    actual, expected = model(next_batch), untouched(next_batch)
+    assert forward_calls[-1] == {"plasticity": True, "explicit_flag": False, "grad_enabled": True}
+    assert final_states[-1][0] is True and final_states[-1][1].abs().sum() > 0
+    assert torch.equal(actual, expected)
+    actual_loss, covered = training.window_loss(actual, next_batch)
+    expected_loss, expected_covered = training.window_loss(expected, next_batch)
+    assert covered == expected_covered > 0
+    actual_loss.backward()
+    expected_loss.backward()
+    assert sum(float(p.grad.abs().sum()) for p in model.brain.parameters() if p.grad is not None) > 0
+    optimizer.step()
+    untouched_optimizer.step()
+    for (name, parameter), (reference_name, reference) in zip(model.named_parameters(), untouched.named_parameters()):
+        assert name == reference_name and torch.equal(parameter, reference), name
+    assert_tree_equal(optimizer.state_dict(), untouched_optimizer.state_dict())
+    assert len(initial_states) == len(validation) * 2 + 1
 
 
 def test_preflight_restores_parameters_and_preserves_graph(model_data):
