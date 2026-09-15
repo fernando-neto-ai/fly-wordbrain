@@ -267,6 +267,24 @@ configs and experiment-branch commits to actual training arguments. A failure
 halts the queue and requires review. A deliberate plateau stop also requires a
 receipt-verified handoff before F can continue; it is not schedule completion.
 
+After an authorized E plateau stop, preserve both winners and latest in
+`arms/E32rank128fixed/stopped-checkpoints`, retain native interruption records,
+and write an accepted-stop receipt with exact process cessation and checkpoint
+identities. The tested F-only handoff reuses verified parity and both smokes:
+
+```bash
+"$FLY_PYTHON" scripts/continue_connectorch_decoder_campaign.py \
+  --parent "$FLY_ROOT/results/connectorch-decoder-v1" \
+  --accepted-arm-receipt "$FLY_ROOT/results/connectorch-decoder-v1/arms/E32rank128fixed/accepted-early-stop.json" \
+  --output "$FLY_ROOT/results/connectorch-decoder-v1-continuation" --launch
+```
+
+It rejects a still-live dispatcher/trainer, incoherent checkpoint sets, existing
+F execution or source drift. F starts from scratch in a fresh sibling directory;
+E's accepted early stop remains distinct from full-schedule completion.
+The progress helper automatically detects this launched continuation and combines
+its F results with E's preserved history and the B baseline.
+
 From the control host:
 
 ```bash
