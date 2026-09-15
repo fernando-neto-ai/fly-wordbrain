@@ -1,6 +1,6 @@
 # Connectorch encoder experiment — partial validation
 
-Snapshot: 2026-09-15T17:08:36.091985+00:00. Host: macm3.
+Snapshot: 2026-09-15T17:21:21.685755+00:00. Host: macm3.
 
 Campaign status: **running**. Phase: **training**. Current arm: **B32fixed**.
 
@@ -15,7 +15,7 @@ A128fixed: **accepted early stop**, 10 completed epochs; 12,400 durable updates 
 | Arm | Width | Edge gains | Status | Updates | Minimum CE (accuracy; update) | Maximum accuracy (CE; update) |
 |---|---:|---|---|---:|---|---|
 | A128fixed | 128 | fixed | accepted early stop | 12,400 | 4.7283 (30.49%; 3,600) | 32.90% (5.5470; 12,200) |
-| B32fixed | 32 | fixed | running / validation | 10,100 | 4.5125 (31.53%; 9,700) | 31.87% (4.5715; 10,000) |
+| B32fixed | 32 | fixed | running / training | 12,387 | 4.5125 (31.53%; 9,700) | 32.71% (4.5547; 12,000) |
 | C128bounded | 128 | bounded10 | held for post-B assessment | 0 | — | — |
 | D32bounded | 32 | bounded10 | held for post-B assessment | 0 | — | — |
 
@@ -173,7 +173,7 @@ Branch: `exp/encoder32-fixed`. Commit: `68d721ef82de4401f2665c6fdf33579f2865014a
 
 Saved minimum_validation_ce: `/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1-continuation/arms/B32fixed/best.pt`; SHA256 `19b9ad33d2b7014706ca29ec479273965114061be773125f30806813274b6229`.
 
-Saved maximum_validation_accuracy: `/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1-continuation/arms/B32fixed/best-accuracy.pt`; SHA256 `de45f5211fb9ea9c4b6ba08ae281f57f6a255ec95a00a98eacbfd241dbc31623`.
+Saved maximum_validation_accuracy: `/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1-continuation/arms/B32fixed/best-accuracy.pt`; SHA256 `f2ffa647f82309d68e90e09bdda8672705f50f441ea343d46d522047af5049c2`.
 
 | Updates | Epoch | Validation CE | Accuracy |
 |---:|---:|---:|---:|
@@ -286,6 +286,31 @@ Saved maximum_validation_accuracy: `/Users/fernando/fly_wordbrain_connectorch/re
 | 9,800 | 8 | 4.5439 | 30.96% |
 | 9,900 | 8 | 4.5592 | 31.35% |
 | 10,000 | 8 | 4.5715 | 31.87% |
+| 10,100 | 8 | 4.5207 | 31.69% |
+| 10,200 | 8 | 4.5737 | 31.21% |
+| 10,300 | 8 | 4.5793 | 31.06% |
+| 10,400 | 8 | 4.5702 | 31.06% |
+| 10,500 | 8 | 4.5302 | 32.08% |
+| 10,600 | 8 | 4.5271 | 31.59% |
+| 10,700 | 8 | 4.5173 | 31.78% |
+| 10,766 | 9 | 4.5743 | 30.15% |
+| 10,800 | 9 | 4.5588 | 31.97% |
+| 10,900 | 9 | 4.5541 | 31.33% |
+| 11,000 | 9 | 4.5299 | 32.02% |
+| 11,100 | 9 | 4.5158 | 32.30% |
+| 11,200 | 9 | 4.5659 | 32.27% |
+| 11,300 | 9 | 4.5656 | 32.34% |
+| 11,400 | 9 | 4.5743 | 31.32% |
+| 11,500 | 9 | 4.5446 | 31.75% |
+| 11,600 | 9 | 4.6036 | 31.91% |
+| 11,700 | 9 | 4.5665 | 32.04% |
+| 11,800 | 9 | 4.5216 | 32.17% |
+| 11,900 | 9 | 4.5577 | 31.76% |
+| 11,967 | 10 | 4.5496 | 31.54% |
+| 12,000 | 10 | 4.5547 | 32.71% |
+| 12,100 | 10 | 4.5956 | 32.29% |
+| 12,200 | 10 | 4.6302 | 32.04% |
+| 12,300 | 10 | 4.6382 | 31.75% |
 
 ## C128bounded
 
@@ -301,3 +326,7 @@ No full-arm validation yet.
 
 All partial scores are next-BPE-token results on the 100-story validation split. Test evaluation is deferred.
 This is a timestamped snapshot; each refresh verifies artifact SHA256 checksums. Checkpoint hashes are copied from trainer receipts; checkpoint binaries are not fetched by this command.
+
+## Partial matched-budget comparison
+
+At 12,300 updates, the minimum validation CE differs by -0.215770 (B minus A), and maximum accuracy differs by -0.187437 percentage points. These are independent selector scores from a single seed. B training continues; generated text has not yet been compared.
