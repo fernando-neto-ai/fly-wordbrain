@@ -56,6 +56,20 @@ if parent_entry:
  stop=Path(receipt['stop_receipt']['path']).resolve()
  if stop!=parent/prefix/'stop-receipt.json':raise ValueError('Unexpected stop receipt path')
  fetch(stop,prefix+'stop-receipt.json',receipt['stop_receipt']['sha256'])
+for arm in ('A128fixed','B32fixed','C128bounded','D32bounded'):
+ prefix='arms/'+arm+'/'
+ item=files.get(prefix+'accepted-early-stop.json')
+ if not item:continue
+ receipt=json.loads(item['text'])
+ if receipt.get('status')!='accepted_early_stop':continue
+ if receipt.get('accepted_by') not in ('user','agent_under_standing_user_authorization') or receipt.get('arm')!=arm:
+  raise ValueError('Invalid accepted-stop identity: '+arm)
+ if receipt.get('process_cessation',{}).get('confirmed') is not True:
+  raise ValueError('Accepted stop lacks confirmed process cessation: '+arm)
+ acceptance=Path(sources[prefix+'accepted-early-stop.json'])
+ stop=Path(receipt['stop_receipt']['path']).resolve()
+ if stop!=acceptance.parent/'stop-receipt.json':raise ValueError('Unexpected stop receipt path')
+ fetch(stop,prefix+'stop-receipt.json',receipt['stop_receipt']['sha256'])
 print(json.dumps({'remote_run':str(root),'files':files,'source_paths':sources}))
 '''
 
@@ -78,12 +92,30 @@ def render_report(files, host, now):
         baseline = ("Baseline launch gate: a successfully completed reference or an explicitly accepted, "
                     "verified early-stop receipt is required before M3 preflight and training.")
     phase, active_arm = status.get("phase", "pending"), status.get("arm")
+    accepted_stops = {}
     accepted_arm = manifest.get("accepted_early_stopped_arm") or {}
-    acceptance = read("arms/A128fixed/accepted-early-stop.json")
-    if not accepted_arm and acceptance.get("status") == "accepted_early_stop" and acceptance.get("accepted_by") == "user":
-        accepted_arm = {"name": "A128fixed", "status": "accepted_early_stop",
-                        "updates": acceptance.get("preserved_checkpoints", {}).get("latest", {}).get("cursor", {}).get("updates"),
-                        "observed_updates": acceptance.get("observed_updates"), "epochs": acceptance.get("completed_epochs")}
+    if accepted_arm:
+        accepted_stops[accepted_arm["name"]] = accepted_arm
+    for arm in ARMS:
+        acceptance = read(f"arms/{arm}/accepted-early-stop.json")
+        if acceptance.get("status") != "accepted_early_stop":
+            continue
+        if (acceptance.get("accepted_by") not in ("user", "agent_under_standing_user_authorization")
+                or acceptance.get("arm") != arm or acceptance.get("process_cessation", {}).get("confirmed") is not True):
+            raise ValueError("Invalid accepted-stop identity or process cessation: " + arm)
+        preserved = acceptance.get("preserved_checkpoints", {})
+        selected = acceptance.get("selected_checkpoints", preserved)
+        selectors = selected.get("selectors", selected)
+        latest = acceptance.get("latest_checkpoint", preserved.get("latest", {}))
+        accepted_stops[arm] = {
+            "name": arm, "status": "accepted_early_stop",
+            "updates": acceptance.get("durable_updates", latest.get("cursor", {}).get("updates")),
+            "observed_updates": acceptance.get("observed_updates"), "epochs": acceptance.get("completed_epochs"),
+            "accepted_by": acceptance["accepted_by"],
+            "selectors": {key: value for key, value in selectors.items()
+                          if key in ("minimum_validation_ce", "maximum_validation_accuracy")},
+        }
+    accepted_arm = accepted_stops.get("A128fixed", {})
     if accepted_arm and read("continuation-disposition.json") and not manifest.get("parent_campaign"):
         status = {**status, "status": "accepted_early_stop"}
         phase, active_arm = "awaiting_continuation", None
@@ -94,7 +126,13 @@ def render_report(files, host, now):
     if queue_held:
         training_arm = queue_gate.get("active_arm", "B32fixed")
         training_status = read(f"arms/{training_arm}/status.json").get("status")
-        if training_status == "completed" or read(f"arms/{training_arm}/results.json").get("status") == "completed":
+        if training_arm in accepted_stops:
+            status = {**status, "status": "awaiting_assessment"}
+            phase, active_arm = "post_B_assessment", None
+            queue_message = ("B training **stopped early under user authorization; awaiting post-B assessment**. "
+                             "Both checkpoint winners and the latest resumable checkpoint are preserved. "
+                             "Raw trainer/process status is retained and may still show its pre-stop state.")
+        elif training_status == "completed" or read(f"arms/{training_arm}/results.json").get("status") == "completed":
             status = {**status, "status": "awaiting_assessment"}
             phase, active_arm = "post_B_assessment", None
             queue_message = "B training completed; **awaiting post-B assessment**. The adaptive queue remains held."
@@ -114,11 +152,15 @@ def render_report(files, host, now):
               "Bounded arms add 18,322 source/destination cell-type gains; base-edge multipliers stay within 0.9–1.1. Original neuron gains remain unconstrained.", ""]
     if queue_message:
         report.extend([queue_message, ""])
-    if accepted_arm:
-        report.extend([f"A128fixed: **accepted early stop**, {accepted_arm.get('epochs', '—')} completed epochs; "
-                       f"{count(accepted_arm.get('updates'))} durable updates and {count(accepted_arm.get('observed_updates'))} observed updates. "
-                       "Its complete history and both checkpoint winners are retained from the parent campaign. "
-                       "Retained-best comparisons use unequal training budgets; A did not complete the 44-epoch schedule.", ""])
+    for arm, accepted in accepted_stops.items():
+        origin = " from the parent campaign" if arm == accepted_arm.get("name") and manifest.get("parent_campaign") else ""
+        report.extend([f"{arm}: **accepted early stop**, {accepted.get('epochs', '—')} completed epochs; "
+                       f"{count(accepted.get('updates'))} durable updates and {count(accepted.get('observed_updates'))} observed updates. "
+                       f"Its complete history and both checkpoint winners are retained{origin}. "
+                       f"Retained-best comparisons use unequal training budgets; {arm} did not complete the 44-epoch schedule.", ""])
+        if accepted.get("accepted_by") == "agent_under_standing_user_authorization":
+            report.extend(["The agent made the operational stop under standing user authorization; "
+                           "this receipt does not represent a new, arm-specific user approval.", ""])
     report.extend([
               "| Arm | Width | Edge gains | Status | Updates | Minimum CE (accuracy; update) | Maximum accuracy (CE; update) |",
               "|---|---:|---|---|---:|---|---|"])
@@ -138,7 +180,8 @@ def render_report(files, host, now):
             if row.get("event") == "validation":
                 rows.append(row)
         histories[arm] = rows
-        selections[arm] = read(prefix + "selected-checkpoints.json").get("selectors", {})
+        selections[arm] = (accepted_stops.get(arm, {}).get("selectors")
+                           or read(prefix + "selected-checkpoints.json").get("selectors", {}))
         provenance[arm] = (read(prefix + "launch.json").get("experiment_git")
                            or {"repository": branch_mapping.get("repository"),
                                **branch_mapping.get("arms", {}).get(arm, {})})
@@ -159,15 +202,15 @@ def render_report(files, host, now):
         ce = selected_cell("minimum_validation_ce", "cross_entropy")
         accuracy = selected_cell("maximum_validation_accuracy", "top1_accuracy", maximize=True)
         arm_state = arm_status.get("status", "pending")
-        if arm == accepted_arm.get("name"):
+        if arm in accepted_stops:
             arm_state = "accepted early stop"
         elif arm in held_arms and arm_state in ("pending", "waiting"):
             arm_state = "held for post-B assessment"
         elif arm_status.get("activity"):
             arm_state += " / " + arm_status["activity"]
         updates = arm_status.get("updates", rows[-1]["updates"] if rows else 0)
-        if arm == accepted_arm.get("name"):
-            updates = accepted_arm.get("updates") or updates
+        if arm in accepted_stops:
+            updates = accepted_stops[arm].get("updates") or updates
         report.append(f"| {arm} | {128 if '128' in arm else 32} | {'fixed' if 'fixed' in arm else 'bounded10'} | "
                       f"{arm_state} | {updates:,} | {ce} | {accuracy} |")
     report.extend(["", "Winner columns use the saved checkpoint receipts when available. A newer validation can "
