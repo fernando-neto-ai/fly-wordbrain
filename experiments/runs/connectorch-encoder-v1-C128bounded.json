@@ -2,7 +2,7 @@
   "schema_version": 1,
   "experiment_id": "C128bounded",
   "status": "queued",
-  "status_as_of_utc": "2026-09-15T14:52:21.975896+00:00",
+  "status_as_of_utc": "2026-09-15T16:12:37.846494+00:00",
   "repository": "https://github.com/fernando-neto-ai/fly-wordbrain",
   "branch": "exp/encoder128-bounded",
   "training_source_commit": "71d845460c7535f4e3b0ab83f3ae6c28dbe67af3",
@@ -27,11 +27,11 @@
   "configuration_sha256": "a1c46b1e9a1b8462093a254562564fd20d0f3b7bc355ebc8a53481576eab3bc5",
   "training_host": "macm3",
   "device": "mps",
-  "campaign_launch_id": "41d491df-5a3b-4d4e-a965-55fc9d8b6849",
+  "campaign_launch_id": "151ef60b-6949-4330-b301-24fa70091c65",
   "campaign_created_at_utc": "2026-09-15T14:52:20.744353+00:00",
   "campaign_worker_pid_at_launch": 48399,
-  "campaign_artifact_root": "macm3:/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1",
-  "artifact_root": "macm3:/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1/arms/C128bounded",
+  "campaign_artifact_root": "macm3:/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1-continuation",
+  "artifact_root": "macm3:/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1-continuation/arms/C128bounded",
   "baseline_acceptance_mode": "user_accepted_early_stop",
   "dataset_sha256": "c1f553263545744786a8811ee6af7ace8c452820bbb99d15140b81625e40b3a8",
   "groups_sha256": "a07d311cd04126b5e54ea9cb3e8945470af9049bcb8499fb406e3c38d185dd7f",
@@ -45,5 +45,14 @@
     "maximum_validation_accuracy"
   ],
   "test_policy": "reserved; --skip-final-test",
-  "provenance_method": "Each experiment branch records its configuration. All bound runtime source files are byte-identical to that branch commit; four arms execute serially from one immutable deployed source tree. Branch-specific experiment.json is a selector, not divergent model code."
+  "provenance_method": "Each experiment branch records its configuration. All bound runtime source files are byte-identical to that branch commit; four arms execute serially from one immutable deployed source tree. Branch-specific experiment.json is a selector, not divergent model code.",
+  "parent_campaign": {
+    "path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1/manifest.json",
+    "sha256": "4c0edcaed105662aa30c18c48648b9a138dda3f44c6615d33b6e53ea95c535d8",
+    "launch_id": "41d491df-5a3b-4d4e-a965-55fc9d8b6849"
+  },
+  "controller_source_commit": "04ac80b18e95334501d9d24bf69f37301551f5df",
+  "controller_source_sha256": "9bbdc7b9839043553330c01679370e850e708544b93c2ebae0d6efb4b3ed8283",
+  "accepted_early_stopped_arm": "A128fixed",
+  "unequal_training_budgets": true
 }
