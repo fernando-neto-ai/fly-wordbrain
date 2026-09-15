@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "experiment_id": "C128bounded",
-  "status": "queued",
+  "status": "held_for_post_B_assessment",
   "status_as_of_utc": "2026-09-15T16:12:37.846494+00:00",
   "repository": "https://github.com/fernando-neto-ai/fly-wordbrain",
   "branch": "exp/encoder128-bounded",
@@ -54,5 +54,29 @@
   "controller_source_commit": "04ac80b18e95334501d9d24bf69f37301551f5df",
   "controller_source_sha256": "9bbdc7b9839043553330c01679370e850e708544b93c2ebae0d6efb4b3ed8283",
   "accepted_early_stopped_arm": "A128fixed",
-  "unequal_training_budgets": true
+  "unequal_training_budgets": true,
+  "queue_review_gate": {
+    "format_version": 1,
+    "status": "queue_paused_training_continues",
+    "created_at_utc": "2026-09-15T16:22:30.748075+00:00",
+    "instruction": "we must assess after the next experiment, how much we should unfreeze more the brain, to keep the reduced encoder, if it degrades too much the quality of it",
+    "reason": "Evaluate reduced-encoder quality and minimal additional brain plasticity after B before C/D launch.",
+    "active_arm": "B32fixed",
+    "blocked_arms": [
+      "C128bounded",
+      "D32bounded"
+    ],
+    "controller_pid": 96472,
+    "controller_birth": "Tue Sep 15 13:10:34 2026",
+    "training_pid": 96485,
+    "training_birth": "Tue Sep 15 13:10:40 2026",
+    "mechanism": "SIGSTOP only to the continuation controller while it waits for B; no signal to training child. Caffeinate remains alive.",
+    "resume_policy": "Do not SIGCONT the controller before the post-B assessment; resuming it would automatically schedule C then D.",
+    "source_files_changed": false,
+    "controller_state": "Ts",
+    "training_state": "U",
+    "verified_at_utc": "2026-09-15T16:22:30.754716+00:00"
+  },
+  "review_protocol": "experiments/POST_B_REVIEW.md",
+  "review_policy_commit": "36ee159f52f650a38f363f213c8bcfcff9bc0ac3"
 }
