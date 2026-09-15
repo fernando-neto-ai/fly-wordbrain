@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "experiment_id": "C128bounded",
-  "status": "held_for_post_B_assessment",
+  "status": "held_after_post_B_assessment",
   "status_as_of_utc": "2026-09-15T16:12:37.846494+00:00",
   "repository": "https://github.com/fernando-neto-ai/fly-wordbrain",
   "branch": "exp/encoder128-bounded",
@@ -78,5 +78,16 @@
     "verified_at_utc": "2026-09-15T16:22:30.754716+00:00"
   },
   "review_protocol": "experiments/POST_B_REVIEW.md",
-  "review_policy_commit": "36ee159f52f650a38f363f213c8bcfcff9bc0ac3"
+  "review_policy_commit": "36ee159f52f650a38f363f213c8bcfcff9bc0ac3",
+  "post_B_assessment": {
+    "report": "experiments/reports/encoder32-post-B-assessment.md",
+    "source_commit": "45e8fbe2c85e95b37d44b149f1bddef0f801ded1",
+    "native_result_root": "macm3:/Users/fernando/fly_wordbrain_connectorch/results/connectorch-post-b-quality-v1",
+    "result_sha256": "5e9531e18be6b5d97024f1ba4fbbc3f1be05f024320dee2fd0c97edfc7251388",
+    "completed_at_utc": "2026-09-15T17:47:49.758096+00:00",
+    "all_four_checkpoint_replays_passed": true,
+    "reserved_test_evaluated": false,
+    "conclusion": "Keep width32; no additional connection gains currently required; next experiments held/proposed."
+  },
+  "next_action": "Await selection of the next experiment; no automatic queue release."
 }
