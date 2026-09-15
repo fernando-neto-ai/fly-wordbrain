@@ -4,10 +4,11 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { attachFlyMotion } from './fly-motion.js';
+import { storyPerformance } from './story-performance.js';
 
 const $ = (id) => document.getElementById(id);
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const state = { manifest: null, layout: null, trace: null, frame: 0, playing: false, speed: 1, narration: false, motion: 'idle', view: 'fly', ready: false };
+const state = { manifest: null, layout: null, trace: null, frame: 0, playing: false, speed: 1, narration: false, motion: 'story', view: 'fly', ready: false };
 let lastStep = 0, transitionStart = 0, loadSequence = 0;
 const frameDuration = () => 360 / state.speed;
 const byId = new Map();
@@ -75,7 +76,7 @@ function setupScene() {
   };
   new ResizeObserver(resize).observe($('fly-stage')); new ResizeObserver(resize).observe($('brain-stage')); resize();
   const motions = document.createElement('div'); motions.className = 'motion-controls';
-  motions.innerHTML = '<span>ILLUSTRATED MOVEMENT</span><button data-motion="idle" class="active" aria-pressed="true">Listen</button><button data-motion="walk" aria-pressed="false">Wander</button><button data-motion="fly" aria-pressed="false">Take flight ↗</button>';
+  motions.innerHTML = '<span>ILLUSTRATED MOVEMENT</span><button data-motion="story" class="active" aria-pressed="true" title="Move with story playback">Story</button><button data-motion="idle" aria-pressed="false">Listen</button><button data-motion="walk" aria-pressed="false">Wander</button><button data-motion="fly" aria-pressed="false">Take flight ↗</button>';
   document.querySelector('.specimen').appendChild(motions);
   motions.querySelectorAll('button').forEach(button => button.addEventListener('click', () => {
     state.motion = button.dataset.motion; motions.querySelectorAll('button').forEach(b => { b.classList.toggle('active', b === button); b.setAttribute('aria-pressed', b === button); });
@@ -307,30 +308,34 @@ function setView(view) {
 }
 function animate() {
   requestAnimationFrame(animate);
-  const dt = Math.min(clock.getDelta(), .05), t = clock.elapsedTime, now = performance.now();
+  const dt = Math.min(clock.getDelta(), .05), now = performance.now();
   if (state.playing && now - lastStep >= frameDuration()) {
     lastStep = now;
     if (state.frame < state.trace.frames.length - 1) seek(state.frame + 1);
     else pause();
   }
   if (brainUniforms && brainUniforms.uBlend.value < 1) brainUniforms.uBlend.value = Math.min(1, (now - transitionStart) / Math.min(160, frameDuration() * .55));
-  if (motion) {
-    movementTime += reducedMotion ? dt * .2 : dt;
-    if (state.motion === 'walk') walkPhase += dt * (reducedMotion ? .18 : .5);
+  const performanceStep = state.motion === 'story'
+    ? storyPerformance({ playing: state.playing, reducedMotion, frame: state.trace?.frames[state.frame], elapsedMs: now - lastStep, frameDurationMs: frameDuration(), dt })
+    : { mode: state.motion, delta: dt };
+  if (motion && performanceStep.delta > 0) {
+    const motionDt = performanceStep.delta, motionMode = performanceStep.mode;
+    movementTime += reducedMotion ? motionDt * .2 : motionDt;
+    if (motionMode === 'walk') walkPhase += motionDt * (reducedMotion ? .18 : .5);
     // The displayed path and gait use the same instantaneous physical speed.
     const pathRate = reducedMotion ? .18 : .5;
     const vx = .6 * pathRate * Math.cos(walkPhase), vz = .5 * pathRate * Math.cos(2 * walkPhase);
     const ax = -.6 * pathRate ** 2 * Math.sin(walkPhase), az = -(pathRate ** 2) * Math.sin(2 * walkPhase);
     const yawRate = -(vx * az - vz * ax) / (vx * vx + vz * vz);
-    const movement = motion.update(movementTime, dt, state.motion, { walkSpeed: Math.hypot(vx, vz) / actor.scale.x, yawRate });
-    hovering = THREE.MathUtils.damp(hovering, movement.flightBlend, 3.5, dt);
-    actor.position.y = -.92 + hovering * .7 + (state.motion === 'fly' ? Math.sin(t * 2) * .04 * hovering : 0);
-    if (state.motion === 'walk') {
+    const movement = motion.update(movementTime, motionDt, motionMode, { walkSpeed: Math.hypot(vx, vz) / actor.scale.x, yawRate });
+    hovering = THREE.MathUtils.damp(hovering, movement.flightBlend, 3.5, motionDt);
+    actor.position.y = -.92 + hovering * .7 + (motionMode === 'fly' ? Math.sin(movementTime * 2) * .04 * hovering : 0);
+    if (motionMode === 'walk') {
       actor.position.x = .2 + Math.sin(walkPhase) * .6; actor.position.z = Math.sin(2 * walkPhase) * .25;
       const targetYaw = -Math.atan2(vz, vx), deltaYaw = Math.atan2(Math.sin(targetYaw - actor.rotation.y), Math.cos(targetYaw - actor.rotation.y));
-      actor.rotation.y += deltaYaw * (1 - Math.exp(-dt * 8));
+      actor.rotation.y += deltaYaw * (1 - Math.exp(-motionDt * 8));
     }
-    actor.rotation.z = hovering * Math.sin(t * 1.3) * .04;
+    actor.rotation.z = hovering * Math.sin(movementTime * 1.3) * .04;
   }
   if (cameraGoal && targetGoal) { camera.position.lerp(cameraGoal, .065); controls.target.lerp(targetGoal, .065); if (camera.position.distanceTo(cameraGoal) < .005) { cameraGoal = null; targetGoal = null; } }
   controls?.update();

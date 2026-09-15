@@ -15,7 +15,8 @@ Open `http://127.0.0.1:8781`. `npm run build` creates a portable `dist/` directo
 - Play or pause with the main button or Space. Replay restarts the current recording.
 - Drag the timeline to inspect an exact recorded frame; change the pace or choose one of the preserved stories.
 - Drag the specimen to orbit it. “Closer look” moves the camera toward the brain and makes the body transparent.
-- Listen, Wander and Take flight control an **illustrated actor**, independently of language inference. Its leg and wing articulation uses NeuroMechFly kinematics; these movements are not motor outputs from the language model.
+- Story is the default movement mode: the fly walks and turns during generated text, briefly rests at punctuation, and holds its exact pose when playback pauses. Reduced-motion preferences keep this automatic performance still.
+- Listen, Wander and Take flight manually override Story and control an **illustrated actor**, independently of story playback. Select Story again to restore synchronized movement. Its leg and wing articulation uses NeuroMechFly kinematics; these movements are not motor outputs from the language model.
 - The speaker button enables optional browser speech synthesis. Recorded token playback remains the timing reference; browser speech can have different timing.
 
 ## Recorded data
@@ -27,3 +28,5 @@ The shared layout contains 2,048 measured MaleCNS soma positions, sampled from 4
 Neuron brightness is based on the exported `round(255 × abs(h))` states with a **fixed square-root display curve**. The brief transition interpolates two recorded states; there are no synthetic neural flashes. The small line plot displays the sample mean absolute state. The displayed probability and current token come from the same frame as the neural state. Colors do not indicate excitation or inhibition, and the states are not biological spikes.
 
 The data can be inspected through the read-only portions of `window.__flyDemo.state`; the debug helper also exposes `seek(index)`, `play()`, `pause()` and `setView('fly' | 'brain')` for browser QA.
+
+The [visual reference review](REFERENCES.md) records the X clips and HF animation used to guide the presentation.
