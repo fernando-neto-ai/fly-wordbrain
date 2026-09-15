@@ -22,8 +22,14 @@
   },
   "training_host": "macm3",
   "artifact_root": "macm3:/Users/fernando/fly_wordbrain_connectorch/results/connectorch-decoder-v1-continuation/arms/F32rank128bounded",
-  "status": "running",
+  "status": "stopped_superseded_by_user_rank64_correction",
   "result_policy": "Commit compact provenance and reports here; preserve checkpoint binaries and dataset in verified artifact storage.",
   "execution_report": "experiments/reports/E32rank128fixed-accepted-early-stop.md",
-  "continuation_launch": "experiments/runs/decoder-v1-continuation-launch.json"
+  "continuation_launch": "experiments/runs/decoder-v1-continuation-launch.json",
+  "observed_updates": 2630,
+  "durable_updates": 2600,
+  "full_schedule_completed": false,
+  "stop_receipt": "experiments/records/F32rank128bounded-accepted-early-stop.json",
+  "next_arm": "G32rank64fixed",
+  "resume_selected": false
 }

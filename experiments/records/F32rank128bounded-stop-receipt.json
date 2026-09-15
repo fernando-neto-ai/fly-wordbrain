@@ -1,0 +1,256 @@
+{
+  "format_version": 1,
+  "arm": "F32rank128bounded",
+  "status": "intentionally_stopped",
+  "signal": "SIGTERM",
+  "signaled_at_utc": "2026-09-15T22:04:26.188407+00:00",
+  "observed_status_before_signal": {
+    "status": "running",
+    "activity": "training",
+    "pid": 13675,
+    "epoch": 2,
+    "batch": 24,
+    "offset": 256,
+    "updates": 2630,
+    "phase": 0,
+    "epoch_loss_sum": 177590.9434273243,
+    "epoch_tokens": 47866,
+    "epoch_correct": 12898,
+    "elapsed_seconds_this_invocation": 1030.285428541014,
+    "debug": false,
+    "best": {
+      "cross_entropy": 3.7786049545056493,
+      "top1_accuracy": 0.27448111913687484,
+      "updates": 2600,
+      "epoch": 2
+    },
+    "best_accuracy": {
+      "cross_entropy": 3.7786049545056493,
+      "top1_accuracy": 0.27448111913687484,
+      "updates": 2600,
+      "epoch": 2
+    }
+  },
+  "observed_status_after_exit": {
+    "status": "running",
+    "activity": "training",
+    "pid": 13675,
+    "epoch": 2,
+    "batch": 24,
+    "offset": 256,
+    "updates": 2630,
+    "phase": 0,
+    "epoch_loss_sum": 177590.9434273243,
+    "epoch_tokens": 47866,
+    "epoch_correct": 12898,
+    "elapsed_seconds_this_invocation": 1030.285428541014,
+    "debug": false,
+    "best": {
+      "cross_entropy": 3.7786049545056493,
+      "top1_accuracy": 0.27448111913687484,
+      "updates": 2600,
+      "epoch": 2
+    },
+    "best_accuracy": {
+      "cross_entropy": 3.7786049545056493,
+      "top1_accuracy": 0.27448111913687484,
+      "updates": 2600,
+      "epoch": 2
+    }
+  },
+  "process_cessation": {
+    "confirmed": true,
+    "confirmed_at_utc": "2026-09-15T22:04:28.517905+00:00",
+    "signal_target": "dispatcher",
+    "processes": [
+      {
+        "pid": 13662,
+        "birth": "Tue Sep 15 18:47:09 2026",
+        "alive": false,
+        "kernel_state": null,
+        "exited": true
+      },
+      {
+        "pid": 13675,
+        "birth": "Tue Sep 15 18:47:14 2026",
+        "alive": false,
+        "kernel_state": null,
+        "exited": true
+      }
+    ],
+    "kernel_exit_events": [
+      13675,
+      13662
+    ]
+  },
+  "native_process_status": {
+    "status": "failed",
+    "started_at_utc": "2026-09-15T21:47:14.076604+00:00",
+    "command": [
+      "/Users/fernando/fly_wordbrain_connectorch/.venv-connectorch/bin/python",
+      "-u",
+      "/Users/fernando/fly_wordbrain_connectorch/scripts/train_connectorch.py",
+      "--model",
+      "/Users/fernando/fly_wordbrain/data/ngxson-fly-llm-hf/65c677b3d566a2e9793d5f72999cdb441c6c0a9f",
+      "--data",
+      "/Users/fernando/fly_wordbrain/data/ngxson-tinystories-v1/dataset.json",
+      "--groups",
+      "/Users/fernando/fly_wordbrain_connectorch/data/connectorch-groups-v1/groups.npz",
+      "--output",
+      "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-decoder-v1-continuation/arms/F32rank128bounded",
+      "--epochs",
+      "30",
+      "--second-epochs",
+      "14",
+      "--batch-size",
+      "8",
+      "--chunk-size",
+      "32",
+      "--seed",
+      "42",
+      "--d-embed",
+      "32",
+      "--plasticity",
+      "bounded10",
+      "--readout-rank",
+      "128",
+      "--history-length",
+      "8",
+      "--skip-final-test",
+      "--device",
+      "mps",
+      "--eval-interval-updates",
+      "100"
+    ],
+    "runner_pid": 13662,
+    "worker_pid": 13675,
+    "exit_code": -15,
+    "error": "F handoff interrupted by signal 15",
+    "finished_at_utc": "2026-09-15T22:04:26.232185+00:00"
+  },
+  "native_campaign_failure": {
+    "status": "failed",
+    "error": "F handoff interrupted by signal 15",
+    "type": "CampaignError",
+    "phase": "training",
+    "arm": "F32rank128bounded",
+    "finished_at_utc": "2026-09-15T22:04:26.233144+00:00"
+  },
+  "sources_sha256": {
+    "/Users/fernando/fly_wordbrain_connectorch/scripts/run_connectorch_campaign.py": "85e699c6048cb1667825d7865e7016c21afcb94cb3f1f029ca97242c8c42831f",
+    "/Users/fernando/fly_wordbrain_connectorch/scripts/train_connectorch.py": "b50be2b34228439fa9d72756d18f7c8a293c8f502a15f23803d484b20461d1ab",
+    "/Users/fernando/fly_wordbrain_connectorch/scripts/train_ngxson.py": "b7712487070a313e688da5397bcfdb7021f73e19d539771c2c965ef6c43235cc",
+    "/Users/fernando/fly_wordbrain_connectorch/scripts/audit_connectorch.py": "154188a3b18361877999fee930b5305b1f759736f28056474f53d820c0e34448",
+    "/Users/fernando/fly_wordbrain_connectorch/scripts/prepare_connectorch_groups.py": "f46c84e6bfb4739f8651b6524e9b65aa059f660eb26187cecfb25cd925e53312",
+    "/Users/fernando/fly_wordbrain_connectorch/scripts/prepare_ngxson.py": "997e8894eba19bd756ba0073d30ce5cc19dd1e63577ec5574a95388529114867",
+    "/Users/fernando/fly_wordbrain_connectorch/fly_wordbrain/connectorch_model.py": "235ff815ae7fa1e2d693eb3293453c6f0e879f2e2c639e0c39d06a5bc57668fa",
+    "/Users/fernando/fly_wordbrain_connectorch/fly_wordbrain/connectorch_backend.py": "2e7d0efec68014ef41b91d16552af49c7fa6fea7bbb69956e17c4dd8a2107ebc",
+    "/Users/fernando/fly_wordbrain_connectorch/fly_wordbrain/metal_sparse_trainable.py": "d9d53f871f845b5e534998f3f505b50a39ec3002e90294bd5b8a18aa002462e4",
+    "/Users/fernando/fly_wordbrain_connectorch/fly_wordbrain/metal_sparse.py": "7ba777491221a700d63e20d1d052d42e53d5be1320fed789ec57befe503ca9db",
+    "/Users/fernando/fly_wordbrain_connectorch/fly_wordbrain/plastic_brain.py": "8a230179d3f7796c43c62e1c400c66f9a870bde2c5e4d79cbc86478238e94936",
+    "/Users/fernando/fly_wordbrain_connectorch/connectorch-source.json": "34a007b5791507bde32d225d4cba36bcd141f03ffa54438a5640b8ab45ce0636",
+    "/Users/fernando/fly_wordbrain_connectorch/requirements-connectorch.txt": "3b28980aeedb9ea12d7e385f804aface144e4054e9e52666d8b0e5fac41f5bb5",
+    "/Users/fernando/fly_wordbrain_connectorch/requirements-ngxson.txt": "9ca61364432cd639fd4be4368ef3d14991d6713824457e7cf710c78cca9a4b68",
+    "/Users/fernando/fly_wordbrain_connectorch/scripts/run_connectorch_decoder_campaign.py": "bd6d43be963f7f343789b75f86a4daf1d7a02b3d79a281008db08495bb2d3ec3",
+    "/Users/fernando/fly_wordbrain_connectorch/scripts/audit_connectorch_decoder.py": "af4b93eaf6365060ffbbd0d32dd7b49c1acd308e35b164f65bc7c7dbe0a8c07d",
+    "/Users/fernando/fly_wordbrain_connectorch/scripts/continue_connectorch_decoder_campaign.py": "d96701a3eeacb86b351dd1f4736c94f4946843b4fc9556d9c950dc6bebaeb4ba"
+  },
+  "selected_checkpoints": {
+    "format_version": 1,
+    "selectors": {
+      "minimum_validation_ce": {
+        "path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-decoder-v1-continuation/arms/F32rank128bounded/stopped-checkpoints/best.pt",
+        "sha256": "2104854e366860309b047693f6506a3e6c92c293230ab1eb92f8a59a51a819d7",
+        "cursor": {
+          "epoch": 2,
+          "batch": 21,
+          "offset": 192,
+          "updates": 2600,
+          "phase": 0,
+          "epoch_loss_sum": 155845.28569555283,
+          "epoch_tokens": 42054,
+          "epoch_correct": 11384
+        },
+        "validation": {
+          "cross_entropy": 3.7786049545056493,
+          "top1_accuracy": 0.27448111913687484,
+          "correct": 6004,
+          "tokens": 21874,
+          "stories": 100
+        },
+        "frozen_buffers_preserved": true,
+        "frozen_buffers_sha256": {
+          "brain.w_offsets": "53b216d7bc2503c539c2d2b03ce56f66eb8a2e9b902f0a20deda0ec4be37ade0",
+          "brain.w_indices": "0f17b9563457fbf84404c54227db86b5adcf04a689cdff5e33d32ec5d5e0b771",
+          "brain.w_values": "e6408887d3312783c65d3f10bb69b28fe50bb06699f0a8a9341d444e6eb0549a",
+          "brain.in_index": "ee440072f6c94b59c552cb09812af5894066ae28f686cda2cd2e35a3626beda6",
+          "brain.out_index": "5ac16e2c38cf0a1b4b4aea74eadeb2d487e153113d046895a813e09d010f0a18",
+          "brain.edge_group_index": "4b9af4b1e2313aba5a9a139ae3ecfc8fcae09a440c65802207a26775700f6eca",
+          "brain.node_type_index": "9ea440846c4bfde95c8c007320ad3bc3b79cfb3b69c2ff6a136c39fd41f658be"
+        },
+        "original_path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-decoder-v1-continuation/arms/F32rank128bounded/best.pt",
+        "checkpoint_contents_verified": true
+      },
+      "maximum_validation_accuracy": {
+        "path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-decoder-v1-continuation/arms/F32rank128bounded/stopped-checkpoints/best-accuracy.pt",
+        "sha256": "ed4adb497ce5378e18c700865335545f96936a1885aa817d01c6d55b643cb72a",
+        "cursor": {
+          "epoch": 2,
+          "batch": 21,
+          "offset": 192,
+          "updates": 2600,
+          "phase": 0,
+          "epoch_loss_sum": 155845.28569555283,
+          "epoch_tokens": 42054,
+          "epoch_correct": 11384
+        },
+        "validation": {
+          "cross_entropy": 3.7786049545056493,
+          "top1_accuracy": 0.27448111913687484,
+          "correct": 6004,
+          "tokens": 21874,
+          "stories": 100
+        },
+        "frozen_buffers_preserved": true,
+        "frozen_buffers_sha256": {
+          "brain.w_offsets": "53b216d7bc2503c539c2d2b03ce56f66eb8a2e9b902f0a20deda0ec4be37ade0",
+          "brain.w_indices": "0f17b9563457fbf84404c54227db86b5adcf04a689cdff5e33d32ec5d5e0b771",
+          "brain.w_values": "e6408887d3312783c65d3f10bb69b28fe50bb06699f0a8a9341d444e6eb0549a",
+          "brain.in_index": "ee440072f6c94b59c552cb09812af5894066ae28f686cda2cd2e35a3626beda6",
+          "brain.out_index": "5ac16e2c38cf0a1b4b4aea74eadeb2d487e153113d046895a813e09d010f0a18",
+          "brain.edge_group_index": "4b9af4b1e2313aba5a9a139ae3ecfc8fcae09a440c65802207a26775700f6eca",
+          "brain.node_type_index": "9ea440846c4bfde95c8c007320ad3bc3b79cfb3b69c2ff6a136c39fd41f658be"
+        },
+        "original_path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-decoder-v1-continuation/arms/F32rank128bounded/best-accuracy.pt",
+        "checkpoint_contents_verified": true
+      }
+    }
+  },
+  "latest_checkpoint": {
+    "path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-decoder-v1-continuation/arms/F32rank128bounded/stopped-checkpoints/latest.pt",
+    "sha256": "4d676800d37f4a0582f53b975fcd79d11f0fe4e4423e6b504e420fd020158b6f",
+    "cursor": {
+      "epoch": 2,
+      "batch": 21,
+      "offset": 192,
+      "updates": 2600,
+      "phase": 0,
+      "epoch_loss_sum": 155845.28569555283,
+      "epoch_tokens": 42054,
+      "epoch_correct": 11384
+    },
+    "frozen_buffers_sha256": {
+      "brain.w_offsets": "53b216d7bc2503c539c2d2b03ce56f66eb8a2e9b902f0a20deda0ec4be37ade0",
+      "brain.w_indices": "0f17b9563457fbf84404c54227db86b5adcf04a689cdff5e33d32ec5d5e0b771",
+      "brain.w_values": "e6408887d3312783c65d3f10bb69b28fe50bb06699f0a8a9341d444e6eb0549a",
+      "brain.in_index": "ee440072f6c94b59c552cb09812af5894066ae28f686cda2cd2e35a3626beda6",
+      "brain.out_index": "5ac16e2c38cf0a1b4b4aea74eadeb2d487e153113d046895a813e09d010f0a18",
+      "brain.edge_group_index": "4b9af4b1e2313aba5a9a139ae3ecfc8fcae09a440c65802207a26775700f6eca",
+      "brain.node_type_index": "9ea440846c4bfde95c8c007320ad3bc3b79cfb3b69c2ff6a136c39fd41f658be"
+    },
+    "frozen_buffers_preserved": true,
+    "optimizer_rng_and_cache_retained": true
+  },
+  "no_training_sources_changed": true,
+  "no_inference_performed": true
+}
