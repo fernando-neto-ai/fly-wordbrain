@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "passed": true,
+  "host": "macm3",
+  "hardware": "Apple M3 Max",
+  "started_at": "2026-09-15T14:52:21.999172+00:00",
+  "finished_at": "2026-09-15T14:53:07.395493+00:00",
+  "scope": "Exact full graph import and one teacher-forced forward/backward per case; 2 training stories x 32 tokens. Not convergence, throughput, or test-set evaluation.",
+  "torch": "2.11.0",
+  "python": "3.13.3 (main, Apr  8 2025, 13:54:08) [Clang 16.0.0 (clang-1600.0.26.6)]",
+  "platform": "macOS-15.6.1-arm64-arm-64bit-Mach-O",
+  "pytorch_enable_mps_fallback": "0",
+  "common_pipeline_commit": "3aaa2120cb01c30c670009d33e716c9c8e0318fc",
+  "source_sha256": {
+    "scripts/audit_connectorch.py": "154188a3b18361877999fee930b5305b1f759736f28056474f53d820c0e34448",
+    "scripts/prepare_ngxson.py": "997e8894eba19bd756ba0073d30ce5cc19dd1e63577ec5574a95388529114867",
+    "scripts/train_ngxson.py": "b7712487070a313e688da5397bcfdb7021f73e19d539771c2c965ef6c43235cc",
+    "scripts/prepare_connectorch_groups.py": "f46c84e6bfb4739f8651b6524e9b65aa059f660eb26187cecfb25cd925e53312",
+    "scripts/train_connectorch.py": "b50be2b34228439fa9d72756d18f7c8a293c8f502a15f23803d484b20461d1ab",
+    "connectorch-source.json": "34a007b5791507bde32d225d4cba36bcd141f03ffa54438a5640b8ab45ce0636",
+    "fly_wordbrain/connectorch_model.py": "235ff815ae7fa1e2d693eb3293453c6f0e879f2e2c639e0c39d06a5bc57668fa",
+    "fly_wordbrain/connectorch_backend.py": "2e7d0efec68014ef41b91d16552af49c7fa6fea7bbb69956e17c4dd8a2107ebc",
+    "fly_wordbrain/metal_sparse_trainable.py": "d9d53f871f845b5e534998f3f505b50a39ec3002e90294bd5b8a18aa002462e4"
+  },
+  "exact_ir": {
+    "passed": true,
+    "nodes": 49393,
+    "edges": 9050172,
+    "all_node_ids_endpoints_and_weights_exact": true,
+    "normalization": "none; released checkpoint values",
+    "grouping_archive_sha256": "a07d311cd04126b5e54ea9cb3e8945470af9049bcb8499fb406e3c38d185dd7f"
+  },
+  "data_file_sha256": "c1f553263545744786a8811ee6af7ace8c452820bbb99d15140b81625e40b3a8",
+  "groups_file_sha256": "a07d311cd04126b5e54ea9cb3e8945470af9049bcb8499fb406e3c38d185dd7f",
+  "criteria": {
+    "loss_abs_lt": 0.0001,
+    "all_parameter_gradient_relative_l2_lt": 0.001,
+    "all_parameters_and_gradients_finite": true,
+    "padding_gradient_exactly_zero": true,
+    "canonical_buffers_unchanged": true,
+    "both_factorized_gain_gradients_nonzero": true,
+    "native_mps_forward_and_backward_kernels": true,
+    "source_files_unchanged": true
+  },
+  "comparisons": {
+    "upstream_cpu_vs_connectorch_d128_fixed_cpu": {
+      "passed": true,
+      "loss_abs_difference": 0.0,
+      "max_gradient_relative_l2": 0.0,
+      "logits_max_abs": 0.0,
+      "state_max_abs": 0.0,
+      "cache_ids_and_length_equal": true
+    },
+    "upstream_cpu_vs_connectorch_d128_fixed_mps": {
+      "passed": true,
+      "loss_abs_difference": 0.0,
+      "max_gradient_relative_l2": 1.0860470604440946e-05,
+      "logits_max_abs": 3.5762786865234375e-05,
+      "state_max_abs": 7.994472980499268e-06,
+      "cache_ids_and_length_equal": true
+    },
+    "connectorch_d32_bounded10_cpu_vs_mps": {
+      "passed": true,
+      "loss_abs_difference": 9.5367431640625e-07,
+      "max_gradient_relative_l2": 2.195427759763603e-05,
+      "logits_max_abs": 3.7670135498046875e-05,
+      "state_max_abs": 4.542618989944458e-05,
+      "cache_ids_and_length_equal": true
+    }
+  },
+  "receipt_artifact": "macm3:/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1/preflight/parity.json",
+  "receipt_sha256": "91386bb2935a409b24a341353c7e1de256622fd10c8412b80c2f5247b0d0a372",
+  "sources_unchanged": true,
+  "claim_scope": "Native Apple GPU numerical correctness on this input; not a convergence or language-quality claim."
+}
