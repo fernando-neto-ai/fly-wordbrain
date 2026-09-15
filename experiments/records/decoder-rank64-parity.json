@@ -1,0 +1,607 @@
+{
+  "format_version": 1,
+  "passed": true,
+  "started_at": "2026-09-15T22:05:22.759891+00:00",
+  "training_run": false,
+  "optimizer_steps": 0,
+  "reserved_test_evaluated": false,
+  "scope": "G32rank64fixed full-graph CPU/MPS forward/backward parity; no optimizer, no F completion prerequisite.",
+  "arms": {
+    "G32rank64fixed": {
+      "d_embed": 32,
+      "readout_rank": 64,
+      "history_length": 8,
+      "lag_map": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "seed": 42,
+      "plasticity": "fixed",
+      "parameter_counts": {
+        "embedding": 32768,
+        "input_projection": 450048,
+        "neurons": 148179,
+        "edge_gains": 0,
+        "layernorm": 98786,
+        "readout": 3226688,
+        "other": 0,
+        "total": 3956469
+      }
+    }
+  },
+  "criteria": {
+    "loss_abs_lt": 0.0001,
+    "all_parameter_gradient_relative_l2_lt": 0.001,
+    "all_parameters_and_gradients_finite": true,
+    "padding_gradient_exactly_zero": true,
+    "canonical_buffers_unchanged": true,
+    "both_factorized_gain_gradients_nonzero": false,
+    "native_mps_forward_and_backward_kernels": true,
+    "source_files_unchanged": true,
+    "both_readout_factor_gradients_nonzero": true,
+    "initial_parameters_exact": true
+  },
+  "cases": {
+    "G32rank64fixed_cpu": {
+      "device": "cpu",
+      "loss": 6.9443278312683105,
+      "targets": 64,
+      "forward_backward_seconds": 3.3677484998479486,
+      "parameters_and_gradients_finite": {
+        "brain.in_proj": true,
+        "brain.gain": true,
+        "brain.rec_gain": true,
+        "brain.bias": true,
+        "brain.wte.weight": true,
+        "ln.weight": true,
+        "ln.bias": true,
+        "lm_head.0.weight": true,
+        "lm_head.1.weight": true
+      },
+      "frozen_buffers_unchanged": true,
+      "frozen_buffers_sha256": {
+        "brain.w_offsets": "53b216d7bc2503c539c2d2b03ce56f66eb8a2e9b902f0a20deda0ec4be37ade0",
+        "brain.w_indices": "0f17b9563457fbf84404c54227db86b5adcf04a689cdff5e33d32ec5d5e0b771",
+        "brain.w_values": "e6408887d3312783c65d3f10bb69b28fe50bb06699f0a8a9341d444e6eb0549a",
+        "brain.in_index": "ee440072f6c94b59c552cb09812af5894066ae28f686cda2cd2e35a3626beda6",
+        "brain.out_index": "5ac16e2c38cf0a1b4b4aea74eadeb2d487e153113d046895a813e09d010f0a18",
+        "brain.edge_group_index": "4b9af4b1e2313aba5a9a139ae3ecfc8fcae09a440c65802207a26775700f6eca",
+        "brain.node_type_index": "9ea440846c4bfde95c8c007320ad3bc3b79cfb3b69c2ff6a136c39fd41f658be"
+      },
+      "padding_gradient_zero": true,
+      "factorized_gain_gradients": {},
+      "backend": {
+        "canonical_graph_and_groups_sha256": "f530d7774df45a80da67657265596af1eaff56d41cace8b3dd0d33b4028cbd0f",
+        "plasticity": "fixed",
+        "group_count": 9161,
+        "edge_parameterization": "factorized_cell_types",
+        "lag_map": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "d_embed": 32,
+        "readout_rank": 64,
+        "neuron_gain_policy": "reference_unconstrained",
+        "sparse_backend": {
+          "backend": "cpu_trainable_csr",
+          "shape": [
+            49393,
+            49393
+          ],
+          "edges": 9050172,
+          "source_sha256": "7de174281eb8abcffee9bd422bad4a362217836bca9a4e13295143b93c4659f0",
+          "topology_sha256": "ea956b45a501da0a8e1e395bb1bceb0cc86fa2fc5f1ed22676e01c2989ab2c2c",
+          "edge_order": "supplied CSR order",
+          "edge_weight_gradients": true,
+          "first_order_only": true,
+          "dense_adjacency": false,
+          "edge_batch_intermediate": false,
+          "per_step_host_transfers": false,
+          "host_fallback": false,
+          "kernel_launch_count": {
+            "forward": 0,
+            "state_backward": 0,
+            "edge_backward": 0
+          },
+          "connectorch_backend": "metal_csr"
+        }
+      },
+      "native_kernel_gate": true,
+      "parameter_count": 3956469,
+      "passed": true,
+      "required_gradients": {
+        "brain.in_proj": {
+          "finite": true,
+          "nonzero_values": 450048,
+          "norm": 0.3529984652996063
+        },
+        "brain.gain": {
+          "finite": true,
+          "nonzero_values": 49393,
+          "norm": 0.04438311234116554
+        },
+        "brain.rec_gain": {
+          "finite": true,
+          "nonzero_values": 49252,
+          "norm": 0.03845718502998352
+        },
+        "brain.bias": {
+          "finite": true,
+          "nonzero_values": 49393,
+          "norm": 3.8340024948120117
+        },
+        "brain.wte.weight": {
+          "finite": true,
+          "nonzero_values": 1408,
+          "norm": 0.06871972233057022
+        },
+        "ln.weight": {
+          "finite": true,
+          "nonzero_values": 49393,
+          "norm": 0.024524187669157982
+        },
+        "ln.bias": {
+          "finite": true,
+          "nonzero_values": 49393,
+          "norm": 0.029553594067692757
+        },
+        "lm_head.0.weight": {
+          "finite": true,
+          "nonzero_values": 3161152,
+          "norm": 5.447507381439209
+        },
+        "lm_head.1.weight": {
+          "finite": true,
+          "nonzero_values": 65536,
+          "norm": 1.222303032875061
+        }
+      },
+      "all_required_gradients_nonzero": true
+    },
+    "G32rank64fixed_mps": {
+      "device": "mps",
+      "loss": 6.944327354431152,
+      "targets": 64,
+      "forward_backward_seconds": 0.17768895789049566,
+      "parameters_and_gradients_finite": {
+        "brain.in_proj": true,
+        "brain.gain": true,
+        "brain.rec_gain": true,
+        "brain.bias": true,
+        "brain.wte.weight": true,
+        "ln.weight": true,
+        "ln.bias": true,
+        "lm_head.0.weight": true,
+        "lm_head.1.weight": true
+      },
+      "frozen_buffers_unchanged": true,
+      "frozen_buffers_sha256": {
+        "brain.w_offsets": "53b216d7bc2503c539c2d2b03ce56f66eb8a2e9b902f0a20deda0ec4be37ade0",
+        "brain.w_indices": "0f17b9563457fbf84404c54227db86b5adcf04a689cdff5e33d32ec5d5e0b771",
+        "brain.w_values": "e6408887d3312783c65d3f10bb69b28fe50bb06699f0a8a9341d444e6eb0549a",
+        "brain.in_index": "ee440072f6c94b59c552cb09812af5894066ae28f686cda2cd2e35a3626beda6",
+        "brain.out_index": "5ac16e2c38cf0a1b4b4aea74eadeb2d487e153113d046895a813e09d010f0a18",
+        "brain.edge_group_index": "4b9af4b1e2313aba5a9a139ae3ecfc8fcae09a440c65802207a26775700f6eca",
+        "brain.node_type_index": "9ea440846c4bfde95c8c007320ad3bc3b79cfb3b69c2ff6a136c39fd41f658be"
+      },
+      "padding_gradient_zero": true,
+      "factorized_gain_gradients": {},
+      "backend": {
+        "canonical_graph_and_groups_sha256": "f530d7774df45a80da67657265596af1eaff56d41cace8b3dd0d33b4028cbd0f",
+        "plasticity": "fixed",
+        "group_count": 9161,
+        "edge_parameterization": "factorized_cell_types",
+        "lag_map": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "d_embed": 32,
+        "readout_rank": 64,
+        "neuron_gain_policy": "reference_unconstrained",
+        "sparse_backend": {
+          "backend": "metal_trainable_csr",
+          "shape": [
+            49393,
+            49393
+          ],
+          "edges": 9050172,
+          "source_sha256": "7de174281eb8abcffee9bd422bad4a362217836bca9a4e13295143b93c4659f0",
+          "topology_sha256": "94782c9a80268e4b909eeda57c5c7ead2fea5648d6cd24cb877575374837b875",
+          "edge_order": "supplied CSR order",
+          "edge_weight_gradients": true,
+          "first_order_only": true,
+          "dense_adjacency": false,
+          "edge_batch_intermediate": false,
+          "per_step_host_transfers": false,
+          "host_fallback": false,
+          "kernel_launch_count": {
+            "forward": 32,
+            "state_backward": 31,
+            "edge_backward": 0
+          },
+          "connectorch_backend": "metal_csr"
+        }
+      },
+      "native_kernel_gate": true,
+      "parameter_count": 3956469,
+      "passed": true,
+      "required_gradients": {
+        "brain.in_proj": {
+          "finite": true,
+          "nonzero_values": 450048,
+          "norm": 0.352996289730072
+        },
+        "brain.gain": {
+          "finite": true,
+          "nonzero_values": 49393,
+          "norm": 0.044382963329553604
+        },
+        "brain.rec_gain": {
+          "finite": true,
+          "nonzero_values": 49252,
+          "norm": 0.03845725208520889
+        },
+        "brain.bias": {
+          "finite": true,
+          "nonzero_values": 49393,
+          "norm": 3.8340206146240234
+        },
+        "brain.wte.weight": {
+          "finite": true,
+          "nonzero_values": 1408,
+          "norm": 0.06871939450502396
+        },
+        "ln.weight": {
+          "finite": true,
+          "nonzero_values": 49393,
+          "norm": 0.024524187669157982
+        },
+        "ln.bias": {
+          "finite": true,
+          "nonzero_values": 49393,
+          "norm": 0.029553594067692757
+        },
+        "lm_head.0.weight": {
+          "finite": true,
+          "nonzero_values": 3161152,
+          "norm": 5.447507381439209
+        },
+        "lm_head.1.weight": {
+          "finite": true,
+          "nonzero_values": 65536,
+          "norm": 1.2223029136657715
+        }
+      },
+      "all_required_gradients_nonzero": true
+    }
+  },
+  "comparisons": {
+    "G32rank64fixed_cpu_vs_mps": {
+      "passed": true,
+      "loss_abs_difference": 4.76837158203125e-07,
+      "max_gradient_relative_l2": 5.012918607144246e-05,
+      "gradient_comparison": {
+        "brain.in_proj": {
+          "max_abs": 2.21841037273407e-06,
+          "relative_l2": 4.02979865747671e-05,
+          "reference_norm": 0.3529984652996063,
+          "observed_norm": 0.352996289730072
+        },
+        "brain.gain": {
+          "max_abs": 6.988993845880032e-07,
+          "relative_l2": 3.9531723016376124e-05,
+          "reference_norm": 0.04438311234116554,
+          "observed_norm": 0.044382963329553604
+        },
+        "brain.rec_gain": {
+          "max_abs": 1.1886731954291463e-07,
+          "relative_l2": 4.7013583957932925e-06,
+          "reference_norm": 0.03845718502998352,
+          "observed_norm": 0.03845725208520889
+        },
+        "brain.bias": {
+          "max_abs": 4.405900835990906e-05,
+          "relative_l2": 5.012918607144246e-05,
+          "reference_norm": 3.8340024948120117,
+          "observed_norm": 3.8340206146240234
+        },
+        "brain.wte.weight": {
+          "max_abs": 8.25151801109314e-07,
+          "relative_l2": 3.228831733389811e-05,
+          "reference_norm": 0.06871972233057022,
+          "observed_norm": 0.06871939450502396
+        },
+        "ln.weight": {
+          "max_abs": 1.0622898116707802e-09,
+          "relative_l2": 3.6622154659486844e-07,
+          "reference_norm": 0.024524187669157982,
+          "observed_norm": 0.024524187669157982
+        },
+        "ln.bias": {
+          "max_abs": 1.1641532182693481e-10,
+          "relative_l2": 1.9584803007699085e-07,
+          "reference_norm": 0.029553594067692757,
+          "observed_norm": 0.029553594067692757
+        },
+        "lm_head.0.weight": {
+          "max_abs": 8.253846317529678e-08,
+          "relative_l2": 3.7475238059712297e-07,
+          "reference_norm": 5.447507381439209,
+          "observed_norm": 5.447507381439209
+        },
+        "lm_head.1.weight": {
+          "max_abs": 5.364418029785156e-07,
+          "relative_l2": 3.2551633460853348e-06,
+          "reference_norm": 1.222303032875061,
+          "observed_norm": 1.2223029136657715
+        }
+      },
+      "logits_max_abs": 3.3080577850341797e-06,
+      "state_max_abs": 4.542618989944458e-05,
+      "cache_ids_and_length_equal": true
+    }
+  },
+  "host_guard": {
+    "hostname": "Fernandos-MacBook-Pro-2.local",
+    "chip": "Apple M3 Max",
+    "passed": true,
+    "held_dispatchers": [],
+    "ancestor_dispatchers": [],
+    "checked_at_utc": "2026-09-15T22:05:22.802625+00:00"
+  },
+  "source_sha256": {
+    "scripts/audit_connectorch.py": "154188a3b18361877999fee930b5305b1f759736f28056474f53d820c0e34448",
+    "scripts/prepare_ngxson.py": "997e8894eba19bd756ba0073d30ce5cc19dd1e63577ec5574a95388529114867",
+    "scripts/train_ngxson.py": "b7712487070a313e688da5397bcfdb7021f73e19d539771c2c965ef6c43235cc",
+    "scripts/prepare_connectorch_groups.py": "f46c84e6bfb4739f8651b6524e9b65aa059f660eb26187cecfb25cd925e53312",
+    "scripts/train_connectorch.py": "b50be2b34228439fa9d72756d18f7c8a293c8f502a15f23803d484b20461d1ab",
+    "connectorch-source.json": "34a007b5791507bde32d225d4cba36bcd141f03ffa54438a5640b8ab45ce0636",
+    "fly_wordbrain/connectorch_model.py": "235ff815ae7fa1e2d693eb3293453c6f0e879f2e2c639e0c39d06a5bc57668fa",
+    "fly_wordbrain/connectorch_backend.py": "2e7d0efec68014ef41b91d16552af49c7fa6fea7bbb69956e17c4dd8a2107ebc",
+    "fly_wordbrain/metal_sparse_trainable.py": "d9d53f871f845b5e534998f3f505b50a39ec3002e90294bd5b8a18aa002462e4",
+    "fly_wordbrain/metal_sparse.py": "7ba777491221a700d63e20d1d052d42e53d5be1320fed789ec57befe503ca9db",
+    "fly_wordbrain/plastic_brain.py": "8a230179d3f7796c43c62e1c400c66f9a870bde2c5e4d79cbc86478238e94936",
+    "scripts/audit_connectorch_decoder.py": "af4b93eaf6365060ffbbd0d32dd7b49c1acd308e35b164f65bc7c7dbe0a8c07d",
+    "scripts/audit_connectorch_rank64.py": "eefd1501bc8bec2cd7d0de0e24ec529249bb2a37978fe05cd63baf778e546d4e"
+  },
+  "torch": "2.11.0",
+  "python": "3.13.3 (main, Apr  8 2025, 13:54:08) [Clang 16.0.0 (clang-1600.0.26.6)]",
+  "platform": "macOS-15.6.1-arm64-arm-64bit-Mach-O",
+  "pytorch_enable_mps_fallback": "0",
+  "connectorch": {
+    "repository": "https://github.com/us/connectorch",
+    "revision": "4bbfb645099aeb85bdbf850e1a87cc094769af87",
+    "package_path": "/Users/fernando/fly_wordbrain_connectorch/.venv-connectorch/lib/python3.13/site-packages/connectorch",
+    "python_files_sha256": {
+      "__init__.py": "870386621636ae465a54679b7b2eea6e0d4ca8ec5970e55682f8b6d03b47e02d",
+      "backends/__init__.py": "2fe4cd097cf7b0851edb3ffc671558da3474581362f76832df76247411560777",
+      "backends/base.py": "72b8364e821c034e00ac633206e21ec924aeee05220e2b21f2e8be365ffdf6fb",
+      "backends/dense.py": "1796e4ec879cf968264429bc0c76db5de5d1b98db5a637f7a33ee7b03c2a285d",
+      "backends/scatter.py": "e1a72e510f54b5a361e1958b81316309f0c3324d1cfc016b5006d8ad057af014",
+      "backends/sparse_mm.py": "d10544161ab1ed17f417c36ed854f7d2bd5f00c35d7e48c59aa53cac111c4b4a",
+      "cli/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "cli/main.py": "24294a708c731b26a02f93558a97b112bcff9f5ad9b3b61c1fe643dcbde05523",
+      "datasets/__init__.py": "ea26a24566663970540a26c4f282dd85713a7eded6855b1b95086ebfa1253632",
+      "datasets/_cache.py": "ff3558cc4eec0f8c952bcddf4245feb6117431cacd1c1eaee0974ebe9b47570e",
+      "datasets/build_sample.py": "4ec7a01123fda068d698a996dde3c2d1595dd51cb8c43b5bf0e5778ece4d54db",
+      "datasets/malecns.py": "6d43c44b96623f802baf9aa935f7fd324d56583b402d78b127d36bc1ef6ccd27",
+      "datasets/registry.py": "24f918e9f3e23540ee9faa1fafdb18ba81105d8f2dc3438b61585f4a674eb63d",
+      "datasets/toy.py": "12a6ab7da6c4ab50d01650f6b3d18577f991135731b172a394e6dc1c6ec7bf35",
+      "exceptions.py": "84047e4c7229be297471fb7c1a408da6fb5a0f9ecc7221b5d06aa6ed64675f6a",
+      "io/__init__.py": "20f12de824be5b072709c4f9cc80cb320e9dc86f96cffb40f67232821d26e81f",
+      "io/networkx_io.py": "ac32f99c11eb05a1a60baa639eac0670a882f37c4193af6ab5b255e73b07c206",
+      "io/neuprint.py": "4f20466753d8c7a7bb031c3daabcc6950c8eef4b37abf62db68034d7d90913f8",
+      "io/tabular.py": "7f55dfdacd677aecf27ca39a1849592bc6b11ea24b4a665830277638f85fcad8",
+      "ir/__init__.py": "1ee85aacf572033dcc7ffe80c0380d5452f670bc48e6249585faa416afd86c10",
+      "ir/connectome.py": "ae2f2b3f0f31c486b488c5c4b0ada212e43dd5ed6b2f4b7ce983506c64a9a11b",
+      "ir/schema.py": "444ef6d96be560df19fe3182a959f4f4023c8baae6c58235cbcf2ca93926c23d",
+      "ir/validation.py": "33ee7ccef0fb29e875a7f36d17369f9e88005beb37a1464244049fed7d824862",
+      "nn/__init__.py": "1239b8d2c4bc1abd75ecd0d730d068d92f2d698f00812eebb0d77cb4440e0c8c",
+      "nn/dynamics.py": "1a438f744a28c668553da213322d8033cd42c8d66b4bf218cb8cb8dca8781c7b",
+      "nn/model.py": "a1b94b1b5fbe040e2d14dfd6f4deb2e37ba6c96e06c74e98c328b31d3b942700",
+      "nn/parameterisation.py": "3a5ceb16c19dc59a7c2e98d5184f94cb7ff3364a3bc67a0bcd94c4deda484ad7",
+      "nn/recurrent.py": "c20a2f3cbe39bb126cad816e9bff2a78de9711128eadff8bd95a855a595d205a",
+      "nn/weights.py": "6404f4dcfe41ce8f175b97860aa346b0a37df181ec8065e31e2cb5b61e6282eb",
+      "transforms/__init__.py": "ecad8690ca36e1ca3112f8c52a59d792cc623608890d903aa9a22bbbabbb1b57",
+      "transforms/rewire.py": "42b44c75a583e859c86e17501116fc94617de459dd883db6eb76f0667d517deb",
+      "transforms/signs.py": "abf5429ed3e31613d9142d1b4fa0f7eabcb10e5a3bf9e71b596f72cec66b5c31"
+    }
+  },
+  "reference_files": {
+    "README.md": {
+      "bytes": 8205,
+      "sha256": "7c7a5789f8dbd6df11366ce2e3d4a7f52a1971a02c8a661f4a10ca3d1853c336",
+      "upstream_hash": "df1ee681a0804bbdf59214b8f1dfdc866e3782d4",
+      "hash_kind": "git"
+    },
+    "config.json": {
+      "bytes": 723,
+      "sha256": "4d1803c19b6c7c52719910758bf7ac21a0cb165e72a9fe60afb694c08415c2e7",
+      "upstream_hash": "bad00de7c077eb17762c8eb47d0184b44e5b0733",
+      "hash_kind": "git"
+    },
+    "configuration_fly.py": {
+      "bytes": 1569,
+      "sha256": "b565734525fc10fb05b7da4c1d00e0ed244341ad0bb40d10cb1311d7c8c0c66a",
+      "upstream_hash": "ea0fd7381f6cd6a9103e8d23f7bb65be05723479",
+      "hash_kind": "git"
+    },
+    "generation_config.json": {
+      "bytes": 216,
+      "sha256": "ec36960ffaccb09d682bc355b89a64a969a16417de96d64350fcb66aebaec7eb",
+      "upstream_hash": "92633eeb0790412fffaf8e8c70fd75e7b3a40d43",
+      "hash_kind": "git"
+    },
+    "model.safetensors": {
+      "bytes": 284134372,
+      "sha256": "355f06c44d14e38af50e9c801f51839c37a0a56ac4ca016da2be9b3ae6f215ad",
+      "upstream_hash": "355f06c44d14e38af50e9c801f51839c37a0a56ac4ca016da2be9b3ae6f215ad",
+      "hash_kind": "sha256"
+    },
+    "modeling_fly.py": {
+      "bytes": 10322,
+      "sha256": "43efb042f2809fe87eb172718511aa884b7b9f7c356181bede9f70148bb87319",
+      "upstream_hash": "c11110d0aaa6db2cc5c500b2a87e64a83c4d3a5d",
+      "hash_kind": "git"
+    },
+    "tokenizer.json": {
+      "bytes": 54528,
+      "sha256": "23fa13e034934738acffb418c9cbaa36d2f95e4d14b576e5d5313857feb81efb",
+      "upstream_hash": "bbd4e01e8bca8ace788e0f3498186a2953da7f20",
+      "hash_kind": "git"
+    },
+    "tokenizer_config.json": {
+      "bytes": 245,
+      "sha256": "42607e96e3e680826b662f1e772fe31af3572eb2a5b19ebca1ce665d5fe69758",
+      "upstream_hash": "2be9bbf6111a5252897b47d578ab9c71075f6a90",
+      "hash_kind": "git"
+    }
+  },
+  "data_file_sha256": "c1f553263545744786a8811ee6af7ace8c452820bbb99d15140b81625e40b3a8",
+  "groups_file_sha256": "a07d311cd04126b5e54ea9cb3e8945470af9049bcb8499fb406e3c38d185dd7f",
+  "group_metadata": {
+    "checkpoint_edges": 9050172,
+    "code_sha256": "f46c84e6bfb4739f8651b6524e9b65aa059f660eb26187cecfb25cd925e53312",
+    "distinct_annotated_types": 8156,
+    "factorized_gain_parameters": 18322,
+    "frozen_buffers_sha256": {
+      "brain.in_index": "ee440072f6c94b59c552cb09812af5894066ae28f686cda2cd2e35a3626beda6",
+      "brain.out_index": "5ac16e2c38cf0a1b4b4aea74eadeb2d487e153113d046895a813e09d010f0a18",
+      "brain.w_indices": "0f17b9563457fbf84404c54227db86b5adcf04a689cdff5e33d32ec5d5e0b771",
+      "brain.w_offsets": "53b216d7bc2503c539c2d2b03ce56f66eb8a2e9b902f0a20deda0ec4be37ade0",
+      "brain.w_values": "e6408887d3312783c65d3f10bb69b28fe50bb06699f0a8a9341d444e6eb0549a"
+    },
+    "full_type_pair_groups": 2625911,
+    "graph_sha256": "08bd21db0883698ac98501f4d70bb01eb72ea2736874fdb9092f9243b889db7b",
+    "max_weight_absolute_error": 2.9802322387695312e-08,
+    "model_revision": "65c677b3d566a2e9793d5f72999cdb441c6c0a9f",
+    "model_sha256": "355f06c44d14e38af50e9c801f51839c37a0a56ac4ca016da2be9b3ae6f215ad",
+    "node_mapping": "Sorted biological IDs for the five reference superclasses; every checkpoint edge, sign and scaled magnitude verified",
+    "node_type_groups": 9161,
+    "nodes": 49393,
+    "omission_reason": "Not established by this mapping audit; checkpoint topology is retained exactly",
+    "parameterization": "W0[e] * (1 + 0.1*tanh(theta_source[type(src)] + theta_destination[type(dst)]))",
+    "schema_version": 1,
+    "source_edges_not_in_checkpoint": 628902,
+    "source_induced_edges": 9679074,
+    "source_to_checkpoint_global_scale": 0.0009529943345114589,
+    "unknown_type_policy": "A distinct group for each biological ID lacking an official type; no type aliases",
+    "untyped_nodes": 1005,
+    "zero_checkpoint_edges": 0
+  },
+  "model_directory": "/Users/fernando/fly_wordbrain/data/ngxson-fly-llm-hf/65c677b3d566a2e9793d5f72999cdb441c6c0a9f",
+  "data_file": "/Users/fernando/fly_wordbrain/data/ngxson-tinystories-v1/dataset.json",
+  "groups_file": "/Users/fernando/fly_wordbrain_connectorch/data/connectorch-groups-v1/groups.npz",
+  "training_story_ids": [
+    "tinystories/train/0",
+    "tinystories/train/1"
+  ],
+  "exact_ir": {
+    "passed": true,
+    "nodes": 49393,
+    "edges": 9050172,
+    "all_node_ids_endpoints_and_weights_exact": true,
+    "normalization": "none; released checkpoint values"
+  },
+  "initialization": {
+    "passed": true,
+    "cpu_mps_parameter_hashes_equal": true,
+    "parameter_hashes": {
+      "brain.in_proj": {
+        "finite": true,
+        "sha256": "359e8a4adb5e6745ddb03b8f8310c2ffb5a644e8d0cffec84066ae274d4f310c",
+        "values": 450048,
+        "changed_from_initialization": null
+      },
+      "brain.gain": {
+        "finite": true,
+        "sha256": "df26f97c31c0f0f60d03eacebffdb5d07dce844e40a7e6fd07ccbbc1b9c5b993",
+        "values": 49393,
+        "changed_from_initialization": null
+      },
+      "brain.rec_gain": {
+        "finite": true,
+        "sha256": "4a8417270cdea7d0516c2821eb224fbe77c459d44a89b65242e4d1280fe86227",
+        "values": 49393,
+        "changed_from_initialization": null
+      },
+      "brain.bias": {
+        "finite": true,
+        "sha256": "492515bad9886f60a88fc6bba1ab5b6867528810a659b79bc0f8b8680a765f3c",
+        "values": 49393,
+        "changed_from_initialization": null
+      },
+      "brain.wte.weight": {
+        "finite": true,
+        "sha256": "286dd3004b886a7488cbcd398eadc7ff063b6635d986d6a579465949e359ccb0",
+        "values": 32768,
+        "changed_from_initialization": null
+      },
+      "ln.weight": {
+        "finite": true,
+        "sha256": "df26f97c31c0f0f60d03eacebffdb5d07dce844e40a7e6fd07ccbbc1b9c5b993",
+        "values": 49393,
+        "changed_from_initialization": null
+      },
+      "ln.bias": {
+        "finite": true,
+        "sha256": "492515bad9886f60a88fc6bba1ab5b6867528810a659b79bc0f8b8680a765f3c",
+        "values": 49393,
+        "changed_from_initialization": null
+      },
+      "lm_head.0.weight": {
+        "finite": true,
+        "sha256": "dd30081a1a1ad3a14d8049e3d7f20ab8b1c11fbf0f89f45a94529b64d2c3bd86",
+        "values": 3161152,
+        "changed_from_initialization": null
+      },
+      "lm_head.1.weight": {
+        "finite": true,
+        "sha256": "5af35a166d8d3456af2b6ec2f9395163253f432841de84087d1091882e0b0bb8",
+        "values": 65536,
+        "changed_from_initialization": null
+      }
+    },
+    "readout_shapes": {
+      "lm_head.0.weight": [
+        64,
+        49393
+      ],
+      "lm_head.1.weight": [
+        1024,
+        64
+      ]
+    },
+    "qualification": "Seed42 from scratch; rank64 second-factor std remains0.02, so initial logit scale differs from rank128."
+  },
+  "final_host_guard": {
+    "hostname": "Fernandos-MacBook-Pro-2.local",
+    "chip": "Apple M3 Max",
+    "passed": true,
+    "held_dispatchers": [],
+    "ancestor_dispatchers": [],
+    "checked_at_utc": "2026-09-15T22:05:40.437267+00:00"
+  },
+  "sources_unchanged": true,
+  "connectorch_unchanged": true,
+  "inputs_unchanged": true,
+  "finished_at": "2026-09-15T22:05:40.643928+00:00"
+}

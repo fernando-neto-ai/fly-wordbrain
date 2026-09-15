@@ -159,8 +159,9 @@ def fetch_fixture(tmp_path):
     return root,baseline
 
 
-def fetch(root):
-    request={'root':str(root),'files':m.FILES,'baseline_names':m.BASELINE_NAMES,'arms':m.ARMS}
+def fetch(root=None, candidates=None):
+    request={'root':str(root) if root is not None else None,'files':m.FILES,'baseline_names':m.BASELINE_NAMES,
+             'parent_names':m.PARENT_NAMES,'arms':m.ARMS,'candidates':[str(path) for path in candidates or []]}
     return subprocess.run([sys.executable,'-c',m.REMOTE,json.dumps(request)],capture_output=True,text=True)
 
 
@@ -193,3 +194,109 @@ def test_missing_decoder_manifest_does_not_accidentally_fetch_encoder_campaign(t
     text=report(fetched['files'])
     assert 'Baseline acceptance receipt has not yet been fetched' in text
     assert '**waiting_for_preflight**' in text
+
+
+def continuation_fixture(tmp_path):
+    parent,baseline=fetch_fixture(tmp_path)
+    continuation=parent.with_name(parent.name+'-continuation');continuation.mkdir()
+    def write(path,value):
+        path.parent.mkdir(parents=True,exist_ok=True)
+        path.write_text(json.dumps(value))
+        return {'path':str(path),'sha256':hashlib.sha256(path.read_bytes()).hexdigest()}
+    parent_manifest=json.loads((parent/'manifest.json').read_text())
+    parent_manifest['launch_id']='parent-id'
+    write(parent/'manifest.json',parent_manifest)
+    write(parent/'launch.json',{'launch_id':'parent-id','worker_pid':12345})
+    write(parent/'failure.json',{'status':'failed','error':'accepted operational stop'})
+    directory=parent/'arms/E32rank128fixed'
+    write(directory/'manifest.json',manifest('E32rank128fixed'))
+    write(directory/'status.json',{'status':'running','activity':'training','updates':14732})
+    write(directory/'launch.json',{'experiment_git':{'branch':'exp/decoder-rank128-fixed','commit':'e'*40}})
+    selectors={'minimum_validation_ce':selected(13700,3.1497,.36),
+               'maximum_validation_accuracy':selected(14300,3.1589,.3658)}
+    for name,entry in selectors.items():
+        entry['path']=str(directory/'stopped-checkpoints'/('best.pt' if name=='minimum_validation_ce' else 'best-accuracy.pt'))
+    write(directory/'selected-checkpoints.json',{'selectors':selectors})
+    rows=[{'event':'validation','updates':entry['cursor']['updates'],'epoch':11,'validation':entry['validation']}
+          for entry in selectors.values()]
+    rows.append({'event':'validation','updates':14700,'epoch':12,'validation':selected(14700,3.18,.362)['validation']})
+    (directory/'metrics.jsonl').write_text(''.join(json.dumps(row)+'\n' for row in rows))
+    stopped=write(directory/'stop-receipt.json',{'process_cessation':{'confirmed':True}})
+    acceptance=receipt()
+    acceptance.update(arm='E32rank128fixed',durable_updates=14700,observed_updates=14732,
+                      selected_checkpoints={'format_version':1,'selectors':selectors},stop_receipt=stopped)
+    accepted=write(directory/'accepted-early-stop.json',acceptance)
+    write(parent/'preflight/parity.json',{'passed':True})
+    write(parent/'smoke-results.json',{'passed':True,'arms':[{'name':arm,'passed':True} for arm in m.ARMS]})
+    bindings={str(path):hashlib.sha256(path.read_bytes()).hexdigest() for path in
+              [parent/'manifest.json',parent/'launch.json',parent/'preflight/parity.json',parent/'smoke-results.json',*directory.iterdir()]}
+    child={**parent_manifest,'parent_campaign':{'path':str(parent/'manifest.json'),
+           'sha256':bindings[str(parent/'manifest.json')],'launch_id':'parent-id'},
+           'accepted_arm_receipt':accepted,'accepted_early_stopped_arm':{'name':'E32rank128fixed','output':str(directory)},
+           'continuation_arms':['F32rank128bounded'],'unequal_training_budgets':True,
+           'preflight_reused_and_verified':True,'smoke_checks_reused_and_verified':True,
+           'input_files_sha256':bindings,'launch_id':'continuation-id'}
+    write(continuation/'manifest.json',child)
+    write(continuation/'launch.json',{'worker_pid':98765,'launch_id':'continuation-id'})
+    write(continuation/'campaign-status.json',{'status':'running','phase':'training','arm':'F32rank128bounded'})
+    write(continuation/'arms/F32rank128bounded/manifest.json',manifest('F32rank128bounded'))
+    write(continuation/'arms/F32rank128bounded/status.json',{'status':'running','activity':'training','updates':100})
+    return parent,continuation,baseline
+
+
+def test_continuation_fetches_preserved_e_and_b_with_f_only_running(tmp_path):
+    parent,continuation,baseline=continuation_fixture(tmp_path)
+    output=fetch(continuation)
+    assert output.returncode==0,output.stderr
+    snapshot=json.loads(output.stdout)
+    assert snapshot['source_paths']['arms/E32rank128fixed/metrics.jsonl']==str(parent/'arms/E32rank128fixed/metrics.jsonl')
+    assert snapshot['source_paths']['baseline/accepted-early-stop.json']==str(baseline/'accepted-early-stop.json')
+    assert snapshot['source_paths']['preflight/parity.json']==str(parent/'preflight/parity.json')
+    assert set(snapshot['files']) <= m.SNAPSHOT_FILES
+    summary=m.summarize_snapshot(snapshot['files'],'macm3','now')
+    assert summary['arms']['E32rank128fixed']['updates']==14700
+    assert summary['arms']['E32rank128fixed']['status']=='accepted early stop'
+    assert summary['arms']['F32rank128bounded']['status']=='running'
+    assert summary['arms']['E32rank128fixed']['selectors']['maximum_validation_accuracy']['cursor']['updates']==14300
+    text='\n'.join(m.render_report(summary))
+    assert 'Current arm: **F32rank128bounded**' in text
+    assert 'F-only continuation' in text
+    assert 'E/F budgets may now differ' in text
+    assert 'Campaign failure:' not in text
+    assert summary['smokes']['passed'] is True
+
+
+@pytest.mark.parametrize('changed',['manifest.json','arms/E32rank128fixed/metrics.jsonl',
+                                    'arms/E32rank128fixed/accepted-early-stop.json'])
+def test_continuation_rejects_changed_bound_parent_artifact(tmp_path,changed):
+    parent,continuation,_=continuation_fixture(tmp_path)
+    (parent/changed).write_text('{}')
+    output=fetch(continuation)
+    assert output.returncode!=0
+    assert 'Bound artifact changed' in output.stderr
+
+
+def test_default_selects_only_continuation_with_manifest_and_launch(tmp_path):
+    parent,continuation,_=continuation_fixture(tmp_path)
+    launched=(continuation/'launch.json').read_text()
+    (continuation/'launch.json').unlink()
+    candidates=[continuation,parent]
+    output=fetch(candidates=candidates)
+    assert output.returncode==0,output.stderr
+    assert json.loads(output.stdout)['remote_run']==str(parent)
+    (continuation/'launch.json').write_text(launched)
+    output=fetch(candidates=candidates)
+    assert output.returncode==0,output.stderr
+    assert json.loads(output.stdout)['remote_run']==str(continuation)
+    explicit=fetch(parent,candidates=candidates)
+    assert explicit.returncode==0,explicit.stderr
+    assert json.loads(explicit.stdout)['remote_run']==str(parent)
+
+
+def test_f_continuation_cannot_shadow_parent_e_artifacts(tmp_path):
+    _,continuation,_=continuation_fixture(tmp_path)
+    target=continuation/'arms/E32rank128fixed/status.json';target.parent.mkdir()
+    target.write_text(json.dumps({'status':'running','updates':99999}))
+    output=fetch(continuation)
+    assert output.returncode!=0
+    assert 'Unexpected E artifacts in F-only continuation' in output.stderr

@@ -1,0 +1,44 @@
+{
+  "format_version": 1,
+  "arm": "F32rank128bounded",
+  "decision": "stop_superseded_F_and_launch_rank64",
+  "authorization_basis": {
+    "explicit_user_instruction": "we were supposed to be training the rank64 .. the scheduled follow up was wrong",
+    "interpretation": "Stop the incorrectly ordered F run; launch G rank64 without requiring F completion."
+  },
+  "plateau_evidence": {
+    "decision_at_utc": "2026-09-15T22:04:26.187809+00:00",
+    "decision_validation_update": 2600,
+    "criterion": "Explicit user correction: rank64 should already be training; F is superseded.",
+    "plateau_assessed": false
+  },
+  "pre_signal_status": {
+    "status": "running",
+    "activity": "training",
+    "pid": 13675,
+    "epoch": 2,
+    "batch": 24,
+    "offset": 256,
+    "updates": 2630,
+    "phase": 0,
+    "epoch_loss_sum": 177590.9434273243,
+    "epoch_tokens": 47866,
+    "epoch_correct": 12898,
+    "elapsed_seconds_this_invocation": 1030.285428541014,
+    "debug": false,
+    "best": {
+      "cross_entropy": 3.7786049545056493,
+      "top1_accuracy": 0.27448111913687484,
+      "updates": 2600,
+      "epoch": 2
+    },
+    "best_accuracy": {
+      "cross_entropy": 3.7786049545056493,
+      "top1_accuracy": 0.27448111913687484,
+      "updates": 2600,
+      "epoch": 2
+    }
+  },
+  "pre_signal_verified_latest_sha256": "4d676800d37f4a0582f53b975fcd79d11f0fe4e4423e6b504e420fd020158b6f",
+  "next_arm": "G32rank64fixed"
+}

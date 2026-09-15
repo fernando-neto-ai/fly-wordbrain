@@ -1,5 +1,11 @@
 # Decoder reduction after the width-32 encoder assessment
 
+**Order corrected 2026-09-15:** the user intended rank64 to train after E.
+The automatic F continuation was an ordering error and is superseded. G is
+selected immediately after F cessation and its own numerical preflight. F
+completion or quality assessment is not a prerequisite. Earlier E/F sequencing
+below describes the historical plan only.
+
 The user authorized this pair on 2026-09-15: reduce the decoder as proposed,
 retain the reduced encoder, and test whether modest brain adaptation recovers
 any lost quality. The completed B assessment supports keeping encoder width32.
@@ -62,10 +68,11 @@ Only consider finer or less restricted brain adaptation after verifying the
 existing gain path changes predictions and measuring its remaining deficit.
 One seed and this small dataset cannot establish anatomical superiority.
 
-## Authorized later comparison: rank64
+## Current selected comparison: rank64
 
-The user subsequently requested a rank64 comparison after the current rank128
-pair. G32rank64fixed is planned after E/F training and their quality assessment.
+The user clarified that G32rank64fixed should be training now. It follows the
+preserved E32rank128fixed baseline directly; the incorrectly launched F run
+is stopped under that explicit correction, with its partial history retained.
 It retains encoder width32, eight explicit delays, fixed canonical edges and the
 same148,179 trained neuron values, data, seed42 and planned optimizer schedule.
 The bias-free decoder becomes49,393→64→1,024:3,226,688 decoder parameters and
@@ -76,7 +83,8 @@ validation selectors and matching generation prompts. The existing initializatio
 policy changes initial logit variance with rank; disclose this when interpreting
 early learning curves. Run a separate rank64 M3 CPU/MPS parity check and an
 eight-update optimizer smoke before full training. Existing rank128 evidence is
-not a rank64 preflight. Current E/F sources and queue remain unchanged.
+not a rank64 preflight. Existing model/trainer sources remain unchanged; the
+obsolete F queue must not resume.
 
 The configuration is experiments/configs/G32rank64fixed.json and its branch is
 exp/encoder32-readout64-fixed. All actual training remains serial on macm3.
