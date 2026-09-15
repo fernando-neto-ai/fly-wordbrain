@@ -11,3 +11,23 @@ vendor/doomfly/outputs/
 *.dylib
 *.so
 *.partial
+
+# Isolated environments and local runtime files
+.venv-*/
+.env
+.env.*
+!.env.example
+.DS_Store
+*.log
+*.lock.local
+
+# Training artifacts belong in verified artifact storage, not Git branches
+*.pt
+*.pth
+*.ckpt
+*.safetensors
+*.onnx
+*.npz
+*.npy
+*.feather
+*.parquet

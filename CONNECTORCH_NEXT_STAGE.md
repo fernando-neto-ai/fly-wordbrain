@@ -5,20 +5,27 @@ training smoke runs, must run on **macm3**. Local work is limited to development
 result inspection and small correctness checks. All campaign commands and any
 future training stages must explicitly target macm3.
 
-Quality gate update (2026-09-15): the paired checkpoint audit failed. The queued
-four-arm campaign is held even after the original run completes; its automatic
-launcher must not be invoked until this training-quality gap has been reviewed.
-The original reference continues unchanged. See `NGXSON_QUALITY_AUDIT.md` and
-`results/ngxson-quality-v1-mps-r2/report.md` for measurements and all fixed samples.
+Execution decision (2026-09-15): after reviewing held-out scores and generated
+text, the user accepted the current reference as sufficient to proceed, requested
+an early stop, and authorized the four-arm campaign. This supersedes the earlier
+hold for quality equivalence and completion of all 44 epochs. The reference was
+stopped at observed update 24,736; its latest durable checkpoint is update 24,700.
+It must not be labeled a completed 44-epoch run.
 
-Approved for implementation by the user on 2026-09-15. The native Metal backend,
-reference-compatible model variants and independent trainer are implemented.
-The four-arm campaign must wait for successful completion of
-`ngxson-reconstructed-v1`, then pass its own M3 preflight before starting.
-Checkpoint inference and Apple GPU numerical parity are reproduced;
-the original full training run is still in progress. The author's exact training split
-and several optimizer details are unpublished, so score comparisons must retain
-the reconstruction caveat in `NGXSON_REPLICATION.md`.
+The checksum-bound acceptance receipt is
+`results/ngxson-reconstructed-v1/accepted-baseline.json` in the original macm3
+checkout. It preserves both validation winners: minimum CE at update 3,500
+(CE 4.692816, accuracy 30.5797%) and maximum accuracy at update 24,100
+(CE 5.893177, accuracy 35.1605%). The campaign's accepted-baseline gate verifies
+that receipt and stopped-process evidence, then requires its own M3 numerical
+preflight before serial smoke tests and full arms.
+
+The native Metal backend, reference-compatible model variants and independent
+trainer are implemented. Released-checkpoint inference and Apple GPU numerical
+parity are reproduced. Full predictive-quality reproduction remains unestablished:
+the paired audit found materially worse CE, and the author's exact split and
+several optimization details are unpublished. The acceptance decision does not
+alter those findings. See `NGXSON_QUALITY_AUDIT.md` and `NGXSON_REPLICATION.md`.
 
 ## Question and parameter accounting
 

@@ -200,6 +200,15 @@ def test_mid_chunk_resume_matches_all_parameters_optimizer_rng_and_two_phases(tm
         assert result["status"] == "completed" and not result["test_evaluated"] and result["test_deferred"]
         assert result["checks"]["selected_checkpoint_audit"]["frozen_buffers_preserved"]
         assert result["checks"]["parameter_counts"]["edge_gains"] == 8
+        records = [json.loads(line) for line in (args.output / "metrics.jsonl").read_text().splitlines()]
+        accuracy_record = max(records, key=lambda record: record["validation"]["top1_accuracy"])
+        assert result["selected_accuracy"]["updates"] == accuracy_record["updates"]
+        retained = torch.load(args.output / "best-accuracy.pt", weights_only=False)
+        assert retained["cursor"]["updates"] == accuracy_record["updates"]
+        receipts = json.loads((args.output / "selected-checkpoints.json").read_text())["selectors"]
+        assert set(receipts) == {"minimum_validation_ce", "maximum_validation_accuracy"}
+        for receipt in receipts.values():
+            assert trainer.file_hash(receipt["path"]) == receipt["sha256"]
 
 
 @pytest.mark.parametrize("debug,skip", [(False, False), (True, False), (False, True)])
@@ -250,3 +259,41 @@ def test_invalid_node_type_indices_are_rejected(tmp_path, indices):
     np.savez(path, node_type_index=indices, metadata_json=json.dumps({"frozen_buffers_sha256": {}}))
     with pytest.raises(ValueError):
         trainer.load_groups(path)
+
+
+def test_opposing_validation_trends_retain_distinct_winners_and_earlier_ties():
+    best, accuracy = {"cross_entropy": None}, {"top1_accuracy": None}
+    history = [(5., .20), (4., .25), (4.5, .35), (4., .35)]
+    changes = []
+    for step, (ce, acc) in enumerate(history, 1):
+        best, accuracy, ce_changed, acc_changed = trainer.select_validation_checkpoints(
+            {"cross_entropy": ce, "top1_accuracy": acc}, {"updates": step, "epoch": 0}, best, accuracy)
+        changes.append((ce_changed, acc_changed))
+    assert changes == [(True, True), (True, True), (False, True), (False, False)]
+    assert best["updates"] == 2 and best["cross_entropy"] == 4.
+    assert accuracy["updates"] == 3 and accuracy["top1_accuracy"] == .35
+
+
+def test_accuracy_checkpoint_is_written_at_its_own_validation_step(tmp_path, monkeypatch):
+    arguments, _, _ = make_training_fixture(tmp_path, monkeypatch)
+    metrics = iter([(5., .20), (4., .25), (4.5, .35)])
+    def controlled_evaluate(*args, **kwargs):
+        ce, acc = next(metrics)
+        return {"cross_entropy": ce, "top1_accuracy": acc, "tokens": 3, "stories": 1}
+    monkeypatch.setattr(trainer, "evaluate", controlled_evaluate)
+    args = arguments(tmp_path / "opposing", "--max-updates", "4", "--skip-final-test")
+    trainer.run(args)
+    ce = torch.load(args.output / "best.pt", weights_only=False)
+    accuracy = torch.load(args.output / "best-accuracy.pt", weights_only=False)
+    latest = torch.load(args.output / "latest.pt", weights_only=False)
+    assert ce["cursor"]["updates"] == 2 and accuracy["cursor"]["updates"] == 4
+    assert latest["best"]["updates"] == 2 and latest["best_accuracy"]["updates"] == 4
+    assert any(not torch.equal(ce["parameters"][name], accuracy["parameters"][name]) for name in ce["parameters"])
+    receipt = json.loads((args.output / "selected-checkpoints.json").read_text())
+    trainer.validate_resume_selection(latest, receipt, args.output)
+    with pytest.raises(ValueError, match="Validation history is ahead"):
+        trainer.validate_resume_selection(ce, receipt, args.output)
+    mismatched = copy.deepcopy(latest)
+    mismatched["best_accuracy"]["top1_accuracy"] = .25
+    with pytest.raises(ValueError, match="Retained selector and resume checkpoint disagree"):
+        trainer.validate_resume_selection(mismatched, receipt, args.output)

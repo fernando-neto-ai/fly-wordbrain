@@ -1,17 +1,36 @@
 # Paired quality audit: reference reproduction gate
 
-The lowest-CE checkpoint does **not** match released FlyLLM quality. A later
-accuracy-selected checkpoint meets the predefined accuracy tolerance but still
-has substantially worse cross-entropy; both selectors are now tracked separately.
-Apple GPU numerical parity and reference inference reproduction were already
-verified; these are separate from reproducing training quality.
+The lowest-CE checkpoint does **not** match released FlyLLM quality. The
+accuracy-selected checkpoint evaluated at update 20,600 met the predefined
+accuracy tolerance but retained substantially worse cross-entropy. Apple GPU
+numerical parity and released-checkpoint inference reproduction are separate
+verified results.
+
+After reviewing these scores and generated text on 2026-09-15, the user accepted
+the reconstruction as a working reference, requested an early stop and authorized
+the next experiments. This explicitly supersedes the earlier campaign hold for
+quality equivalence and completion of all 44 planned epochs. It does not convert
+an early stop into recipe completion or remove the quality gap.
+
+The reference stopped at observed update 24,736; update 24,700 is its latest
+durable checkpoint. The final retained validation winners are:
+
+| Selector | Update | Validation CE | Validation accuracy |
+|---|---:|---:|---:|
+| Minimum CE | 3,500 | 4.692816 | 30.5797% |
+| Maximum accuracy | 24,100 | 5.893177 | 35.1605% |
+
+The original macm3 run's `accepted-baseline.json` binds the preserved checkpoints,
+user instruction and stopped-process evidence. The historical 200-story audit
+scores below belong to the checkpoints named in their tables; they are **not**
+measurements of the later update-24,100 accuracy winner.
 
 ## Follow-up: retain both validation winners
 
 The user requested both minimum validation CE and maximum validation accuracy.
-The active trainer is unchanged: `best.pt` continues to retain the CE winner.
-`scripts/watch_ngxson_accuracy.py` runs as a separate macm3 CPU observer and
-retains `results/ngxson-dual-selection-v1/best_accuracy.pt`. It uses native kqueue
+The original trainer remained unchanged: `best.pt` retained the CE winner.
+`scripts/watch_ngxson_accuracy.py` ran as a separate macm3 CPU observer and
+retained `results/ngxson-dual-selection-v1/best_accuracy.pt`. It uses native kqueue
 events, immutable hardlinks, CPU memory-mapped checkpoint inspection, source/data
 bindings and parameter fingerprints. Its selection receipt distinguishes the
 highest logged metric from the best actual retained weights. Some earlier
@@ -35,8 +54,9 @@ This follow-up reuses the previously revealed 200-story audit; checkpoint
 selection uses validation alone. All output samples and the earlier available
 accuracy candidate at update20,300 are preserved. The reserved final test remains
 untouched. The comparison is in `results/ngxson-dual-selection-v1/comparison.md`;
-live validation and retention continue on macm3. Saved validation CE replay for
-the accuracy checkpoint differs by −9.94e-9 and its correct/token counts match
+that historical comparison was followed by continued validation until the
+user-requested stop described above. Saved validation CE replay for the
+update-20,600 accuracy checkpoint differs by −9.94e-9 and its correct/token counts match
 exactly. Twelve evaluator fixtures and twelve observer fixtures pass, including
 native macOS event delivery through the actual observer CLI.
 
@@ -105,8 +125,15 @@ The existing trainer and model sources were left unchanged.
 
 ## Consequence
 
-Keep the already-running original training recipe intact through completion.
-Hold the prepared Connectorch ablations until the training-quality gap is
-reviewed. Completion of all epochs alone does not satisfy this quality gate.
-The current evidence does not identify which unpublished recipe/data detail
-causes the gap, and does not show a defect in the verified Apple GPU kernels.
+Proceed with the authorized ConnecTorch experiments using the preserved,
+user-accepted early-stop reference and its acceptance receipt. Run numerical
+preflight, training smoke tests and the matched four-arm campaign serially on
+macm3. Retain both validation winners in each new experiment and defer its final
+test according to the comparison protocol.
+
+The campaign can now launch without waiting for score equivalence or all 44
+reference epochs. Reports must still distinguish architectural/numerical
+reproduction, practical top-1 accuracy similarity and the unresolved probability
+quality gap. The current evidence neither identifies which unpublished
+recipe/data detail causes that gap nor shows a defect in the verified Apple GPU
+kernels.

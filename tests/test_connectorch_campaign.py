@@ -187,6 +187,14 @@ def arm_artifacts(manifest, arm, directory, smoke):
               "cross_entropy": {"A128fixed": 5., "B32fixed": 5.3, "C128bounded": 4.9, "D32bounded": 5.}[name],
               "top1_accuracy": .3}
     record = {"event": "validation", "updates": updates, "validation": metric, "model_audit": audit}
+    selectors = {}
+    for key, filename in (("minimum_validation_ce", "best.pt"), ("maximum_validation_accuracy", "best-accuracy.pt")):
+        checkpoint = directory / filename
+        checkpoint.write_text("fixture retained checkpoint: " + key)
+        selectors[key] = {"path": str(checkpoint.resolve()), "sha256": campaign.file_hash(checkpoint),
+            "cursor": {"updates": updates}, "validation": metric,
+            "frozen_buffers_preserved": True, "frozen_buffers_sha256": manifest["baseline_frozen_buffers_sha256"]}
+    write(directory / "selected-checkpoints.json", {"format_version": 1, "selectors": selectors})
     write(directory / "manifest.json", recorded)
     (directory / "metrics.jsonl").write_text(json.dumps(record) + "\n")
     write(directory / "process-status.json", {"status": "completed", "exit_code": 0})
@@ -198,7 +206,9 @@ def arm_artifacts(manifest, arm, directory, smoke):
         result = {"status": "completed", "debug": False, "updates": updates, "epochs": 44,
                   "test_evaluated": False, "test_deferred": True,
                   "checks": {**audit, "selected_checkpoint_audit": audit},
-                  "selected": {"cross_entropy": metric["cross_entropy"], "updates": updates}}
+                  "selected": {"cross_entropy": metric["cross_entropy"], "updates": updates},
+                  "selected_accuracy": {"top1_accuracy": metric["top1_accuracy"], "updates": updates},
+                  "selected_checkpoints": selectors}
         write(directory / "status.json", result)
         write(directory / "results.json", result)
 
@@ -296,3 +306,97 @@ def test_parallel_launch_lock_returns_without_spawning(tmp_path, monkeypatch):
     with campaign.lock_file(args.output / "launch.lock"):
         result = campaign.launch(args)
     assert result["status"] == "already_dispatching" and not calls
+
+
+def accepted_baseline(tmp_path):
+    args = completed_baseline(tmp_path)
+    (args.baseline_run / "results.json").unlink()
+    write(args.baseline_run / "status.json", {"status": "stopped_by_user", "updates": 20})
+    write(args.baseline_run / "process-status.json", {"status": "failed", "exit_code": -15})
+    # SIGTERM can leave an honest failure artifact; acceptance is a separate disposition.
+    write(args.baseline_run / "failure.json", {"status": "failed", "reason": "User requested SIGTERM"})
+    cessation = {"confirmed": True, "processes": [{"pid": 654321, "birth": "original birth", "alive": False}]}
+    stop_path = args.baseline_run / "stop-receipt.json"
+    write(stop_path, {"status": "stopped_by_user", "process_cessation": cessation})
+    manifest_path = args.baseline_run / "manifest.json"
+    manifest = campaign.read_json(manifest_path)
+    checkpoints = {}
+    for name in ("minimum_validation_ce", "maximum_validation_accuracy"):
+        path = args.baseline_run / (name + ".pt")
+        path.write_text("retained " + name)
+        checkpoints[name] = {"path": str(path), "sha256": campaign.file_hash(path),
+            "cursor": {"updates": 17}, "validation": {"cross_entropy": 4.5, "top1_accuracy": .32},
+            "frozen_buffers_preserved": True, "frozen_buffers_sha256": manifest["frozen_buffers_sha256"]}
+    receipt = {"format_version": 1, "status": "accepted_early_stop", "accepted_by": "user",
+        "instruction": "Stop the training here and move forward into the next experiments",
+        "manifest": {"path": str(manifest_path), "sha256": campaign.file_hash(manifest_path)},
+        "stop_receipt": {"path": str(stop_path), "sha256": campaign.file_hash(stop_path)},
+        "process_cessation": cessation, "preserved_checkpoints": checkpoints}
+    args.accepted_baseline_receipt = args.baseline_run / "accepted-baseline.json"
+    write(args.accepted_baseline_receipt, receipt)
+    return args
+
+
+def test_explicit_user_accepted_stop_launches_without_fabricating_completed_baseline(tmp_path, monkeypatch):
+    args = accepted_baseline(tmp_path)
+    calls = intercept_dispatch(monkeypatch)
+    assert campaign.baseline_readiness(args.baseline_run)["status"] == "blocked"
+    assert campaign.launch(args)["status"] == "launched" and len(calls) == 1
+    manifest = campaign.read_json(args.output / "manifest.json")
+    assert manifest["baseline_acceptance_mode"] == "user_accepted_early_stop"
+    assert "44_epochs" not in manifest["baseline_gates"]
+    assert not (args.baseline_run / "results.json").exists()
+    assert campaign.read_json(args.baseline_run / "process-status.json")["exit_code"] == -15
+    assert str(args.accepted_baseline_receipt) in manifest["baseline_files_sha256"]
+    campaign.verify_bindings(manifest)
+
+
+@pytest.mark.parametrize("damage", ["checkpoint", "manifest", "stop_receipt", "missing_selector", "wrong_graph", "no_acceptance", "alive", "omitted_process", "running_status"])
+def test_accepted_stop_cannot_bypass_artifact_or_process_evidence(tmp_path, monkeypatch, damage):
+    args = accepted_baseline(tmp_path)
+    receipt = campaign.read_json(args.accepted_baseline_receipt)
+    if damage in ("checkpoint", "manifest", "stop_receipt"):
+        entry = receipt["preserved_checkpoints"]["minimum_validation_ce"] if damage == "checkpoint" else receipt[damage]
+        Path(entry["path"]).write_text("tampered")
+    elif damage == "missing_selector":
+        del receipt["preserved_checkpoints"]["maximum_validation_accuracy"]
+    elif damage == "wrong_graph":
+        receipt["preserved_checkpoints"]["maximum_validation_accuracy"]["frozen_buffers_sha256"] = {"wrong": "graph"}
+    elif damage == "no_acceptance":
+        receipt["accepted_by"] = "automatic_quality_threshold"
+    elif damage == "omitted_process":
+        write(args.baseline_run / "process-status.json", {"status": "failed", "worker_pid": 765432, "exit_code": -15})
+    elif damage == "running_status":
+        write(args.baseline_run / "status.json", {"status": "running", "updates": 20})
+    write(args.accepted_baseline_receipt, receipt)
+    calls = intercept_dispatch(monkeypatch)
+    if damage == "alive":
+        monkeypatch.setattr(campaign, "process_alive", lambda *args: True)
+    assert campaign.launch(args)["status"] == "blocked" and not calls
+
+
+def test_accuracy_winner_must_match_validation_history_and_retained_file(tmp_path, monkeypatch):
+    args, manifest = dispatched_worker(tmp_path, monkeypatch)
+    manifest["preflight_connectorch_source"] = parity_receipt(manifest)["connectorch"]
+    directory, arm = args.output / "test-dual", campaign.ARMS[0]
+    arm_artifacts(manifest, arm, directory, smoke=False)
+    result = campaign.verify_arm(manifest, arm, directory)
+    assert result["accuracy_validation"]["top1_accuracy"] == .3
+    (directory / "best-accuracy.pt").write_text("wrong retained model")
+    with pytest.raises(campaign.CampaignError, match="selector mismatch: maximum_validation_accuracy"):
+        campaign.verify_arm(manifest, arm, directory)
+
+
+def test_branch_mapping_is_bound_and_attached_to_each_arm(tmp_path, monkeypatch):
+    args = accepted_baseline(tmp_path)
+    mapping = {"repository": "https://github.com/fernando-neto-ai/fly-wordbrain",
+               "arms": {name: {"branch": "experiments/" + name, "commit": "a" * 40} for name, _, _ in campaign.ARMS}}
+    args.experiment_branches = args.root / "branches.json"
+    write(args.experiment_branches, mapping)
+    intercept_dispatch(monkeypatch)
+    assert campaign.launch(args)["status"] == "launched"
+    manifest = campaign.read_json(args.output / "manifest.json")
+    assert manifest["experiment_branches"] == mapping
+    args.experiment_branches.write_text("changed mapping")
+    with pytest.raises(campaign.CampaignError, match="bound campaign file changed"):
+        campaign.verify_bindings(manifest)

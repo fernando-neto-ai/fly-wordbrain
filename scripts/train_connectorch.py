@@ -336,7 +336,7 @@ def restore_rng(value, device):
         torch.mps.set_rng_state(value["torch_mps"])
 
 
-def save_checkpoint(path, model, optimizer, scheduler, cursor, cache, best, manifest, device):
+def save_checkpoint(path, model, optimizer, scheduler, cursor, cache, best, manifest, device, best_accuracy=None):
     structure = model_audit(model, manifest["frozen_buffers_sha256"])
     hashes = structure["frozen_buffers_sha256"]
     parameters = parameters_cpu(model)
@@ -349,10 +349,55 @@ def save_checkpoint(path, model, optimizer, scheduler, cursor, cache, best, mani
              "model_audit": structure,
              "optimizer": optimizer.state_dict(), "scheduler": scheduler.state_dict(),
              "cursor": dict(cursor), "cache": cache_state(cache), "best": dict(best),
+             "best_accuracy": dict(best_accuracy) if best_accuracy is not None else None,
              "rng": rng_state(device), "manifest": manifest, "frozen_buffers_sha256": hashes}
     temp = Path(str(path) + ".tmp")
     torch.save(value, temp)
     temp.replace(path)
+
+
+def select_validation_checkpoints(metric, cursor, best, best_accuracy):
+    """Independent selectors retain the earlier checkpoint on exact metric ties."""
+    if not math.isfinite(metric["cross_entropy"]) or not 0 <= metric["top1_accuracy"] <= 1:
+        raise ValueError("Checkpoint selection requires finite validation metrics")
+    ce_improved = best["cross_entropy"] is None or metric["cross_entropy"] < best["cross_entropy"]
+    accuracy_improved = best_accuracy["top1_accuracy"] is None or metric["top1_accuracy"] > best_accuracy["top1_accuracy"]
+    selected = {"cross_entropy": metric["cross_entropy"], "top1_accuracy": metric["top1_accuracy"],
+                "updates": cursor["updates"], "epoch": cursor["epoch"]}
+    return (dict(selected) if ce_improved else best, dict(selected) if accuracy_improved else best_accuracy,
+            ce_improved, accuracy_improved)
+
+
+def selected_checkpoint_receipt(path, cursor, metric, audit):
+    return {"path": str(Path(path).resolve()), "sha256": file_hash(path), "cursor": dict(cursor),
+            "validation": dict(metric), "frozen_buffers_preserved": audit["frozen_buffers_preserved"],
+            "frozen_buffers_sha256": audit["frozen_buffers_sha256"]}
+
+
+def validate_resume_selection(saved, receipt, directory):
+    """Fail closed after a partial multi-file save or an attempt to rewind a run."""
+    selectors = receipt.get("selectors", {})
+    expected = {"minimum_validation_ce": ("best.pt", saved["best"], "cross_entropy", min),
+                "maximum_validation_accuracy": ("best-accuracy.pt", saved["best_accuracy"], "top1_accuracy", max)}
+    if receipt.get("format_version") != 1 or set(selectors) != set(expected):
+        raise ValueError("Resume requires both retained validation checkpoint receipts")
+    records = [json.loads(line) for line in (Path(directory) / "metrics.jsonl").read_text().splitlines()]
+    records = [record for record in records if record.get("event") == "validation"]
+    if not records or any(record["updates"] > saved["cursor"]["updates"] for record in records):
+        raise ValueError("Validation history is ahead of the resume checkpoint; recover a consistent checkpoint set")
+    for name, (filename, selection, metric_name, choose) in expected.items():
+        entry, path = selectors[name], Path(directory) / filename
+        record = choose(records, key=lambda record: record["validation"][metric_name])
+        if (Path(entry.get("path", "")).resolve() != path.resolve()
+                or file_hash(path) != entry.get("sha256")
+                or entry.get("cursor", {}).get("updates") != selection["updates"]
+                or entry["cursor"].get("epoch") != selection["epoch"]
+                or entry.get("validation") != record["validation"]
+                or record["updates"] != selection["updates"]
+                or any(entry["validation"].get(key) != selection.get(key) for key in ("cross_entropy", "top1_accuracy"))
+                or entry.get("frozen_buffers_preserved") is not True
+                or entry.get("frozen_buffers_sha256") != saved["manifest"]["frozen_buffers_sha256"]):
+            raise ValueError("Retained selector and resume checkpoint disagree: " + name)
 
 
 def validate_data(data, config):
@@ -471,7 +516,7 @@ def run(args):
                                 "layernorm_optimizer_group": "readout",
                                 "phase2_optimizer": "keep Adam moments; reset learning rates and cosine schedule",
                                 "scheduler": "cosine to zero per phase, every chunk optimizer update",
-                                "selection": "minimum token-weighted validation cross entropy; earlier on exact tie",
+                                "selection": "retain independent minimum validation CE and maximum validation top1 accuracy; earlier on exact ties; final test uses CE winner",
                                 "data_order": "random.Random(seed+zero_based_epoch), reshuffle whole stories",
                                 "initialization_order": "embedding,input_projection,gain,bias,rec_gain,LayerNorm,readout; edge_theta=0",
                                 "edge_gain_optimizer_group": "input_and_neurons",
@@ -483,6 +528,8 @@ def run(args):
     cursor = {"epoch": 0, "batch": 0, "offset": 0, "updates": 0, "phase": 0,
               "epoch_loss_sum": 0.0, "epoch_tokens": 0, "epoch_correct": 0}
     best = {"cross_entropy": None, "updates": 0, "epoch": 0}
+    best_accuracy = {"top1_accuracy": None, "updates": 0, "epoch": 0}
+    selected_checkpoints = {"format_version": 1, "selectors": {}}
     saved = None
     if args.resume:
         saved = torch.load(args.resume, map_location="cpu", weights_only=False)
@@ -492,6 +539,11 @@ def run(args):
                 raise ValueError("Resume mismatch: " + key)
         restore_parameters(model, saved["parameters"])
         cursor, best = dict(saved["cursor"]), dict(saved["best"])
+        if saved.get("best_accuracy") is None:
+            raise ValueError("Resume checkpoint lacks the independent validation accuracy selector")
+        best_accuracy = dict(saved["best_accuracy"])
+        selected_checkpoints = json.loads((args.output / "selected-checkpoints.json").read_text())
+        validate_resume_selection(saved, selected_checkpoints, args.output)
     model.to(args.device)
     manifest["backend"] = model.backend_metadata()
     optimizer = optimizer_for(model, cursor["phase"])
@@ -508,10 +560,10 @@ def run(args):
     def status(phase, **extra):
         atomic_json(args.output / "status.json", {"status": "running", "activity": phase, "pid": os.getpid(),
                     **cursor, "elapsed_seconds_this_invocation": time.monotonic() - started,
-                    "debug": manifest["debug"], **extra})
+                    "debug": manifest["debug"], "best": best, "best_accuracy": best_accuracy, **extra})
 
     def validation(reason):
-        nonlocal best
+        nonlocal best, best_accuracy
         status("validation")
         metric = evaluate(model, data["validation"], args.device, args.batch_size, args.chunk_size,
                           model.config.pad_token_id, args.eval_limit)
@@ -522,10 +574,9 @@ def run(args):
         if cursor["epoch_tokens"]:
             record["training_epoch_so_far"] = {"cross_entropy": cursor["epoch_loss_sum"] / cursor["epoch_tokens"],
                     "top1_accuracy": cursor["epoch_correct"] / cursor["epoch_tokens"], "tokens": cursor["epoch_tokens"]}
-        improved = best["cross_entropy"] is None or metric["cross_entropy"] < best["cross_entropy"]
-        if improved:
-            best = {"cross_entropy": metric["cross_entropy"], "updates": cursor["updates"], "epoch": cursor["epoch"]}
+        best, best_accuracy, improved, accuracy_improved = select_validation_checkpoints(metric, cursor, best, best_accuracy)
         record["best"] = best
+        record["best_accuracy"] = best_accuracy
         append_json(args.output / "metrics.jsonl", record)
         print(json.dumps(record), flush=True)
         if reason == "epoch_end":
@@ -533,14 +584,21 @@ def run(args):
             # carry fresh epoch accumulators, including best.pt checkpoints.
             cursor["epoch_loss_sum"], cursor["epoch_tokens"], cursor["epoch_correct"] = 0.0, 0, 0
         if improved:
-            save_checkpoint(args.output / "best.pt", model, optimizer, scheduler, cursor, cache, best, manifest, args.device)
-        save_checkpoint(args.output / "latest.pt", model, optimizer, scheduler, cursor, cache, best, manifest, args.device)
+            path = args.output / "best.pt"
+            save_checkpoint(path, model, optimizer, scheduler, cursor, cache, best, manifest, args.device, best_accuracy)
+            selected_checkpoints["selectors"]["minimum_validation_ce"] = selected_checkpoint_receipt(path, cursor, metric, record["model_audit"])
+        if accuracy_improved:
+            path = args.output / "best-accuracy.pt"
+            save_checkpoint(path, model, optimizer, scheduler, cursor, cache, best, manifest, args.device, best_accuracy)
+            selected_checkpoints["selectors"]["maximum_validation_accuracy"] = selected_checkpoint_receipt(path, cursor, metric, record["model_audit"])
+        atomic_json(args.output / "selected-checkpoints.json", selected_checkpoints)
+        save_checkpoint(args.output / "latest.pt", model, optimizer, scheduler, cursor, cache, best, manifest, args.device, best_accuracy)
 
     if not args.resume:
         validation("initialization")
     if args.max_updates is not None and cursor["updates"] >= args.max_updates:
         atomic_json(args.output / "status.json", {"status": "debug_stopped", **cursor,
-                    "debug": True, "best": best, "test_evaluated": False,
+                    "debug": True, "best": best, "best_accuracy": best_accuracy, "test_evaluated": False,
                     "elapsed_seconds_this_invocation": time.monotonic() - started})
         return
     model.train()
@@ -589,7 +647,7 @@ def run(args):
                     validation("debug_limit" if limited else "update_interval")
                 if limited:
                     atomic_json(args.output / "status.json", {"status": "debug_stopped", **cursor,
-                                "debug": True, "best": best, "test_evaluated": False,
+                                "debug": True, "best": best, "best_accuracy": best_accuracy, "test_evaluated": False,
                                 "elapsed_seconds_this_invocation": time.monotonic() - started})
                     return
             cache = None
@@ -597,7 +655,7 @@ def run(args):
         cursor["epoch"], cursor["batch"], cursor["offset"] = epoch + 1, 0, 0
         validation("epoch_end")
         cursor["epoch_loss_sum"], cursor["epoch_tokens"], cursor["epoch_correct"] = 0.0, 0, 0
-        save_checkpoint(args.output / "latest.pt", model, optimizer, scheduler, cursor, cache, best, manifest, args.device)
+        save_checkpoint(args.output / "latest.pt", model, optimizer, scheduler, cursor, cache, best, manifest, args.device, best_accuracy)
 
     checks = model_audit(model, before)
     checks["backend"] = model.backend_metadata()
@@ -606,7 +664,8 @@ def run(args):
     del selected
     checks["selected_checkpoint_audit"] = model_audit(model, before)
     result = {"status": "debug_completed" if manifest["debug"] else "completed", "debug": manifest["debug"],
-              "updates": cursor["updates"], "epochs": cursor["epoch"], "selected": best, "checks": checks,
+              "updates": cursor["updates"], "epochs": cursor["epoch"], "selected": best,
+              "selected_accuracy": best_accuracy, "selected_checkpoints": selected_checkpoints["selectors"], "checks": checks,
               "test_evaluated": False, "test_deferred": bool(args.skip_final_test)}
     if not manifest["debug"] and not args.skip_final_test:
         status("final_test")

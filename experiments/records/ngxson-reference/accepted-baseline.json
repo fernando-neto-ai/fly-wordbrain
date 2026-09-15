@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "experiment_id": "ngxson-reference",
+  "disposition": "accepted_early_stop",
+  "training_host": "macm3",
+  "architecture": "original ngxson/fly-llm-hf reference architecture",
+  "recipe_completed": false,
+  "observed_updates_at_stop": 24736,
+  "last_durable_updates": 24700,
+  "completed_epochs": 20,
+  "training_source_commit": "f64c31465ac9506cb1c8cdebd8e4c15a11cf535d",
+  "artifact_root": "macm3:/Users/fernando/fly_wordbrain/results/ngxson-reconstructed-v1",
+  "accepted_baseline_receipt_sha256": "6c8248477a3516000324bd81b590f084b74885f47cb43aa74d6df574f2f7ddcb",
+  "stop_receipt_sha256": "5289893670e5790af39c51af8f08e735cd888ee87d851767154091ad7907c7ba",
+  "selectors": {
+    "minimum_validation_ce": {
+      "path": "/Users/fernando/fly_wordbrain/results/ngxson-reconstructed-v1/stopped-checkpoints/best-ce.pt",
+      "sha256": "7c89ceadd6e0902b4b7677822f684e2f0c0692b09fe816ed6146b6797ad212fc",
+      "cursor": {
+        "epoch": 2,
+        "batch": 115,
+        "offset": 256,
+        "updates": 3500,
+        "phase": 0,
+        "epoch_loss_sum": 752140.748843754,
+        "epoch_tokens": 217685,
+        "epoch_correct": 78674
+      },
+      "validation": {
+        "cross_entropy": 4.6928161145281155,
+        "top1_accuracy": 0.3057968364268081,
+        "correct": 6689,
+        "tokens": 21874,
+        "stories": 100
+      },
+      "frozen_buffers_preserved": true,
+      "frozen_buffers_sha256": {
+        "brain.w_offsets": "53b216d7bc2503c539c2d2b03ce56f66eb8a2e9b902f0a20deda0ec4be37ade0",
+        "brain.w_indices": "0f17b9563457fbf84404c54227db86b5adcf04a689cdff5e33d32ec5d5e0b771",
+        "brain.w_values": "e6408887d3312783c65d3f10bb69b28fe50bb06699f0a8a9341d444e6eb0549a",
+        "brain.in_index": "ee440072f6c94b59c552cb09812af5894066ae28f686cda2cd2e35a3626beda6",
+        "brain.out_index": "5ac16e2c38cf0a1b4b4aea74eadeb2d487e153113d046895a813e09d010f0a18"
+      }
+    },
+    "maximum_validation_accuracy": {
+      "path": "/Users/fernando/fly_wordbrain/results/ngxson-reconstructed-v1/stopped-checkpoints/best-accuracy.pt",
+      "sha256": "4aceed523e7bd1268789f357aa3536dea80aca3bd4c7a626338d0f26f4afe1b8",
+      "cursor": {
+        "epoch": 20,
+        "batch": 17,
+        "offset": 160,
+        "updates": 24100,
+        "phase": 0,
+        "epoch_loss_sum": 2227.9042567572396,
+        "epoch_tokens": 33274,
+        "epoch_correct": 32853
+      },
+      "validation": {
+        "cross_entropy": 5.893177243095217,
+        "top1_accuracy": 0.3516046447837615,
+        "correct": 7691,
+        "tokens": 21874,
+        "stories": 100
+      },
+      "frozen_buffers_preserved": true,
+      "frozen_buffers_sha256": {
+        "brain.w_offsets": "53b216d7bc2503c539c2d2b03ce56f66eb8a2e9b902f0a20deda0ec4be37ade0",
+        "brain.w_indices": "0f17b9563457fbf84404c54227db86b5adcf04a689cdff5e33d32ec5d5e0b771",
+        "brain.w_values": "e6408887d3312783c65d3f10bb69b28fe50bb06699f0a8a9341d444e6eb0549a",
+        "brain.in_index": "ee440072f6c94b59c552cb09812af5894066ae28f686cda2cd2e35a3626beda6",
+        "brain.out_index": "5ac16e2c38cf0a1b4b4aea74eadeb2d487e153113d046895a813e09d010f0a18"
+      }
+    }
+  },
+  "process_cessation": {
+    "confirmed": true,
+    "processes": [
+      {
+        "pid": 56554,
+        "alive": false
+      },
+      {
+        "pid": 56552,
+        "alive": false
+      },
+      {
+        "pid": 56553,
+        "alive": false
+      },
+      {
+        "pid": 22299,
+        "alive": false
+      }
+    ]
+  },
+  "interpretation": "User accepted generated-text quality for proceeding to controlled experiments. The 44-epoch recipe was stopped early; numerical/architecture reproduction does not establish full training-quality equivalence. The reserved test remains unevaluated.",
+  "related_evidence": [
+    "NGXSON_QUALITY_AUDIT.md",
+    "CONNECTORCH_NEXT_STAGE.md"
+  ]
+}

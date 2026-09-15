@@ -90,9 +90,84 @@ def process_alive(pid, birth=None):
     return birth is None or process_birth(pid) == birth
 
 
-def baseline_readiness(directory):
+def accepted_baseline_readiness(directory, receipt_path):
+    """An explicit user disposition is separate from successful recipe completion."""
+    directory, receipt_path = Path(directory), Path(receipt_path)
+    receipt = read_json(receipt_path)
+    if (receipt.get("format_version") != 1 or receipt.get("status") != "accepted_early_stop"
+            or receipt.get("accepted_by") != "user" or not receipt.get("instruction", "").strip()):
+        raise CampaignError("The accepted baseline receipt lacks explicit user acceptance")
+    bound = {str(receipt_path): file_hash(receipt_path)}
+
+    def referenced(entry):
+        path = Path(entry["path"])
+        if not path.is_absolute() or file_hash(path) != entry.get("sha256"):
+            raise CampaignError("Accepted baseline artifact is missing or changed: " + str(path))
+        bound[str(path)] = entry["sha256"]
+        return path
+
+    manifest_path = referenced(receipt["manifest"])
+    if manifest_path.resolve() != (directory / "manifest.json").resolve():
+        raise CampaignError("Acceptance receipt belongs to a different baseline")
+    stop = read_json(referenced(receipt["stop_receipt"]))
+    cessation = receipt.get("process_cessation", {})
+    processes = cessation.get("processes", [])
+    if (cessation.get("confirmed") is not True or not processes
+            or stop.get("process_cessation") != cessation):
+        raise CampaignError("Accepted baseline lacks matching process cessation evidence")
+    for process in processes:
+        if (not isinstance(process.get("pid"), int) or process["pid"] < 1
+                or process.get("alive") is not False
+                or process_alive(process["pid"], process.get("birth"))):
+            raise CampaignError("An accepted baseline process is still alive or has invalid evidence")
+    required = ("manifest.json", "launch.json", "status.json", "process-status.json")
+    available = {name: read_json(directory / name) for name in required}
+    if available["status.json"].get("status") != "stopped_by_user":
+        raise CampaignError("Accepted baseline must retain an explicit stopped_by_user status")
+    recorded_pids = {artifact[key] for artifact in available.values()
+                     for key in ("pid", "worker_pid", "runner_pid", "caffeinate_pid")
+                     if isinstance(artifact.get(key), int) and artifact[key] > 0}
+    if not recorded_pids.issubset({process["pid"] for process in processes}):
+        raise CampaignError("Process cessation evidence omits a recorded baseline process")
+    manifest = available["manifest.json"]
+    config, planned = manifest.get("config", {}), manifest.get("planned_phase_updates", [])
+    conditions = {
+        "original_reference": manifest.get("reference_repository") == "ngxson/fly-llm-hf" and manifest.get("reference_revision") == REVISION,
+        "not_debug": manifest.get("debug") is False,
+        "recipe": all(config.get(key) == value for key, value in {"epochs": 30, "second_epochs": 14,
+                    "batch_size": 8, "chunk_size": 32, "seed": 42}.items()),
+        "planned_schedule": len(planned) == 2 and all(isinstance(n, int) and n > 0 for n in planned),
+        "user_accepted_early_stop": True,
+        "process_cessation": True,
+    }
+    checkpoints = receipt.get("preserved_checkpoints", {})
+    if set(checkpoints) != {"minimum_validation_ce", "maximum_validation_accuracy"}:
+        raise CampaignError("Acceptance must preserve both validation checkpoint selectors")
+    for selector, checkpoint in checkpoints.items():
+        referenced(checkpoint)
+        metric, cursor = checkpoint.get("validation", {}), checkpoint.get("cursor", {})
+        if (checkpoint.get("frozen_buffers_preserved") is not True
+                or not manifest.get("frozen_buffers_sha256")
+                or checkpoint.get("frozen_buffers_sha256") != manifest["frozen_buffers_sha256"]
+                or not isinstance(cursor.get("updates"), int) or cursor["updates"] < 1
+                or not math.isfinite(metric.get("cross_entropy", float("nan")))
+                or metric["cross_entropy"] < 0 or not 0 <= metric.get("top1_accuracy", -1) <= 1):
+            raise CampaignError("Invalid preserved checkpoint evidence: " + selector)
+    failures = [name for name, passed in conditions.items() if not passed]
+    if failures:
+        raise CampaignError("Accepted baseline identity gates failed: " + ", ".join(failures))
+    for name in required:
+        bound[str(directory / name)] = file_hash(directory / name)
+    return {"status": "ready", "artifacts": available, "gates": conditions,
+            "acceptance_mode": "user_accepted_early_stop", "acceptance": receipt,
+            "baseline_files_sha256": bound}
+
+
+def baseline_readiness(directory, accepted_baseline_receipt=None):
     """Pure file checks; running, failed and incomplete references never launch."""
     directory = Path(directory)
+    if accepted_baseline_receipt is not None:
+        return accepted_baseline_readiness(directory, accepted_baseline_receipt)
     available = {name: read_json(directory / name) for name in BASELINE_FILES if (directory / name).exists()}
     status = available.get("status.json", {})
     process = available.get("process-status.json", {})
@@ -124,7 +199,8 @@ def baseline_readiness(directory):
     failures = [key for key, passed in conditions.items() if not passed]
     if failures:
         return {"status": "blocked", "reason": "Reference completion gates failed", "failed_gates": failures}
-    return {"status": "ready", "artifacts": available, "gates": conditions}
+    return {"status": "ready", "artifacts": available, "gates": conditions,
+            "acceptance_mode": "completed_reference_recipe"}
 
 
 def bind_inputs(args, ready):
@@ -148,12 +224,26 @@ def bind_inputs(args, ready):
         if file_hash(path) != receipt["sha256"]:
             raise CampaignError("The pinned reference file changed: " + str(path))
         inputs[str(path)] = receipt["sha256"]
-    baseline_files = {str(args.baseline_run / name): file_hash(args.baseline_run / name) for name in BASELINE_FILES}
+    baseline_files = ready.get("baseline_files_sha256")
+    if baseline_files is None:
+        baseline_files = {str(args.baseline_run / name): file_hash(args.baseline_run / name) for name in BASELINE_FILES}
+    experiment_branches = None
+    if args.experiment_branches is not None:
+        experiment_branches = read_json(args.experiment_branches)
+        entries = experiment_branches.get("arms", {})
+        if not experiment_branches.get("repository") or set(entries) != {arm[0] for arm in ARMS}:
+            raise CampaignError("Experiment branch mapping must identify the repository and all four arms")
+        for name, entry in entries.items():
+            commit = entry.get("commit", "")
+            if (not entry.get("branch") or len(commit) != 40
+                    or any(character not in "0123456789abcdef" for character in commit)):
+                raise CampaignError("Invalid experiment branch or commit: " + name)
+        inputs[str(args.experiment_branches)] = file_hash(args.experiment_branches)
     dataset = read_json(data)
     validation = dataset["validation"]
     if not validation:
         raise CampaignError("The validation split is empty")
-    return {"sources_sha256": sources, "input_files_sha256": inputs,
+    return {"sources_sha256": sources, "input_files_sha256": inputs, "experiment_branches": experiment_branches,
             "baseline_files_sha256": baseline_files, "model": str(model), "data": str(data),
             "groups": str(groups), "data_sha256": inputs[str(data)], "groups_sha256": inputs[str(groups)],
             "baseline_frozen_buffers_sha256": baseline["frozen_buffers_sha256"],
@@ -174,6 +264,10 @@ def verify_bindings(manifest):
 def normalized_args(args):
     args.root = args.root.expanduser().resolve()
     args.baseline_run = args.baseline_run.expanduser().resolve()
+    for name in ("accepted_baseline_receipt", "experiment_branches"):
+        value = getattr(args, name)
+        if value is not None:
+            setattr(args, name, value.expanduser().resolve())
     args.output = (args.root / args.output).resolve() if not args.output.is_absolute() else args.output.resolve()
     args.groups = (args.root / "data/connectorch-groups-v1/groups.npz") if args.groups is None else args.groups.expanduser().absolute()
     # Do not resolve the final symlink: invoking a venv's python symlink by its
@@ -200,7 +294,7 @@ def launch(args):
                 if current.get("status") in ("starting", "running") and process_alive(launched.get("worker_pid"), launched.get("process_birth")):
                     return {"status": "already_running", "worker_pid": launched["worker_pid"], "output": str(args.output)}
                 return {"status": "blocked", "reason": "An existing campaign needs review; automatic restart is disabled", "output": str(args.output)}
-            ready = baseline_readiness(args.baseline_run)
+            ready = baseline_readiness(args.baseline_run, args.accepted_baseline_receipt)
             if ready["status"] != "ready":
                 report = {**ready, "baseline_run": str(args.baseline_run), "checked_at_utc": utc()}
                 atomic_json(args.output / "readiness.json", report)
@@ -210,6 +304,8 @@ def launch(args):
             manifest = {"format_version": 1, "launch_id": launch_id, "created_at_utc": utc(),
                         "root": str(args.root), "output": str(args.output), "python": args.python,
                         "baseline_run": str(args.baseline_run), "baseline_gates": ready["gates"],
+                        "baseline_acceptance_mode": ready["acceptance_mode"],
+                        "baseline_acceptance": ready.get("acceptance"),
                         "environment": ENVIRONMENT, "arms": [{"name": name, "d_embed": width, "plasticity": plasticity}
                                                                  for name, width, plasticity in ARMS], **bindings}
             atomic_json(args.output / "manifest.json", manifest)
@@ -259,6 +355,9 @@ def execute_job(manifest, phase, arm, directory, command):
     launch_record = {"command": command, "cwd": manifest["root"], "environment": ENVIRONMENT,
                      "created_at_utc": utc(), "campaign_launch_id": manifest["launch_id"],
                      "sources_sha256": manifest["sources_sha256"]}
+    if manifest.get("experiment_branches") and arm in manifest["experiment_branches"]["arms"]:
+        launch_record["experiment_git"] = {"repository": manifest["experiment_branches"]["repository"],
+                                            **manifest["experiment_branches"]["arms"][arm]}
     atomic_json(directory / "launch.json", launch_record)
     process = {"status": "starting", "started_at_utc": utc(), "command": command, "runner_pid": os.getpid()}
     atomic_json(directory / "process-status.json", process)
@@ -320,6 +419,30 @@ def graph_audit(audit, manifest):
         raise CampaignError("An arm changed stored zero edges or edge signs")
 
 
+def verify_selected_checkpoints(directory, records, manifest):
+    receipt = read_json(Path(directory) / "selected-checkpoints.json")
+    selectors = receipt.get("selectors", {})
+    expected = {
+        "minimum_validation_ce": min(records, key=lambda record: record["validation"]["cross_entropy"]),
+        "maximum_validation_accuracy": max(records, key=lambda record: record["validation"]["top1_accuracy"]),
+    }
+    if receipt.get("format_version") != 1 or set(selectors) != set(expected):
+        raise CampaignError("An arm did not retain both validation selectors")
+    for name, record in expected.items():
+        entry = selectors[name]
+        filename = "best.pt" if name == "minimum_validation_ce" else "best-accuracy.pt"
+        path = Path(directory) / filename
+        if (Path(entry.get("path", "")).resolve() != path.resolve()
+                or file_hash(path) != entry.get("sha256")
+                or entry.get("cursor", {}).get("updates") != record["updates"]
+                or entry.get("validation") != record["validation"]
+                or entry.get("frozen_buffers_preserved") is not True
+                or any(entry.get("frozen_buffers_sha256", {}).get(key) != digest
+                       for key, digest in manifest["baseline_frozen_buffers_sha256"].items())):
+            raise CampaignError("Retained validation checkpoint identity or selector mismatch: " + name)
+    return selectors
+
+
 def verify_arm(manifest, arm, directory, smoke=False):
     directory = Path(directory)
     name, width, plasticity = arm
@@ -357,6 +480,7 @@ def verify_arm(manifest, arm, directory, smoke=False):
             raise CampaignError("Arm validation coverage changed: " + name)
         if not math.isfinite(metric["cross_entropy"]) or metric["cross_entropy"] < 0 or not 0 <= metric["top1_accuracy"] <= 1:
             raise CampaignError("Arm validation metric is invalid: " + name)
+    retained = verify_selected_checkpoints(directory, records, manifest)
     if smoke:
         if status.get("status") != "debug_stopped" or status.get("updates") != 8 or not status.get("debug") or latest.get("updates") != 8:
             raise CampaignError("Smoke did not complete exactly eight updates: " + name)
@@ -373,7 +497,8 @@ def verify_arm(manifest, arm, directory, smoke=False):
                     raise CampaignError("Plastic gain parameters did not move from zero: " + parameter)
             if latest["model_audit"]["adaptation"]["edge_displacement"]["rms"] <= 0:
                 raise CampaignError("Plastic parameters did not change effective edge weights")
-        return {"name": name, "passed": True, "updates": 8, "validation": latest["validation"]}
+        return {"name": name, "passed": True, "updates": 8, "validation": latest["validation"],
+                "selected_checkpoints": retained}
     result = read_json(directory / "results.json")
     if (status.get("status") != "completed" or result.get("status") != "completed" or result.get("debug") is not False
             or result.get("epochs") != 44 or result.get("updates") != sum(manifest["planned_phase_updates"])
@@ -387,8 +512,17 @@ def verify_arm(manifest, arm, directory, smoke=False):
     if (result["selected"]["cross_entropy"] != selected["validation"]["cross_entropy"]
             or result["selected"]["updates"] != selected["updates"]):
         raise CampaignError("Arm did not select its best validation checkpoint: " + name)
+    accuracy_selected = max(records, key=lambda record: record["validation"]["top1_accuracy"])
+    if (result.get("selected_accuracy", {}).get("top1_accuracy") != accuracy_selected["validation"]["top1_accuracy"]
+            or result["selected_accuracy"].get("updates") != accuracy_selected["updates"]
+            or result.get("selected_checkpoints") != retained):
+        raise CampaignError("Arm did not retain its maximum validation accuracy checkpoint: " + name)
     return {"name": name, "d_embed": width, "plasticity": plasticity, "updates": result["updates"],
             "selected_updates": selected["updates"], "validation": selected["validation"],
+            "accuracy_selected_updates": accuracy_selected["updates"], "accuracy_validation": accuracy_selected["validation"],
+            "selected_checkpoints": retained,
+            "experiment_git": ({"repository": manifest["experiment_branches"]["repository"],
+                                 **manifest["experiment_branches"]["arms"][name]} if manifest.get("experiment_branches") else None),
             "parameter_counts": recorded["parameter_counts"], "test_evaluated": False,
             "output": str(directory), "elapsed_seconds": result.get("elapsed_seconds_this_invocation")}
 
@@ -398,6 +532,7 @@ def compare_arms(arms):
     if set(by_name) != {name for name, _, _ in ARMS} or len(arms) != 4:
         raise CampaignError("Require exactly the four declared arms")
     ce = {name: arm["validation"]["cross_entropy"] for name, arm in by_name.items()}
+    accuracy = {name: arm["accuracy_validation"]["top1_accuracy"] for name, arm in by_name.items()}
     fixed = ce["B32fixed"] - ce["A128fixed"]
     plastic = ce["D32bounded"] - ce["C128bounded"]
     return {"compression_ce_penalty_fixed": fixed, "compression_ce_penalty_plastic": plastic,
@@ -405,7 +540,10 @@ def compare_arms(arms):
             "interaction_interpretation": "Negative values mean bounded plasticity reduced the compression CE penalty.",
             "plasticity_ce_improvement_width128": ce["A128fixed"] - ce["C128bounded"],
             "plasticity_ce_improvement_width32": ce["B32fixed"] - ce["D32bounded"],
-            "validation_best_arm": min(ce, key=ce.get), "needs_replication_before_geometry_claim": True,
+            "validation_best_arm": min(ce, key=ce.get), "validation_best_accuracy_arm": max(accuracy, key=accuracy.get),
+            "accuracy_compression_penalty_fixed": accuracy["A128fixed"] - accuracy["B32fixed"],
+            "accuracy_compression_penalty_plastic": accuracy["C128bounded"] - accuracy["D32bounded"],
+            "needs_replication_before_geometry_claim": True,
             "matched_random_graph_control_trained": False, "final_test_deferred": True}
 
 
@@ -485,6 +623,10 @@ def parser():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--root", type=Path, default=ROOT)
     p.add_argument("--baseline-run", type=Path, required=True)
+    p.add_argument("--accepted-baseline-receipt", type=Path,
+                   help="Explicit user acceptance of a preserved early-stopped baseline; never implies full recipe completion")
+    p.add_argument("--experiment-branches", type=Path,
+                   help="Immutable repository/branch/commit provenance mapping for all four arms")
     p.add_argument("--output", type=Path, default=Path("results/connectorch-encoder-v1"))
     p.add_argument("--groups", type=Path)
     p.add_argument("--python", default=sys.executable)
