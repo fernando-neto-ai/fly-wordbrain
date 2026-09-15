@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "experiment_id": "A128fixed",
-  "status": "queued",
-  "status_as_of_utc": "2026-09-15T14:52:21.975896+00:00",
+  "status": "running",
+  "status_as_of_utc": "2026-09-15T14:55:14.043315+00:00",
   "repository": "https://github.com/fernando-neto-ai/fly-wordbrain",
   "branch": "exp/encoder128-fixed",
   "training_source_commit": "3641b9af124d0eb905715265073b576e2324aa59",
@@ -45,5 +45,326 @@
     "maximum_validation_accuracy"
   ],
   "test_policy": "reserved; --skip-final-test",
-  "provenance_method": "Each experiment branch records its configuration. All bound runtime source files are byte-identical to that branch commit; four arms execute serially from one immutable deployed source tree. Branch-specific experiment.json is a selector, not divergent model code."
+  "provenance_method": "Each experiment branch records its configuration. All bound runtime source files are byte-identical to that branch commit; four arms execute serially from one immutable deployed source tree. Branch-specific experiment.json is a selector, not divergent model code.",
+  "status_snapshot": {
+    "status": "running",
+    "activity": "validation",
+    "pid": 48756,
+    "epoch": 0,
+    "batch": 10,
+    "offset": 96,
+    "updates": 100,
+    "phase": 0,
+    "epoch_loss_sum": 146740.9131603241,
+    "epoch_tokens": 19929,
+    "epoch_correct": 998,
+    "elapsed_seconds_this_invocation": 35.433208875125274,
+    "debug": false,
+    "best": {
+      "cross_entropy": 7.486555292650606,
+      "top1_accuracy": 0.0005943128828746457,
+      "updates": 0,
+      "epoch": 0
+    },
+    "best_accuracy": {
+      "cross_entropy": 7.486555292650606,
+      "top1_accuracy": 0.0005943128828746457,
+      "updates": 0,
+      "epoch": 0
+    }
+  },
+  "launch": {
+    "command": [
+      "/Users/fernando/fly_wordbrain_connectorch/.venv-connectorch/bin/python",
+      "-u",
+      "/Users/fernando/fly_wordbrain_connectorch/scripts/train_connectorch.py",
+      "--model",
+      "/Users/fernando/fly_wordbrain/data/ngxson-fly-llm-hf/65c677b3d566a2e9793d5f72999cdb441c6c0a9f",
+      "--data",
+      "/Users/fernando/fly_wordbrain/data/ngxson-tinystories-v1/dataset.json",
+      "--groups",
+      "/Users/fernando/fly_wordbrain_connectorch/data/connectorch-groups-v1/groups.npz",
+      "--output",
+      "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1/arms/A128fixed",
+      "--device",
+      "mps",
+      "--epochs",
+      "30",
+      "--second-epochs",
+      "14",
+      "--batch-size",
+      "8",
+      "--chunk-size",
+      "32",
+      "--seed",
+      "42",
+      "--eval-interval-updates",
+      "100",
+      "--d-embed",
+      "128",
+      "--plasticity",
+      "fixed",
+      "--readout-rank",
+      "0",
+      "--history-length",
+      "8",
+      "--skip-final-test"
+    ],
+    "cwd": "/Users/fernando/fly_wordbrain_connectorch",
+    "environment": {
+      "PYTORCH_ENABLE_MPS_FALLBACK": "0",
+      "OMP_NUM_THREADS": "4",
+      "VECLIB_MAXIMUM_THREADS": "4"
+    },
+    "created_at_utc": "2026-09-15T14:54:25.629128+00:00",
+    "campaign_launch_id": "41d491df-5a3b-4d4e-a965-55fc9d8b6849",
+    "sources_sha256": {
+      "/Users/fernando/fly_wordbrain_connectorch/scripts/run_connectorch_campaign.py": "85e699c6048cb1667825d7865e7016c21afcb94cb3f1f029ca97242c8c42831f",
+      "/Users/fernando/fly_wordbrain_connectorch/scripts/train_connectorch.py": "b50be2b34228439fa9d72756d18f7c8a293c8f502a15f23803d484b20461d1ab",
+      "/Users/fernando/fly_wordbrain_connectorch/scripts/train_ngxson.py": "b7712487070a313e688da5397bcfdb7021f73e19d539771c2c965ef6c43235cc",
+      "/Users/fernando/fly_wordbrain_connectorch/scripts/audit_connectorch.py": "154188a3b18361877999fee930b5305b1f759736f28056474f53d820c0e34448",
+      "/Users/fernando/fly_wordbrain_connectorch/scripts/prepare_connectorch_groups.py": "f46c84e6bfb4739f8651b6524e9b65aa059f660eb26187cecfb25cd925e53312",
+      "/Users/fernando/fly_wordbrain_connectorch/scripts/prepare_ngxson.py": "997e8894eba19bd756ba0073d30ce5cc19dd1e63577ec5574a95388529114867",
+      "/Users/fernando/fly_wordbrain_connectorch/fly_wordbrain/connectorch_model.py": "235ff815ae7fa1e2d693eb3293453c6f0e879f2e2c639e0c39d06a5bc57668fa",
+      "/Users/fernando/fly_wordbrain_connectorch/fly_wordbrain/connectorch_backend.py": "2e7d0efec68014ef41b91d16552af49c7fa6fea7bbb69956e17c4dd8a2107ebc",
+      "/Users/fernando/fly_wordbrain_connectorch/fly_wordbrain/metal_sparse_trainable.py": "d9d53f871f845b5e534998f3f505b50a39ec3002e90294bd5b8a18aa002462e4",
+      "/Users/fernando/fly_wordbrain_connectorch/fly_wordbrain/metal_sparse.py": "7ba777491221a700d63e20d1d052d42e53d5be1320fed789ec57befe503ca9db",
+      "/Users/fernando/fly_wordbrain_connectorch/fly_wordbrain/plastic_brain.py": "8a230179d3f7796c43c62e1c400c66f9a870bde2c5e4d79cbc86478238e94936",
+      "/Users/fernando/fly_wordbrain_connectorch/connectorch-source.json": "34a007b5791507bde32d225d4cba36bcd141f03ffa54438a5640b8ab45ce0636",
+      "/Users/fernando/fly_wordbrain_connectorch/requirements-connectorch.txt": "3b28980aeedb9ea12d7e385f804aface144e4054e9e52666d8b0e5fac41f5bb5",
+      "/Users/fernando/fly_wordbrain_connectorch/requirements-ngxson.txt": "9ca61364432cd639fd4be4368ef3d14991d6713824457e7cf710c78cca9a4b68",
+      "/Users/fernando/fly_wordbrain/scripts/train_ngxson.py": "b7712487070a313e688da5397bcfdb7021f73e19d539771c2c965ef6c43235cc",
+      "/Users/fernando/fly_wordbrain/scripts/prepare_ngxson.py": "997e8894eba19bd756ba0073d30ce5cc19dd1e63577ec5574a95388529114867",
+      "/Users/fernando/fly_wordbrain/fly_wordbrain/ngxson_mps.py": "ee664ce23f78b7e466e7c765147c5850d1175c7f67c314a54a34374118570fae",
+      "/Users/fernando/fly_wordbrain/fly_wordbrain/metal_sparse.py": "7ba777491221a700d63e20d1d052d42e53d5be1320fed789ec57befe503ca9db",
+      "/Users/fernando/fly_wordbrain/fly_wordbrain/plastic_brain.py": "8a230179d3f7796c43c62e1c400c66f9a870bde2c5e4d79cbc86478238e94936"
+    },
+    "experiment_git": {
+      "repository": "https://github.com/fernando-neto-ai/fly-wordbrain",
+      "branch": "exp/encoder128-fixed",
+      "commit": "3641b9af124d0eb905715265073b576e2324aa59",
+      "configuration": "experiments/configs/A128fixed.json",
+      "configuration_sha256": "c6015eb7608d418e3cb7168de3436779b29fca70234fbcd654453b343e43e69d"
+    }
+  },
+  "retained_checkpoints_as_of_snapshot": {
+    "format_version": 1,
+    "selectors": {
+      "minimum_validation_ce": {
+        "path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1/arms/A128fixed/best.pt",
+        "sha256": "d5e211b6949c28cde8c333a928dcef7e02777291574f84f2befbf0602575dc1b",
+        "cursor": {
+          "epoch": 0,
+          "batch": 10,
+          "offset": 96,
+          "updates": 100,
+          "phase": 0,
+          "epoch_loss_sum": 146740.9131603241,
+          "epoch_tokens": 19929,
+          "epoch_correct": 998
+        },
+        "validation": {
+          "cross_entropy": 7.358723242757874,
+          "top1_accuracy": 0.08718112828014996,
+          "correct": 1907,
+          "tokens": 21874,
+          "stories": 100
+        },
+        "frozen_buffers_preserved": true,
+        "frozen_buffers_sha256": {
+          "brain.w_offsets": "53b216d7bc2503c539c2d2b03ce56f66eb8a2e9b902f0a20deda0ec4be37ade0",
+          "brain.w_indices": "0f17b9563457fbf84404c54227db86b5adcf04a689cdff5e33d32ec5d5e0b771",
+          "brain.w_values": "e6408887d3312783c65d3f10bb69b28fe50bb06699f0a8a9341d444e6eb0549a",
+          "brain.in_index": "ee440072f6c94b59c552cb09812af5894066ae28f686cda2cd2e35a3626beda6",
+          "brain.out_index": "5ac16e2c38cf0a1b4b4aea74eadeb2d487e153113d046895a813e09d010f0a18",
+          "brain.edge_group_index": "4b9af4b1e2313aba5a9a139ae3ecfc8fcae09a440c65802207a26775700f6eca",
+          "brain.node_type_index": "9ea440846c4bfde95c8c007320ad3bc3b79cfb3b69c2ff6a136c39fd41f658be"
+        }
+      },
+      "maximum_validation_accuracy": {
+        "path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1/arms/A128fixed/best-accuracy.pt",
+        "sha256": "d4c4ac775e59c1580f147cef1d8c65b5c4bef7e7460db25d88a239f5c337fe4b",
+        "cursor": {
+          "epoch": 0,
+          "batch": 10,
+          "offset": 96,
+          "updates": 100,
+          "phase": 0,
+          "epoch_loss_sum": 146740.9131603241,
+          "epoch_tokens": 19929,
+          "epoch_correct": 998
+        },
+        "validation": {
+          "cross_entropy": 7.358723242757874,
+          "top1_accuracy": 0.08718112828014996,
+          "correct": 1907,
+          "tokens": 21874,
+          "stories": 100
+        },
+        "frozen_buffers_preserved": true,
+        "frozen_buffers_sha256": {
+          "brain.w_offsets": "53b216d7bc2503c539c2d2b03ce56f66eb8a2e9b902f0a20deda0ec4be37ade0",
+          "brain.w_indices": "0f17b9563457fbf84404c54227db86b5adcf04a689cdff5e33d32ec5d5e0b771",
+          "brain.w_values": "e6408887d3312783c65d3f10bb69b28fe50bb06699f0a8a9341d444e6eb0549a",
+          "brain.in_index": "ee440072f6c94b59c552cb09812af5894066ae28f686cda2cd2e35a3626beda6",
+          "brain.out_index": "5ac16e2c38cf0a1b4b4aea74eadeb2d487e153113d046895a813e09d010f0a18",
+          "brain.edge_group_index": "4b9af4b1e2313aba5a9a139ae3ecfc8fcae09a440c65802207a26775700f6eca",
+          "brain.node_type_index": "9ea440846c4bfde95c8c007320ad3bc3b79cfb3b69c2ff6a136c39fd41f658be"
+        }
+      }
+    }
+  },
+  "latest_validation_as_of_snapshot": {
+    "event": "validation",
+    "reason": "update_interval",
+    "updates": 100,
+    "epoch": 0,
+    "validation": {
+      "cross_entropy": 7.358723242757874,
+      "top1_accuracy": 0.08718112828014996,
+      "correct": 1907,
+      "tokens": 21874,
+      "stories": 100
+    },
+    "model_audit": {
+      "parameter_counts": {
+        "embedding": 131072,
+        "input_projection": 1800192,
+        "neurons": 148179,
+        "edge_gains": 0,
+        "layernorm": 98786,
+        "readout": 50578432,
+        "other": 0,
+        "total": 52756661
+      },
+      "adaptation": {
+        "canonical_buffers_verified": true,
+        "neuron_gain_policy": "reference_unconstrained",
+        "group_count": 9161,
+        "edge_parameterization": "factorized_cell_types",
+        "group_multiplier": null,
+        "group_displacement": null,
+        "source_type_theta": null,
+        "destination_type_theta": null,
+        "edge_multiplier": {
+          "count": 9050172,
+          "min": 1.0,
+          "max": 1.0,
+          "mean": 1.0,
+          "rms": 1.0,
+          "negative_fraction": 0.0
+        },
+        "edge_displacement": {
+          "count": 9050172,
+          "min": 0.0,
+          "max": 0.0,
+          "mean": 0.0,
+          "rms": 0.0,
+          "negative_fraction": 0.0
+        },
+        "changed_nonzero_edge_fraction": {
+          "0.0001": 0.0,
+          "0.001": 0.0,
+          "0.01": 0.0
+        },
+        "incoming_absolute_strength_relative_drift": {
+          "count": 49252,
+          "min": 0.0,
+          "max": 0.0,
+          "mean": 0.0,
+          "rms": 0.0,
+          "negative_fraction": 0.0
+        },
+        "zero_edges_preserved": true,
+        "nonzero_signs_preserved": true,
+        "gain": {
+          "count": 49393,
+          "min": 0.9220058917999268,
+          "max": 1.0820242166519165,
+          "mean": 0.9956274628639221,
+          "rms": 0.9957244396209717,
+          "negative_fraction": 0.0
+        },
+        "rec_gain": {
+          "count": 49393,
+          "min": 0.1759471297264099,
+          "max": 19059.48046875,
+          "mean": 127.090576171875,
+          "rms": 661.6668701171875,
+          "negative_fraction": 0.0
+        },
+        "gain_displacement_from_initial": {
+          "count": 49393,
+          "min": -0.07799410820007324,
+          "max": 0.0820242166519165,
+          "mean": -0.004372552502900362,
+          "rms": 0.014571945182979107,
+          "negative_fraction": 0.633065402507782
+        },
+        "rec_gain_displacement_from_initial": {
+          "count": 49393,
+          "min": -19.140625,
+          "max": 0.05906558036804199,
+          "mean": -0.13250695168972015,
+          "rms": 0.6646535992622375,
+          "negative_fraction": 0.9636183381080627
+        },
+        "effective_neuron_recurrent_multiplier": {
+          "count": 49393,
+          "min": 0.1773051619529724,
+          "max": 19869.2421875,
+          "mean": 127.203857421875,
+          "rms": 664.4539794921875,
+          "negative_fraction": 0.0
+        },
+        "effective_neuron_recurrent_multiplier_displacement": {
+          "count": 49393,
+          "min": -268.197265625,
+          "max": 790.62109375,
+          "mean": -0.019227029755711555,
+          "rms": 8.037863731384277,
+          "negative_fraction": 0.6636365652084351
+        },
+        "note": "Edge multipliers are bounded; original gain and rec_gain remain unconstrained."
+      },
+      "frozen_buffers_sha256": {
+        "brain.w_offsets": "53b216d7bc2503c539c2d2b03ce56f66eb8a2e9b902f0a20deda0ec4be37ade0",
+        "brain.w_indices": "0f17b9563457fbf84404c54227db86b5adcf04a689cdff5e33d32ec5d5e0b771",
+        "brain.w_values": "e6408887d3312783c65d3f10bb69b28fe50bb06699f0a8a9341d444e6eb0549a",
+        "brain.in_index": "ee440072f6c94b59c552cb09812af5894066ae28f686cda2cd2e35a3626beda6",
+        "brain.out_index": "5ac16e2c38cf0a1b4b4aea74eadeb2d487e153113d046895a813e09d010f0a18",
+        "brain.edge_group_index": "4b9af4b1e2313aba5a9a139ae3ecfc8fcae09a440c65802207a26775700f6eca",
+        "brain.node_type_index": "9ea440846c4bfde95c8c007320ad3bc3b79cfb3b69c2ff6a136c39fd41f658be"
+      },
+      "frozen_buffers_preserved": true
+    },
+    "elapsed_seconds_this_invocation": 42.79942762502469,
+    "training_epoch_so_far": {
+      "cross_entropy": 7.363184964640679,
+      "top1_accuracy": 0.05007777610517337,
+      "tokens": 19929
+    },
+    "best": {
+      "cross_entropy": 7.358723242757874,
+      "top1_accuracy": 0.08718112828014996,
+      "updates": 100,
+      "epoch": 0
+    },
+    "best_accuracy": {
+      "cross_entropy": 7.358723242757874,
+      "top1_accuracy": 0.08718112828014996,
+      "updates": 100,
+      "epoch": 0
+    }
+  },
+  "snapshot_artifact_sha256": {
+    "arms/A128fixed/manifest.json": "1c4a7384ce349b1d4ad4fd6d1785f7cf0c4b7fe6e3fdc2347af5ae67950404d3",
+    "arms/A128fixed/launch.json": "2f95063b143cf29e075c67ad8a0523b24342d586e5a3f316714ea63e782a0606",
+    "arms/A128fixed/status.json": "28b3630231a12806618bc5673da2766eca957d82d2b9ce4c069ffff4705092d7",
+    "arms/A128fixed/process-status.json": "5fd5568dbbcada8f09d5c83a4ece0008e3f434fe84d5d4ec397b9c76a16615b1",
+    "arms/A128fixed/metrics.jsonl": "76b5791b2001f5b33ba3be15285500428ee4b9bc231d831a184a0c342c8c0690",
+    "arms/A128fixed/selected-checkpoints.json": "e36a57b936410dea820446b12ffa6340ded4899ea5d7ebef0d243456122b91cd"
+  },
+  "preflight_passed": true,
+  "all_four_smokes_passed": true
 }
