@@ -96,7 +96,9 @@ on MPS with finite loss and gradients. `launch.json` records the exact command
 and input/source hashes; `process-status.json` records running/completed/failed
 status and the eventual exit code, while `stdout.log` records training events.
 The detached runner uses macOS `caffeinate` and survives the launching SSH
-connection closing. Its runner PID at launch was 44960.
+connection closing. This epoch-only launch was subsequently replaced by
+`results/plastic-expanded-8k-3arms-e1-monitored/` to expose partial validation
+results during training. See [the live dashboard](VALIDATION_DASHBOARD.md).
 
 ## Expanded training command
 
@@ -110,6 +112,11 @@ PYTORCH_ENABLE_MPS_FALLBACK=0 .venv/bin/python -u -m fly_wordbrain.plastic_train
   --output results/plastic-expanded-8k-3arms-e1 --device mps \
   --epochs 1 --patience 1 --batch-size 8 --threads 4 --gradient-clip 1 --seed 0
 ```
+
+The active monitored replacement uses a new output directory and additionally
+passes `--monitor-stories 128 --monitor-every 64 --progress-every 8`. The
+epoch-only run's logs and original sources are preserved; no checkpoint from
+its unfinished epoch was available for continuation.
 
 One epoch now makes **1,024 optimizer updates per arm**, versus 16 in the
 pilot. The pilot timings extrapolate to roughly **18–20 hours for the entire
