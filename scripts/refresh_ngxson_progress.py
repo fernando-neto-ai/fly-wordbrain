@@ -21,6 +21,12 @@ for name in json.loads(sys.argv[2]):
     with path.open('rb') as f: body=f.read(16777217)
     if len(body)>16777216: raise ValueError('File exceeds 16 MiB bound')
     files[name]={'text':body.decode(),'sha256':hashlib.sha256(body).hexdigest()}
+p=Path(sys.argv[3]).resolve()/'selection.json'
+if p.exists():
+    if p.is_symlink(): raise ValueError('Unexpected selection symlink')
+    with p.open('rb') as f: body=f.read(16777217)
+    if len(body)>16777216: raise ValueError('Selection exceeds 16 MiB bound')
+    files['accuracy-selection.json']={'text':body.decode(),'sha256':hashlib.sha256(body).hexdigest()}
 print(json.dumps(files))
 '''
 
@@ -30,9 +36,10 @@ def main():
     parser.add_argument("--host", default="macm3")
     parser.add_argument("--remote-run", default="/Users/fernando/fly_wordbrain/results/ngxson-reconstructed-v1")
     parser.add_argument("--output", type=Path, default=ROOT / "results/ngxson-reconstructed-v1")
+    parser.add_argument("--accuracy-run", default="/Users/fernando/fly_wordbrain/results/ngxson-dual-selection-v1")
     args = parser.parse_args()
     import cluster_runner as cr
-    command = "python3 -c " + shlex.quote(REMOTE) + " " + shlex.quote(args.remote_run) + " " + shlex.quote(json.dumps(FILES))
+    command = "python3 -c " + shlex.quote(REMOTE) + " " + shlex.quote(args.remote_run) + " " + shlex.quote(json.dumps(FILES)) + " " + shlex.quote(args.accuracy_run)
     result = cr.run(command, host=args.host, timeout=30)
     if result.exit_code:
         raise RuntimeError(result.stderr or result.stdout)
@@ -42,7 +49,7 @@ def main():
     args.output.mkdir(parents=True, exist_ok=True)
     receipts = {}
     for name, entry in files.items():
-        if name not in FILES:
+        if name not in FILES and name != "accuracy-selection.json":
             raise ValueError("Unexpected source filename")
         body = entry["text"].encode()
         if hashlib.sha256(body).hexdigest() != entry["sha256"]:
@@ -53,7 +60,8 @@ def main():
         receipts[name] = entry["sha256"]
     now = datetime.now(timezone.utc).isoformat()
     (args.output / "snapshot-receipt.json").write_text(json.dumps({
-        "host": args.host, "remote_run": args.remote_run, "fetched_at_utc": now, "sha256": receipts,
+        "host": args.host, "remote_run": args.remote_run, "accuracy_run": args.accuracy_run,
+        "fetched_at_utc": now, "sha256": receipts,
     }, indent=2) + "\n")
     status = json.loads(files.get("status.json", {"text": "{}"})["text"])
     process = json.loads(files.get("process-status.json", {"text": "{}"})["text"])
@@ -89,6 +97,18 @@ def main():
     if rows:
         best = rows[-1]["best"]
         text.extend(["", f"Best validation checkpoint so far: update {best['updates']:,}, CE {best['cross_entropy']:.4f}."])
+        highest = max(rows, key=lambda row: row["validation"]["top1_accuracy"])
+        text.append(f"Highest logged validation accuracy: update {highest['updates']:,}, "
+                    f"{highest['validation']['top1_accuracy']:.2%}, CE {highest['validation']['cross_entropy']:.4f}.")
+        selection = json.loads(files.get("accuracy-selection.json", {"text": "{}"})["text"])
+        available = selection.get("best_available_validation_record")
+        if available:
+            val = available["validation"]
+            text.append(f"Best retained accuracy checkpoint: update {available['updates']:,}, "
+                        f"{val['top1_accuracy']:.2%}, CE {val['cross_entropy']:.4f}. "
+                        f"Historical accuracy maximum weights retained: {selection.get('historical_best_weights_available', False)}.")
+        else:
+            text.append("Accuracy checkpoint availability is not verified in this snapshot; a logged score alone does not establish retained weights.")
     text.extend(["", "This is a timestamped snapshot. Refresh it with:", "", "```bash",
                  "/opt/anaconda3/bin/python scripts/refresh_ngxson_progress.py", "```", "",
                  "Raw measurements are in metrics.jsonl; immutable snapshot checksums are in snapshot-receipt.json.", ""])

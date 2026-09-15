@@ -16,6 +16,9 @@ def main():
     p.add_argument("--root", type=Path, required=True)
     p.add_argument("--trainer-pid", type=int, required=True)
     p.add_argument("--name", default="ngxson-quality-v1-mps")
+    p.add_argument("--checkpoint", type=Path)
+    p.add_argument("--selection", choices=("min-ce", "max-accuracy"), default="min-ce")
+    p.add_argument("--selection-receipt", type=Path)
     args = p.parse_args()
     root = args.root.resolve()
     expected_script = str(root / "scripts/train_ngxson.py")
@@ -57,10 +60,12 @@ def main():
         save()
         argv = [sys.executable, "-u", str(root / "scripts/evaluate_ngxson_quality.py"),
             "--model", str(root / "data/ngxson-fly-llm-hf/65c677b3d566a2e9793d5f72999cdb441c6c0a9f"),
-            "--checkpoint", str(root / "results/ngxson-quality-snapshot-v1/best.pt"),
+            "--checkpoint", str(args.checkpoint or root / "results/ngxson-quality-snapshot-v1/best.pt"),
             "--training-data", str(root / "data/ngxson-tinystories-v1/dataset.json"),
             "--audit-data", str(root / "data/ngxson-quality-v1/dataset.json"),
-            "--output", str(output), "--threads", "4", "--device", "mps"]
+            "--output", str(output), "--threads", "4", "--device", "mps", "--selection", args.selection]
+        if args.selection_receipt:
+            argv += ["--selection-receipt", str(args.selection_receipt)]
         env = dict(os.environ, PYTORCH_ENABLE_MPS_FALLBACK="0", OMP_NUM_THREADS="4", VECLIB_MAXIMUM_THREADS="4")
         with (root / "results" / (args.name + ".log")).open("x") as log:
             result = subprocess.run(argv, stdout=log, stderr=subprocess.STDOUT, env=env, timeout=900)

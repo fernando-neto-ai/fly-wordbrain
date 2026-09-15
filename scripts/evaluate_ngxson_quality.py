@@ -62,11 +62,34 @@ def paired_comparison(ours, reference, resamples=10000, seed=1729):
             "perplexity_ratio": math.exp(delta_ce), "ce_95_ci": ce_ci,
             "accuracy_95_ci": accuracy_ci,
             "point_estimates_within_margins": abs(delta_ce) <= .10 and abs(delta_accuracy) <= .02,
+            "ce_noninferiority_supported": ce_ci[1] <= .10,
+            "accuracy_noninferiority_supported": accuracy_ci[0] >= -.02,
             "noninferiority_supported": ce_ci[1] <= .10 and accuracy_ci[0] >= -.02,
             "two_sided_equivalence_supported": ce_ci[0] >= -.10 and ce_ci[1] <= .10
                 and accuracy_ci[0] >= -.02 and accuracy_ci[1] <= .02,
             "bootstrap": {"unit": "paired whole story", "resamples": resamples, "seed": seed,
                           "estimator": "token-weighted ratio of resampled story totals"}}
+
+
+def selected_validation(checkpoint, criterion, receipt, checkpoint_sha256):
+    """Bind an accuracy selection to this checkpoint rather than its embedded CE winner."""
+    if criterion == "min-ce":
+        if checkpoint["cursor"]["updates"] != checkpoint["best"]["updates"]:
+            raise ValueError("This checkpoint is not its stored minimum-CE winner")
+        return {"cross_entropy": checkpoint["best"]["cross_entropy"]}
+    if receipt is None or receipt["checkpoint_sha256"] != checkpoint_sha256:
+        raise ValueError("Accuracy selection needs a receipt bound to this checkpoint SHA")
+    row = receipt["validation_record"]
+    if row.get("event") != "validation" or any(row[k] != checkpoint["cursor"][k] for k in ("updates", "epoch")):
+        raise ValueError("Validation record does not match checkpoint cursor")
+    metric = row["validation"]
+    if metric["tokens"] <= 0 or metric["stories"] <= 0 or not 0 <= metric["correct"] <= metric["tokens"]:
+        raise ValueError("Invalid validation counts")
+    if not math.isfinite(metric["cross_entropy"]) or metric["cross_entropy"] < 0:
+        raise ValueError("Invalid validation CE")
+    if not math.isfinite(metric["top1_accuracy"]) or abs(metric["top1_accuracy"] - metric["correct"] / metric["tokens"]) > 1e-12:
+        raise ValueError("Accuracy differs from raw counts")
+    return metric
 
 
 @torch.inference_mode()
@@ -133,6 +156,8 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--threads", type=int, default=4)
     parser.add_argument("--device", choices=("cpu", "mps"), default="cpu")
+    parser.add_argument("--selection", choices=("min-ce", "max-accuracy"), default="min-ce")
+    parser.add_argument("--selection-receipt", type=Path)
     args = parser.parse_args()
     if args.output.exists():
         parser.error("Use a new output directory")
@@ -142,6 +167,7 @@ def main():
     verified = verify_reference(args.model)
     original_data = json.loads(args.training_data.read_text())
     audit_data = json.loads(args.audit_data.read_text())
+    selection_receipt = json.loads(args.selection_receipt.read_text()) if args.selection_receipt else None
     audit_rows = audit_data["audit"]
     existing = [r for s in ("train", "validation", "test") for r in original_data[s]]
     existing_ids = {r["id"] for r in existing}
@@ -157,7 +183,9 @@ def main():
     protocol = {"created_at_utc": datetime.now(timezone.utc).isoformat(),
         "training_run": False, "device": args.device, "hostname": socket.gethostname(),
         "platform": platform.platform(), "torch": torch.__version__, "threads": args.threads,
-        "selection": "Frozen snapshot of best validation checkpoint before this audit",
+        "selection": args.selection,
+        "selection_receipt": selection_receipt,
+        "selection_receipt_sha256": file_hash(args.selection_receipt) if args.selection_receipt else None,
         "primary_split": "200 new official-validation stories excluded from all 1200 existing rows",
         "diagnostic_split": "Existing 100 validation stories; used in checkpoint selection",
         "existing_final_test_evaluated": False,
@@ -177,18 +205,20 @@ def main():
         "limitations": ["Author's training IDs, exact trainer and tokenizer fitting-set overlap are unknown.",
             "One reconstructed training seed and one audit corpus; this is not an exact training reproduction.",
             "After this audit, the new audit set is revealed and must not be treated as unseen after tuning.",
+            "The max-accuracy comparison reuses the audit corpus already revealed by the min-CE comparison; it is a descriptive follow-up, not a new untouched test.",
             "Normalized full-text deduplication does not prove absence of semantic overlap."]}
     atomic_json(args.output / "protocol.json", protocol)
     # This file was produced locally by our own trainer, not downloaded executable pickle.
     checkpoint = torch.load(args.checkpoint, map_location="cpu", weights_only=False)
     assert file_hash(args.checkpoint) == protocol["checkpoint_sha256"], "Checkpoint changed during audit"
     assert checkpoint["manifest"]["data_sha256"] == protocol["training_data_sha256"]
-    assert checkpoint["cursor"]["updates"] == checkpoint["best"]["updates"]
+    selected_metric = selected_validation(checkpoint, args.selection, selection_receipt, protocol["checkpoint_sha256"])
     values = checkpoint["parameters"]
     saved_audit = checkpoint["parameter_audit"]
     current_audit = parameter_audit(values)
     assert all(current_audit[k]["sha256"] == saved_audit[k]["sha256"] for k in current_audit)
     checkpoint_meta = {"cursor": checkpoint["cursor"], "best": checkpoint["best"],
+                       "selection": args.selection, "selected_validation": selected_metric,
                        "frozen_buffers_sha256": checkpoint["frozen_buffers_sha256"]}
     del checkpoint
     gc.collect()
@@ -214,9 +244,12 @@ def main():
             results[name][split] = score(model, rows, name + "/" + split, args.output, device=args.device)
             atomic_json(args.output / (name + ".json"), results[name])
         if name == "ours_best":
-            gap = results[name]["validation"]["summary"]["cross_entropy"] - checkpoint_meta["best"]["cross_entropy"]
+            replayed = results[name]["validation"]["summary"]
+            gap = replayed["cross_entropy"] - selected_metric["cross_entropy"]
             results[name]["saved_validation_ce_replay_delta"] = gap
             assert abs(gap) < 1e-4, f"Saved validation score failed replay: {gap}"
+            if "correct" in selected_metric:
+                assert all(replayed[k] == selected_metric[k] for k in ("tokens", "stories", "correct")), "Saved validation accuracy/counts failed replay"
         results[name]["samples"] = generate(model, tokenizer, args.device)
         after = parameter_audit(parameters_cpu(model))
         assert before == after
@@ -239,7 +272,7 @@ def main():
               "completed_at_utc": datetime.now(timezone.utc).isoformat()}
     atomic_json(args.output / "results.json", report)
     lines = ["# FlyLLM checkpoint quality comparison", "",
-        f"Inference only on macm3 ({args.device}). Frozen checkpoint: update {checkpoint_meta['best']['updates']}.", "",
+        f"Inference only on macm3 ({args.device}). Frozen checkpoint: update {checkpoint_meta['cursor']['updates']}; selection: {args.selection}.", "",
         "| Split | Model | Stories | Tokens | CE ↓ | Perplexity ↓ | Token accuracy ↑ |",
         "|---|---|---:|---:|---:|---:|---:|"]
     for split in ("audit", "validation"):
@@ -251,8 +284,10 @@ def main():
         f"Audit accuracy difference: {100*c['delta_accuracy']:.2f} percentage points; 95% CI {[100*x for x in c['accuracy_95_ci']]}.",
         f"Two-sided equivalence supported within ±0.10 nats / ±2pp: **{c['two_sided_equivalence_supported']}**.",
         f"Non-inferiority supported with those margins: **{c['noninferiority_supported']}**.", "",
+        f"Accuracy alone passes its −2pp non-inferiority margin: **{c['accuracy_noninferiority_supported']}**. CE alone passes its +0.10 margin: **{c['ce_noninferiority_supported']}**.", "",
         "The original final test split was not scored. Validation was used to select this checkpoint; the separate 200-story audit was excluded from every existing split.", "",
         "The author's exact data and trainer are unavailable. A quality match supports comparable results from a documented reconstruction, not exact training reproducibility.", "",
+        "The max-accuracy follow-up uses the previously revealed audit corpus. Selection uses validation alone; historical logged peaks whose weights were overwritten are distinguished from the best retained checkpoint in selection_receipt.", "",
         "## All fixed greedy continuations", ""])
     for i, prompt in enumerate(PROMPTS):
         lines.append(f"### Prompt {i+1}: {prompt}\n")

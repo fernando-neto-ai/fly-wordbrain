@@ -1,8 +1,44 @@
 # Paired quality audit: reference reproduction gate
 
-The current trained checkpoint does **not** match released FlyLLM quality.
+The lowest-CE checkpoint does **not** match released FlyLLM quality. A later
+accuracy-selected checkpoint meets the predefined accuracy tolerance but still
+has substantially worse cross-entropy; both selectors are now tracked separately.
 Apple GPU numerical parity and reference inference reproduction were already
 verified; these are separate from reproducing training quality.
+
+## Follow-up: retain both validation winners
+
+The user requested both minimum validation CE and maximum validation accuracy.
+The active trainer is unchanged: `best.pt` continues to retain the CE winner.
+`scripts/watch_ngxson_accuracy.py` runs as a separate macm3 CPU observer and
+retains `results/ngxson-dual-selection-v1/best_accuracy.pt`. It uses native kqueue
+events, immutable hardlinks, CPU memory-mapped checkpoint inspection, source/data
+bindings and parameter fingerprints. Its selection receipt distinguishes the
+highest logged metric from the best actual retained weights. Some earlier
+accuracy peaks were already overwritten, but a new all-time peak at update
+20,600 was captured and frozen for comparison (SHA256
+`a08c255338323295e20ebc5a38e300b4dc401e4a1efbc299412e9dca519b459c`).
+
+| Checkpoint | Validation CE | Validation accuracy | Audit CE | Audit accuracy |
+|---|---:|---:|---:|---:|
+| Released reference | 3.6809 | 35.24% | 3.9882 | 31.38% |
+| Min CE, update 3,500 | 4.6928 | 30.58% | 5.0362 | 26.58% |
+| Max accuracy, update 20,600 | 5.8968 | 34.31% | 6.3744 | 30.14% |
+
+The accuracy winner is 1.238pp below the release, with paired 95% CI
+[−1.637, −0.844]pp, inside the predefined ±2pp practical accuracy margin.
+Its CE gap is +2.3862 nats [2.3301, 2.4431], outside the +0.10 margin.
+This supports close top-1 accuracy while retaining a substantial probability
+modeling gap. It does not support full predictive-quality reproduction.
+
+This follow-up reuses the previously revealed 200-story audit; checkpoint
+selection uses validation alone. All output samples and the earlier available
+accuracy candidate at update20,300 are preserved. The reserved final test remains
+untouched. The comparison is in `results/ngxson-dual-selection-v1/comparison.md`;
+live validation and retention continue on macm3. Saved validation CE replay for
+the accuracy checkpoint differs by −9.94e-9 and its correct/token counts match
+exactly. Twelve evaluator fixtures and twelve observer fixtures pass, including
+native macOS event delivery through the actual observer CLI.
 
 ## Frozen inputs and results
 

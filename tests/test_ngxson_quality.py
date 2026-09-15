@@ -147,3 +147,31 @@ def test_generation_uses_once_only_bos_fixed_greedy_config_and_all_prompts():
     samples = quality.generate(Model(), Tokenizer())
     assert [s["prompt"] for s in samples] == quality.PROMPTS
     assert all(s["new_tokens"] == 2 and s["continuation"] == "5" for s in samples)
+
+
+def test_accuracy_checkpoint_uses_its_own_validation_not_embedded_ce_winner():
+    checkpoint = {"cursor": {"updates": 200, "epoch": 2},
+                  "best": {"updates": 100, "cross_entropy": 3.0}}
+    metric = {"cross_entropy": 4.0, "top1_accuracy": .4, "correct": 4,
+              "tokens": 10, "stories": 2}
+    receipt = {"checkpoint_sha256": "abc", "validation_record": {
+        "event": "validation", "updates": 200, "epoch": 2, "validation": metric}}
+    assert quality.selected_validation(checkpoint, "max-accuracy", receipt, "abc") == metric
+    with pytest.raises(ValueError, match="minimum-CE"):
+        quality.selected_validation(checkpoint, "min-ce", None, "abc")
+    with pytest.raises(ValueError, match="SHA"):
+        quality.selected_validation(checkpoint, "max-accuracy", receipt, "different")
+    receipt["validation_record"]["updates"] = 201
+    with pytest.raises(ValueError, match="cursor"):
+        quality.selected_validation(checkpoint, "max-accuracy", receipt, "abc")
+
+
+@pytest.mark.parametrize("accuracy", [.5, float("nan")])
+def test_accuracy_receipt_rejects_inconsistent_or_nonfinite_metrics(accuracy):
+    checkpoint = {"cursor": {"updates": 200, "epoch": 2}}
+    receipt = {"checkpoint_sha256": "abc", "validation_record": {
+        "event": "validation", "updates": 200, "epoch": 2,
+        "validation": {"cross_entropy": 4.0, "top1_accuracy": accuracy,
+                       "correct": 4, "tokens": 10, "stories": 2}}}
+    with pytest.raises(ValueError, match="Accuracy"):
+        quality.selected_validation(checkpoint, "max-accuracy", receipt, "abc")
