@@ -13,6 +13,7 @@ run manifests and stop/completion receipts are authoritative for execution.
 | D32bounded | `exp/encoder32-bounded` | [D](configs/D32bounded.json) | 51,326,535 |
 | E32rank128fixed | `exp/encoder32-readout128-fixed` | [E](configs/E32rank128fixed.json) | 7,183,157 |
 | F32rank128bounded | `exp/encoder32-readout128-bounded` | [F](configs/F32rank128bounded.json) | 7,201,479 |
+| G32rank64fixed (later, authorized) | `exp/encoder32-readout64-fixed` | [G](configs/G32rank64fixed.json) | 3,956,469 |
 
 ## Protocol and status
 

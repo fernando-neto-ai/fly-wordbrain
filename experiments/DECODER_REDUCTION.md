@@ -61,3 +61,23 @@ both retained winners, inspect training overlap, and retain the reserved test.
 Only consider finer or less restricted brain adaptation after verifying the
 existing gain path changes predictions and measuring its remaining deficit.
 One seed and this small dataset cannot establish anatomical superiority.
+
+## Authorized later comparison: rank64
+
+The user subsequently requested a rank64 comparison after the current rank128
+pair. G32rank64fixed is planned after E/F training and their quality assessment.
+It retains encoder width32, eight explicit delays, fixed canonical edges and the
+same148,179 trained neuron values, data, seed42 and planned optimizer schedule.
+The bias-free decoder becomes49,393→64→1,024:3,226,688 decoder parameters and
+3,956,469 total. This is half the rank128 decoder size; neuron coverage is unchanged.
+
+Compare G primarily against E at matched update/token budgets, retaining both
+validation selectors and matching generation prompts. The existing initialization
+policy changes initial logit variance with rank; disclose this when interpreting
+early learning curves. Run a separate rank64 M3 CPU/MPS parity check and an
+eight-update optimizer smoke before full training. Existing rank128 evidence is
+not a rank64 preflight. Current E/F sources and queue remain unchanged.
+
+The configuration is experiments/configs/G32rank64fixed.json and its branch is
+exp/encoder32-readout64-fixed. All actual training remains serial on macm3.
+Additional rank64 edge adaptation or further rank reductions remain unselected.
