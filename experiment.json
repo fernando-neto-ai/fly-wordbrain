@@ -6,7 +6,10 @@
   "common_pipeline_commit": "1d140faceb399d5ae69e9820abeeb5fb878fa8b5",
   "training_source_commit": "3aaa2120cb01c30c670009d33e716c9c8e0318fc",
   "training_host": "macm3",
-  "status": "selected_immediate_launch",
-  "dependency": "Native rank64 parity passed; eight-update optimizer smoke before full G; F is superseded, not a prerequisite",
-  "artifact_root": "macm3:/Users/fernando/fly_wordbrain_connectorch/results/connectorch-rank64-v1/arms/G32rank64fixed"
+  "status": "running_on_macm3",
+  "dependency": "Native rank64 parity and eight-update smoke passed; full G launched; F superseded",
+  "artifact_root": "macm3:/Users/fernando/fly_wordbrain_connectorch/results/connectorch-rank64-v1/arms/G32rank64fixed",
+  "launch_receipt": "experiments/runs/rank64-v1-launch.json",
+  "launch_id": "bd29bc14-f3a1-4971-b6bf-fed447a7622d",
+  "observed_full_updates": 100
 }

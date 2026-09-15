@@ -1,0 +1,14 @@
+{
+  "format_version": 1,
+  "repository": "https://github.com/fernando-neto-ai/fly-wordbrain",
+  "common_pipeline_commit": "1d140faceb399d5ae69e9820abeeb5fb878fa8b5",
+  "training_source_commit": "3aaa2120cb01c30c670009d33e716c9c8e0318fc",
+  "arms": {
+    "G32rank64fixed": {
+      "branch": "exp/encoder32-readout64-fixed",
+      "commit": "5d3024c8cd845914ed6a12b4f3238c43d7bb487e",
+      "configuration": "experiments/configs/G32rank64fixed.json",
+      "configuration_sha256": "3423b3e4de19c1d04b811aa8dd128b7206b88304c07cfaf437ce34e376e0622c"
+    }
+  }
+}
