@@ -9,7 +9,8 @@ import shlex
 
 ROOT = Path(__file__).resolve().parents[1]
 ARMS = ("A128fixed", "B32fixed", "C128bounded", "D32bounded")
-FILES = ["manifest.json", "launch.json", "campaign-status.json", "results.json", "failure.json", "preflight/parity.json"]
+FILES = ["manifest.json", "launch.json", "campaign-status.json", "readiness.json", "results.json", "partial-results.json",
+         "failure.json", "smoke-results.json", "preflight/parity.json"]
 FILES += [f"arms/{arm}/{name}" for arm in ARMS for name in
           ("manifest.json", "status.json", "process-status.json", "metrics.jsonl", "results.json", "failure.json")]
 REMOTE = '''from pathlib import Path
@@ -58,7 +59,7 @@ def main():
     def read(name):
         return json.loads(files[name]["text"]) if name in files else {}
     now = datetime.now(timezone.utc).isoformat()
-    status = read("campaign-status.json")
+    status = read("campaign-status.json") or read("readiness.json")
     report = ["# Connectorch encoder experiment — partial validation", "",
               f"Snapshot: {now}. Host: {args.host}.", "",
               f"Campaign status: **{status.get('status', 'waiting')}**.", "",
