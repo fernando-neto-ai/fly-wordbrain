@@ -106,3 +106,13 @@ it does not alone show a biological language prior.
 Later readout-rank, explicit-history and randomized-graph experiments use new
 `exp/<question>-<condition>` branches and new configurations. They should not be
 folded silently into these four matched arms.
+
+## Rank128 handoff status
+
+E32rank128fixed stopped after 13 completed epochs under the plateau rule, at
+15,918 observed / 15,900 durable updates. Both winners remain preserved: CE3.149704
+at13,700 and accuracy36.5822% at14,300. F32rank128bounded launched separately
+from scratch through the receipt-verified F-only handoff. See
+[the E stop report](reports/E32rank128fixed-accepted-early-stop.md). The old
+dispatcher's native signal failure is intentional history; the new continuation
+manifest and process state govern live F execution.

@@ -1,0 +1,88 @@
+{
+  "format_version": 1,
+  "status": "launched",
+  "training_host": "macm3",
+  "launch": {
+    "command": [
+      "/Users/fernando/fly_wordbrain_connectorch/.venv-connectorch/bin/python",
+      "-u",
+      "/Users/fernando/fly_wordbrain_connectorch/scripts/continue_connectorch_decoder_campaign.py",
+      "--parent",
+      "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-decoder-v1",
+      "--accepted-arm-receipt",
+      "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-decoder-v1/arms/E32rank128fixed/accepted-early-stop.json",
+      "--output",
+      "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-decoder-v1-continuation",
+      "--worker",
+      "--launch-id",
+      "d1097545-e671-4405-872e-34d025c82d8e"
+    ],
+    "cwd": "/Users/fernando/fly_wordbrain_connectorch",
+    "environment": {
+      "PYTORCH_ENABLE_MPS_FALLBACK": "0",
+      "OMP_NUM_THREADS": "4",
+      "VECLIB_MAXIMUM_THREADS": "4"
+    },
+    "created_at_utc": "2026-09-15T21:47:09.256997+00:00",
+    "launch_id": "d1097545-e671-4405-872e-34d025c82d8e",
+    "manifest_sha256": "a4838ce9e5b5f2c3b17d90e6da27355b18c2f29a0517b947921ebf8528e6ac47",
+    "worker_pid": 13662,
+    "process_birth": "Tue Sep 15 18:47:09 2026"
+  },
+  "manifest_sha256": "a4838ce9e5b5f2c3b17d90e6da27355b18c2f29a0517b947921ebf8528e6ac47",
+  "parent_campaign": {
+    "path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-decoder-v1/manifest.json",
+    "sha256": "5390f71e07c0fbbd70a29e925bdce558d3cda30ca8fc057ada640a961ad741b3",
+    "launch_id": "b6d86264-7465-419f-8130-fa1807c41d79"
+  },
+  "accepted_arm_receipt": {
+    "path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-decoder-v1/arms/E32rank128fixed/accepted-early-stop.json",
+    "sha256": "a738b07f32dade3731ab9ef6bfe2ebe00dd48089dd118720e2e24e865505e49e"
+  },
+  "continued_arm": "F32rank128bounded",
+  "recipe_unchanged": true,
+  "preflight_reused_and_verified": true,
+  "smoke_checks_reused_and_verified": true,
+  "sources_sha256": {
+    "/Users/fernando/fly_wordbrain_connectorch/scripts/run_connectorch_campaign.py": "85e699c6048cb1667825d7865e7016c21afcb94cb3f1f029ca97242c8c42831f",
+    "/Users/fernando/fly_wordbrain_connectorch/scripts/train_connectorch.py": "b50be2b34228439fa9d72756d18f7c8a293c8f502a15f23803d484b20461d1ab",
+    "/Users/fernando/fly_wordbrain_connectorch/scripts/train_ngxson.py": "b7712487070a313e688da5397bcfdb7021f73e19d539771c2c965ef6c43235cc",
+    "/Users/fernando/fly_wordbrain_connectorch/scripts/audit_connectorch.py": "154188a3b18361877999fee930b5305b1f759736f28056474f53d820c0e34448",
+    "/Users/fernando/fly_wordbrain_connectorch/scripts/prepare_connectorch_groups.py": "f46c84e6bfb4739f8651b6524e9b65aa059f660eb26187cecfb25cd925e53312",
+    "/Users/fernando/fly_wordbrain_connectorch/scripts/prepare_ngxson.py": "997e8894eba19bd756ba0073d30ce5cc19dd1e63577ec5574a95388529114867",
+    "/Users/fernando/fly_wordbrain_connectorch/fly_wordbrain/connectorch_model.py": "235ff815ae7fa1e2d693eb3293453c6f0e879f2e2c639e0c39d06a5bc57668fa",
+    "/Users/fernando/fly_wordbrain_connectorch/fly_wordbrain/connectorch_backend.py": "2e7d0efec68014ef41b91d16552af49c7fa6fea7bbb69956e17c4dd8a2107ebc",
+    "/Users/fernando/fly_wordbrain_connectorch/fly_wordbrain/metal_sparse_trainable.py": "d9d53f871f845b5e534998f3f505b50a39ec3002e90294bd5b8a18aa002462e4",
+    "/Users/fernando/fly_wordbrain_connectorch/fly_wordbrain/metal_sparse.py": "7ba777491221a700d63e20d1d052d42e53d5be1320fed789ec57befe503ca9db",
+    "/Users/fernando/fly_wordbrain_connectorch/fly_wordbrain/plastic_brain.py": "8a230179d3f7796c43c62e1c400c66f9a870bde2c5e4d79cbc86478238e94936",
+    "/Users/fernando/fly_wordbrain_connectorch/connectorch-source.json": "34a007b5791507bde32d225d4cba36bcd141f03ffa54438a5640b8ab45ce0636",
+    "/Users/fernando/fly_wordbrain_connectorch/requirements-connectorch.txt": "3b28980aeedb9ea12d7e385f804aface144e4054e9e52666d8b0e5fac41f5bb5",
+    "/Users/fernando/fly_wordbrain_connectorch/requirements-ngxson.txt": "9ca61364432cd639fd4be4368ef3d14991d6713824457e7cf710c78cca9a4b68",
+    "/Users/fernando/fly_wordbrain_connectorch/scripts/run_connectorch_decoder_campaign.py": "bd6d43be963f7f343789b75f86a4daf1d7a02b3d79a281008db08495bb2d3ec3",
+    "/Users/fernando/fly_wordbrain_connectorch/scripts/audit_connectorch_decoder.py": "af4b93eaf6365060ffbbd0d32dd7b49c1acd308e35b164f65bc7c7dbe0a8c07d",
+    "/Users/fernando/fly_wordbrain_connectorch/scripts/continue_connectorch_decoder_campaign.py": "d96701a3eeacb86b351dd1f4736c94f4946843b4fc9556d9c950dc6bebaeb4ba"
+  },
+  "source_commit_for_new_handoff": "4ed9f31",
+  "experiment_branches": {
+    "format_version": 1,
+    "repository": "https://github.com/fernando-neto-ai/fly-wordbrain",
+    "common_pipeline_commit": "1bbb6ba52e0896a0c8bcc2fb8e4b1ddf7b52832f",
+    "training_source_commit": "3aaa2120cb01c30c670009d33e716c9c8e0318fc",
+    "arms": {
+      "E32rank128fixed": {
+        "branch": "exp/encoder32-readout128-fixed",
+        "commit": "dd0dc3b140a340460558a17aca97600036e35e62",
+        "configuration": "experiments/configs/E32rank128fixed.json",
+        "configuration_sha256": "667320d3efab908d15786e43721f693f8dc2bbfe2261d30939c80a17302b4f1d"
+      },
+      "F32rank128bounded": {
+        "branch": "exp/encoder32-readout128-bounded",
+        "commit": "f8f15b47aa76e4795565a5f59faae2ccca5191d8",
+        "configuration": "experiments/configs/F32rank128bounded.json",
+        "configuration_sha256": "8f658674f31dc56194e03e55d668076d6516b6f706e8428697ae1fbf066c89d1"
+      }
+    }
+  },
+  "reserved_test_evaluated": false,
+  "artifact_root": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-decoder-v1-continuation"
+}
