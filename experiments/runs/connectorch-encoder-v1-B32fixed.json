@@ -374,5 +374,29 @@
     "arms/B32fixed/process-status.json": "8906d0f25f08cc39c95676b0159d759bf787785d0fe392ff5e1874eb1421ba9d",
     "arms/B32fixed/metrics.jsonl": "2cecc98f9cb5e5cdcdbcc8045a7c52a74ac7f7e3bbdb3d5b5256a9bd4ddf237d",
     "arms/B32fixed/selected-checkpoints.json": "78dccb9bafa99f05cd5c55438a1015c9c11b22d192a2c6c016e81cb38896f344"
-  }
+  },
+  "queue_review_gate": {
+    "format_version": 1,
+    "status": "queue_paused_training_continues",
+    "created_at_utc": "2026-09-15T16:22:30.748075+00:00",
+    "instruction": "we must assess after the next experiment, how much we should unfreeze more the brain, to keep the reduced encoder, if it degrades too much the quality of it",
+    "reason": "Evaluate reduced-encoder quality and minimal additional brain plasticity after B before C/D launch.",
+    "active_arm": "B32fixed",
+    "blocked_arms": [
+      "C128bounded",
+      "D32bounded"
+    ],
+    "controller_pid": 96472,
+    "controller_birth": "Tue Sep 15 13:10:34 2026",
+    "training_pid": 96485,
+    "training_birth": "Tue Sep 15 13:10:40 2026",
+    "mechanism": "SIGSTOP only to the continuation controller while it waits for B; no signal to training child. Caffeinate remains alive.",
+    "resume_policy": "Do not SIGCONT the controller before the post-B assessment; resuming it would automatically schedule C then D.",
+    "source_files_changed": false,
+    "controller_state": "Ts",
+    "training_state": "U",
+    "verified_at_utc": "2026-09-15T16:22:30.754716+00:00"
+  },
+  "review_protocol": "experiments/POST_B_REVIEW.md",
+  "review_policy_commit": "36ee159f52f650a38f363f213c8bcfcff9bc0ac3"
 }
