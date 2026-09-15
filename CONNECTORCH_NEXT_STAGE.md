@@ -1,5 +1,16 @@
 # Next stage: smaller language interfaces, minimally adapted connectome
 
+Execution constraint: all real training, including pilots, fine-tuning and future
+training smoke runs, must run on **macm3**. Local work is limited to development,
+result inspection and small correctness checks. All campaign commands and any
+future training stages must explicitly target macm3.
+
+Quality gate update (2026-09-15): the paired checkpoint audit failed. The queued
+four-arm campaign is held even after the original run completes; its automatic
+launcher must not be invoked until this training-quality gap has been reviewed.
+The original reference continues unchanged. See `NGXSON_QUALITY_AUDIT.md` and
+`results/ngxson-quality-v1-mps-r2/report.md` for measurements and all fixed samples.
+
 Approved for implementation by the user on 2026-09-15. The native Metal backend,
 reference-compatible model variants and independent trainer are implemented.
 The four-arm campaign must wait for successful completion of
