@@ -1,0 +1,3 @@
+-r requirements-ngxson.txt
+connectorch @ git+https://github.com/us/connectorch.git@4bbfb645099aeb85bdbf850e1a87cc094769af87
+pyarrow==23.0.1
