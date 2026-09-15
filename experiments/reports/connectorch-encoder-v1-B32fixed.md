@@ -1,6 +1,6 @@
 # Connectorch encoder experiment — partial validation
 
-Snapshot: 2026-09-15T16:12:37.846494+00:00. Host: macm3.
+Snapshot: 2026-09-15T16:43:49.348865+00:00. Host: macm3.
 
 Campaign status: **running**. Phase: **training**. Current arm: **B32fixed**.
 
@@ -8,14 +8,16 @@ Baseline: **accepted by the user after early stopping**. Its minimum-CE and maxi
 All arms retain the full output head, eight explicit input lags, 49,393 neurons and 9,050,172 base edges.
 Bounded arms add 18,322 source/destination cell-type gains; base-edge multipliers stay within 0.9–1.1. Original neuron gains remain unconstrained.
 
+**B training continues; adaptive queue held for post-B assessment.** C/D will stay held while reduced-encoder quality and the necessary additional brain plasticity are assessed.
+
 A128fixed: **accepted early stop**, 10 completed epochs; 12,400 durable updates and 12,442 observed updates. Its complete history and both checkpoint winners are retained from the parent campaign. Retained-best comparisons use unequal training budgets; A did not complete the 44-epoch schedule.
 
 | Arm | Width | Edge gains | Status | Updates | Minimum CE (accuracy; update) | Maximum accuracy (CE; update) |
 |---|---:|---|---|---:|---|---|
 | A128fixed | 128 | fixed | accepted early stop | 12,400 | 4.7283 (30.49%; 3,600) | 32.90% (5.5470; 12,200) |
-| B32fixed | 32 | fixed | running / training | 332 | 7.0229 (11.09%; 200) | 11.09% (7.0229; 200) |
-| C128bounded | 128 | bounded10 | pending | 0 | — | — |
-| D32bounded | 32 | bounded10 | pending | 0 | — | — |
+| B32fixed | 32 | fixed | running / training | 5,737 | 4.7156 (28.73%; 4,800) | 29.01% (4.8177; 5,700) |
+| C128bounded | 128 | bounded10 | held for post-B assessment | 0 | — | — |
+| D32bounded | 32 | bounded10 | held for post-B assessment | 0 | — | — |
 
 Winner columns use the saved checkpoint receipts when available. A newer validation can appear in the history while its checkpoint is still being saved; exact metric ties retain the earlier checkpoint.
 
@@ -169,9 +171,9 @@ Saved maximum_validation_accuracy: `/Users/fernando/fly_wordbrain_connectorch/re
 
 Branch: `exp/encoder32-fixed`. Commit: `68d721ef82de4401f2665c6fdf33579f2865014a`. Repository: https://github.com/fernando-neto-ai/fly-wordbrain.
 
-Saved minimum_validation_ce: `/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1-continuation/arms/B32fixed/best.pt`; SHA256 `d6cc4708b65789e036d38974b6eb8adc920354717fd3fa3186aa2424436e030c`.
+Saved minimum_validation_ce: `/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1-continuation/arms/B32fixed/best.pt`; SHA256 `3e4410eefabda9ded01cbfb4c01fed84a9265d2f1fc91dae77d565532e4ebf92`.
 
-Saved maximum_validation_accuracy: `/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1-continuation/arms/B32fixed/best-accuracy.pt`; SHA256 `def6a3cae3e861dc09e77682db01200b9cd1e3b1ab3f48e51418664e745e8757`.
+Saved maximum_validation_accuracy: `/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1-continuation/arms/B32fixed/best-accuracy.pt`; SHA256 `10cf1909eb08af55ff794e144edc1b296d73f9b4079a59cc87758e582fc4fc81`.
 
 | Updates | Epoch | Validation CE | Accuracy |
 |---:|---:|---:|---:|
@@ -179,6 +181,64 @@ Saved maximum_validation_accuracy: `/Users/fernando/fly_wordbrain_connectorch/re
 | 100 | 0 | 7.2118 | 8.09% |
 | 200 | 0 | 7.0229 | 11.09% |
 | 300 | 0 | 7.3035 | 10.43% |
+| 400 | 0 | 6.9651 | 11.63% |
+| 500 | 0 | 6.3789 | 14.43% |
+| 600 | 0 | 6.7233 | 13.76% |
+| 700 | 0 | 6.7747 | 15.42% |
+| 800 | 0 | 6.6607 | 13.57% |
+| 900 | 0 | 6.3306 | 16.84% |
+| 1,000 | 0 | 6.1326 | 17.61% |
+| 1,100 | 0 | 6.5182 | 16.26% |
+| 1,196 | 1 | 5.8230 | 17.59% |
+| 1,200 | 1 | 5.7277 | 18.94% |
+| 1,300 | 1 | 5.8918 | 18.20% |
+| 1,400 | 1 | 5.9711 | 17.53% |
+| 1,500 | 1 | 5.8291 | 20.19% |
+| 1,600 | 1 | 5.6152 | 20.97% |
+| 1,700 | 1 | 5.8958 | 18.89% |
+| 1,800 | 1 | 5.8369 | 19.97% |
+| 1,900 | 1 | 6.0451 | 19.72% |
+| 2,000 | 1 | 5.5717 | 22.73% |
+| 2,100 | 1 | 5.6261 | 21.02% |
+| 2,200 | 1 | 5.6037 | 22.99% |
+| 2,300 | 1 | 5.6838 | 20.26% |
+| 2,389 | 2 | 5.6773 | 20.92% |
+| 2,400 | 2 | 5.7567 | 20.70% |
+| 2,500 | 2 | 5.2482 | 23.36% |
+| 2,600 | 2 | 5.3343 | 24.03% |
+| 2,700 | 2 | 5.4219 | 22.96% |
+| 2,800 | 2 | 5.4970 | 23.23% |
+| 2,900 | 2 | 5.1193 | 25.37% |
+| 3,000 | 2 | 5.4410 | 22.55% |
+| 3,100 | 2 | 5.3484 | 23.83% |
+| 3,200 | 2 | 5.1048 | 25.76% |
+| 3,300 | 2 | 5.1811 | 24.99% |
+| 3,400 | 2 | 5.1165 | 24.49% |
+| 3,500 | 2 | 5.0447 | 25.46% |
+| 3,587 | 3 | 5.1103 | 24.64% |
+| 3,600 | 3 | 4.9458 | 26.69% |
+| 3,700 | 3 | 5.1211 | 25.63% |
+| 3,800 | 3 | 5.2118 | 24.85% |
+| 3,900 | 3 | 4.8496 | 27.38% |
+| 4,000 | 3 | 4.9490 | 26.51% |
+| 4,100 | 3 | 5.1707 | 25.27% |
+| 4,200 | 3 | 5.5544 | 20.97% |
+| 4,300 | 3 | 4.9035 | 27.40% |
+| 4,400 | 3 | 5.0548 | 26.00% |
+| 4,500 | 3 | 4.8443 | 27.54% |
+| 4,600 | 3 | 4.8648 | 27.64% |
+| 4,700 | 3 | 4.8687 | 28.62% |
+| 4,783 | 4 | 4.9410 | 27.68% |
+| 4,800 | 4 | 4.7156 | 28.73% |
+| 4,900 | 4 | 4.7802 | 27.86% |
+| 5,000 | 4 | 4.9521 | 25.82% |
+| 5,100 | 4 | 4.7270 | 28.84% |
+| 5,200 | 4 | 4.9899 | 26.22% |
+| 5,300 | 4 | 4.8664 | 27.00% |
+| 5,400 | 4 | 5.0465 | 26.18% |
+| 5,500 | 4 | 4.9297 | 27.31% |
+| 5,600 | 4 | 4.7724 | 28.17% |
+| 5,700 | 4 | 4.8177 | 29.01% |
 
 ## C128bounded
 
