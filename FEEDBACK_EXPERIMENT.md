@@ -19,8 +19,8 @@ zero temporary weights, zero eligibility, and BOS/BOS count context:
 2. Run the brain with those candidates and the last two observed word IDs.
 3. Reveal the actual word. Form an eleven-way prediction error (ten ranks plus
    OTHER), a fixed unique 16-dimensional word code, and its position in 1–7.
-4. Use this feedback to modulate prediction-time eligibility on the 347 selected
-   existing edges. Repeat for the seven known words.
+4. Use this feedback to modulate prediction-time eligibility on the selected
+   existing edges (347 originally; 8,192 in the expanded experiment). Repeat for the seven known words.
 5. Produce and score word-eight logits before revealing word eight. Reset the
    entire episode state for the next window.
 
@@ -42,6 +42,59 @@ head adds its ten corrections to the count model's log probabilities. Its zero
 initialization exactly recovers the count model. The first optimizer step
 therefore trains the head; gradients reach the rule on subsequent steps.
 
+## Expanded anatomical selection
+
+The original 347-edge run produced tiny fast/on-off logit effects and identical
+choices. Its partial checkpoint is preserved at step 640. The expanded
+experiment selects **8,192 existing edges across 19 groups**, retaining the
+original 347 and their four groups as an exact prefix. Added groups cover
+mushroom-body, central-complex, visual, central-brain, and descending pathways.
+Selection uses the graph's anatomy labels, signed weights, and distances to
+sensory/output neurons; it never uses text labels or validation scores. These
+are engineering candidates, not claims that all selected edges are biologically
+plastic.
+
+The selection is a separately hashed NPZ/JSON sidecar. Canonical neuron IDs,
+endpoints, base weights, and signs are verified before and after loading it.
+Nothing is rewired. The selection-inclusive fingerprint changes; the canonical
+base-graph fingerprint does not. The small selected-edge correction uses a
+fixed sparse incidence reduction and `expm1` to preserve tiny corrections
+without colliding GPU sums.
+
+With per-edge susceptibility enabled, the model learns **646 shared rule
+parameters + 8,192 write multipliers + 2,570 head parameters = 11,408 total**.
+Each learned write multiplier is `2*sigmoid(parameter)`, initialized at one.
+It controls how historical feedback writes temporary state; it cannot change
+a base weight directly. Each window starts with 8,192 zero fast values and
+8,192 zero eligibility values, and discards them after word eight.
+
+The rule optimizer uses learning rate .003 and epsilon 1e-12; the head uses
+learning rate .0003 and epsilon 1e-8, with separate gradient clipping. This
+prevents the head's gradients and Adam epsilon from suppressing small rule
+updates. Training always enables fast weights. The fast-off dashboard series
+is an evaluation-only comparison of the same trained model.
+
+The expanded preflight additionally measures centered logit changes and total
+variation between fast-on/off action distributions after a temporary head
+warmup. Those warmup updates are restored before the training run. Probability
+changes establish that the mechanism is connected, not that it improves
+held-out language prediction. Dashboard snapshots report changed choices,
+centered logit effects, and the mean fraction of probability mass moved.
+
+To select and check the expanded configuration:
+
+```bash
+.venv/bin/python -m fly_wordbrain.fast_structure \
+  --graph data/plastic-graph --target-edges 8192 \
+  --output data/fast-structures/anatomical-8192.npz
+PYTORCH_ENABLE_MPS_FALLBACK=0 .venv/bin/python -u -m fly_wordbrain.feedback_train \
+  --dataset data/expanded-8k/dataset.json --graph data/plastic-graph \
+  --output results/feedback-anatomical8192-e1 --device mps \
+  --structure-path data/fast-structures/anatomical-8192.npz \
+  --trainable-susceptibility --lr .0003 --rule-lr .003 --rule-eps 1e-12 \
+  --probe-steps 8 --minimum-feature-effect .01 --minimum-action-tv .001
+```
+
 ## Data and scoring
 
 The existing 8,192 training stories yield **126,600 nonoverlapping windows**.
@@ -55,7 +108,10 @@ Partial validation uses all **1,968 windows** from the first 128 validation
 stories. Full validation uses **15,824 windows** from all 1,024 validation
 stories. Calibration uses the first 256 training windows and whole-story
 exclusion. It estimates per-edge activity RMS and final-feature normalization
-with fast writing/reading disabled.
+with fast writing/reading disabled in the original experiment. The expanded
+experiment first measures activity scales with writing disabled, then measures
+final-feature normalization in a second pass with fast weights enabled. Both
+passes use exactly the same train-only windows and whole-story exclusion.
 
 The loss is conditional cross entropy over top-ten candidates only when word
 eight is present. Overall accuracy includes every window, so missing targets

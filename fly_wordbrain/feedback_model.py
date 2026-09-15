@@ -6,6 +6,7 @@ eligibility trace, and only the subsequently observed word can write fast
 weights. Every base edge, endpoint and sign stays fixed.
 """
 import math
+from pathlib import Path
 from typing import NamedTuple, Optional
 
 import numpy as np
@@ -47,7 +48,8 @@ class FeedbackActionBrain(CandidateActionBrain):
     """
 
     def __init__(self, graph_path, vocab_size, global_scale, top_k=10,
-                 initial_eligibility_retention=.9, identity_dimensions=16, **brain_kwargs):
+                 initial_eligibility_retention=.9, identity_dimensions=16,
+                 structure_path=None, trainable_susceptibility=False, **brain_kwargs):
         if top_k != 10:
             raise ValueError("The feedback experiment requires ten candidates plus an OTHER feedback bucket")
         if identity_dimensions != 16:
@@ -59,22 +61,52 @@ class FeedbackActionBrain(CandidateActionBrain):
         super().__init__(graph_path, vocab_size, global_scale, top_k=top_k, **brain_kwargs)
         if self.strict_full_graph and self.candidates != 347:
             raise ValueError("Feedback experiment requires the original 347 selected existing edges")
+        self.expanded_structure = structure_path is not None
+        self.structure_path = str(Path(structure_path).resolve()) if self.expanded_structure else None
+        self.structure_metadata = None
+        self.group_names = ["hDeltaH", "hDeltaA", "hDeltaI", "hDeltaG"]
+        self.original_candidate_count = self.candidates
+        self.original_selection_inclusive_fingerprint = self.initial_graph_fingerprint
+        self.base_graph_sha256_before_selection = self.base_graph_fingerprint()
+        if self.expanded_structure:
+            self._install_structure(structure_path)
+        self.group_count = len(self.group_names)
+        self.base_graph_sha256_after_selection = self.base_graph_fingerprint() if self.expanded_structure else self.base_graph_sha256_before_selection
+        if self.base_graph_sha256_after_selection != self.base_graph_sha256_before_selection:
+            raise RuntimeError("Installing a fast-weight selection changed the canonical base graph")
+        if self.expanded_structure:
+            # This fingerprint includes the verified selection as well as the
+            # full base graph; changing selection is not changing the graph.
+            self.initial_graph_fingerprint = self.frozen_fingerprint()
+            self._build_candidate_incidence()
         self.identity_dimensions = identity_dimensions
         self.feedback_dimensions = self.action_count + 1 + identity_dimensions + 1
         self.plasticity_enabled = True
         # CandidateActionBrain explicitly froze all parent parameters. Unfreeze
-        # only these five four-group rule terms, all used below.
+        # only the rule terms actually used below. Additional groups inherit
+        # the same initial rule values as the original four groups.
         self.rule_parameter_names = ("write_strength", "retention_logit", "gate_bias", "gate_pre", "gate_post",
                                      "feedback_modulation", "eligibility_retention_logit")
         for name in self.rule_parameter_names[:5]:
-            getattr(self, name).requires_grad_(True)
-        self.eligibility_retention_logit = nn.Parameter(torch.full((4,),
+            original = getattr(self, name)
+            if self.group_count != 4:
+                expanded = torch.cat((original.detach(), original.detach()[:1].expand(self.group_count - 4)))
+                setattr(self, name, nn.Parameter(expanded.clone()))
+            else:
+                original.requires_grad_(True)
+        self.eligibility_retention_logit = nn.Parameter(torch.full((self.group_count,),
             math.log(initial_eligibility_retention / (1 - initial_eligibility_retention)), device=self.device))
         # Seeded nonzero modulation allows rank/identity/position feedback to
         # affect temporary weights before the slow rule has learned anything.
         rng = np.random.default_rng(self.seed + 7319)
-        modulation = rng.normal(0., .1, (4, self.feedback_dimensions)).astype(np.float32)
+        modulation = rng.normal(0., .1, (self.group_count, self.feedback_dimensions)).astype(np.float32)
         self.feedback_modulation = nn.Parameter(torch.as_tensor(modulation, device=self.device))
+        self.trainable_susceptibility = bool(trainable_susceptibility)
+        if self.trainable_susceptibility:
+            self.slow_susceptibility = nn.Parameter(torch.zeros(self.candidates, device=self.device))
+            self.rule_parameter_names += ("slow_susceptibility",)
+        else:
+            self.register_parameter("slow_susceptibility", None)
         identity = fixed_identity_codes(self.vocab_size, self.seed + 7320)
         self.register_buffer("observed_word_codes", torch.as_tensor(identity, device=self.device))
         self.observed_word_codes_sha256 = array_digest([identity])
@@ -97,8 +129,80 @@ class FeedbackActionBrain(CandidateActionBrain):
         self.register_buffer("ordered_readout_indices", torch.as_tensor(indices, device=self.device))
         self.register_buffer("ordered_readout_signs", torch.as_tensor(weights, device=self.device))
         self.initial_interface_fingerprint = self.interface_fingerprint()
-        if self.trainable_parameter_count() != 136:
-            raise RuntimeError("Feedback rule must contain exactly 136 shared trainable parameters")
+        expected = 34 * self.group_count + (self.candidates if self.trainable_susceptibility else 0)
+        if self.trainable_parameter_count() != expected:
+            raise RuntimeError("Feedback parameter count differs from 34 per group plus optional per-edge susceptibility")
+
+    def base_graph_fingerprint(self):
+        """Canonical in-memory identities/endpoints/weights, excluding selection."""
+        return array_digest([value.detach().cpu().numpy() for value in
+            (self.neuron_ids, self.raw_outgoing_ptr, self.raw_outgoing_post, self.raw_outgoing_weight)])
+
+    def _install_structure(self, structure_path):
+        from .fast_structure import load_structure
+        graph = {name: value.detach().cpu().numpy().copy() for name, value in (
+            ("ptr", self.raw_outgoing_ptr), ("post", self.raw_outgoing_post),
+            ("weight", self.raw_outgoing_weight), ("candidate_edge_ids", self.candidate_edge_ids),
+            ("candidate_group", self.candidate_group))}
+        arrays, metadata = load_structure(structure_path, graph, self.graph_file_sha256)
+        for name in ("candidate_edge_ids", "candidate_group", "candidate_pre", "candidate_post", "candidate_weight"):
+            dtype = torch.float32 if name == "candidate_weight" else torch.long
+            setattr(self, name, torch.as_tensor(arrays[name].copy(), dtype=dtype, device=self.device))
+        self.candidates = len(arrays["candidate_edge_ids"])
+        self.pre_scale = torch.ones(self.candidates, dtype=torch.float32, device=self.device)
+        self.post_scale = torch.ones_like(self.pre_scale)
+        self.group_names = list(metadata["group_names"])
+        self.structure_metadata = metadata
+
+    def _build_candidate_incidence(self):
+        """Fixed U-by-E sum and E-by-U transpose, using only O(E+U) storage.
+
+        Each selected edge occurs exactly once in its destination's CSR row.
+        Both CPU CSR and Metal's per-row kernel avoid colliding scatter sums.
+        """
+        post = self.candidate_post.detach().cpu().numpy()
+        destinations, inverse = np.unique(post, return_inverse=True)
+        order = np.argsort(inverse, kind="stable").astype(np.int64)
+        ptr = np.r_[0, np.cumsum(np.bincount(inverse, minlength=len(destinations)))].astype(np.int64)
+        transpose_ptr = np.arange(self.candidates + 1, dtype=np.int64)
+        values = np.ones(self.candidates, dtype=np.float32)
+        self.register_buffer("candidate_unique_posts", torch.as_tensor(destinations, dtype=torch.long, device=self.device))
+        for name, row_ptr, columns, shape in (
+            ("fast_incidence", ptr, order, (len(destinations), self.candidates)),
+            ("fast_incidence_transpose", transpose_ptr, inverse.astype(np.int64), (self.candidates, len(destinations)))):
+            if self.device.type == "mps":
+                from .metal_sparse import DenseMpsCSR
+                setattr(self, name, DenseMpsCSR(row_ptr, columns, values, shape, device=self.device))
+            else:
+                matrix = torch.sparse_csr_tensor(torch.as_tensor(row_ptr, device=self.device),
+                    torch.as_tensor(columns, device=self.device), torch.as_tensor(values.copy(), device=self.device),
+                    size=shape, dtype=torch.float32, device=self.device, check_invariants=True)
+                self.register_buffer(name, matrix)
+
+    def aggregate_candidate_corrections(self, correction):
+        """Return one sum per unique selected postsynaptic neuron."""
+        if not self.expanded_structure or correction.ndim != 2 or correction.shape[1] != self.candidates:
+            raise ValueError("Expanded candidate correction must have shape [batch,selected_edges]")
+        return frozen_sparse_mm(correction, self.fast_incidence, self.fast_incidence_transpose)
+
+    def set_activity_scales(self, pre, post):
+        if not getattr(self, "expanded_structure", False):
+            return super().set_activity_scales(pre, post)
+        for name, values in (("pre_scale", pre), ("post_scale", post)):
+            values = torch.as_tensor(values, dtype=torch.float32, device=self.device).detach()
+            if values.ndim == 0:
+                values = values.expand(self.candidates)
+            elif values.shape == (self.group_count,) and self.candidates != self.group_count:
+                values = values[self.candidate_group]
+            if values.shape != (self.candidates,) or not bool(torch.isfinite(values).all()) or not bool(torch.all(values > 0)):
+                raise ValueError("Activity scales must be finite positive scalar, per-edge, or per-group values")
+            getattr(self, name).copy_(values)
+
+    def verify_frozen(self):
+        if getattr(self, "expanded_structure", False) and self.device.type == "mps":
+            self.fast_incidence.verify_frozen()
+            self.fast_incidence_transpose.verify_frozen()
+        return super().verify_frozen()
 
     def interface_fingerprint(self):
         base = super().interface_fingerprint()
@@ -109,6 +213,12 @@ class FeedbackActionBrain(CandidateActionBrain):
         if hasattr(self, "ordered_readout_indices"):
             arrays.extend((self.ordered_readout_indices.detach().cpu().numpy(),
                            self.ordered_readout_signs.detach().cpu().numpy()))
+        if hasattr(self, "candidate_unique_posts"):
+            arrays.append(self.candidate_unique_posts.detach().cpu().numpy())
+            for matrix in (self.fast_incidence, self.fast_incidence_transpose):
+                arrays.append(np.asarray(matrix.shape, dtype=np.int64))
+                arrays.extend(value.detach().cpu().numpy() for value in
+                    (matrix.crow_indices(), matrix.col_indices(), matrix.values()))
         return array_digest(arrays)
 
     def readout(self, h):
@@ -149,8 +259,15 @@ class FeedbackActionBrain(CandidateActionBrain):
         for _ in range(self.internal_steps):
             recurrent = frozen_sparse_mm(h, self.incoming, self.outgoing)
             if plasticity:
-                correction = h[:, self.candidate_pre] * (self.effective_candidate_weights(fast) - self.candidate_weight)
-                recurrent = recurrent.index_add(1, self.candidate_post, correction)
+                if self.expanded_structure:
+                    delta = self.candidate_weight * torch.expm1(math.log(2.) * torch.tanh(fast))
+                    correction = h[:, self.candidate_pre] * delta
+                    aggregated = self.aggregate_candidate_corrections(correction)
+                    recurrent = recurrent.index_copy(1, self.candidate_unique_posts,
+                        recurrent[:, self.candidate_unique_posts] + aggregated)
+                else:
+                    correction = h[:, self.candidate_pre] * (self.effective_candidate_weights(fast) - self.candidate_weight)
+                    recurrent = recurrent.index_add(1, self.candidate_post, correction)
             new_h = (1 - self.leak) * h + self.leak * torch.tanh(self.global_scale * recurrent + current)
             # Both factors belong to prediction-time dynamics, before the
             # actual word or its surprise is supplied to observe().
@@ -220,6 +337,8 @@ class FeedbackActionBrain(CandidateActionBrain):
             gate = torch.sigmoid(self.gate_bias[group] + self.gate_pre[group] * pre + self.gate_post[group] * post)
             retention = torch.sigmoid(self.retention_logit[group])
             eta = self.max_write_strength * torch.tanh(self.write_strength[group])
+            if self.slow_susceptibility is not None:
+                eta = eta * (2. * torch.sigmoid(self.slow_susceptibility))
             fast = retention * fast + eta * gate * modulation * state.eligibility
         return FeedbackState(state.h, fast, state.eligibility, state.observations + 1, False,
                              None, None, state.writing_enabled)
@@ -236,6 +355,21 @@ class FeedbackActionBrain(CandidateActionBrain):
             episode="Seven observed context words followed by one hidden-word prediction",
             trainable_rule_parameters=self.trainable_parameter_count(),
             rule_parameter_names=list(self.rule_parameter_names),
+            group_count=self.group_count, group_names=list(self.group_names),
+            candidate_groups=list(self.group_names) if self.expanded_structure else result["candidate_groups"],
+            trainable_shared_rule_parameters=34 * self.group_count,
+            trainable_susceptibility_parameters=self.candidates if self.trainable_susceptibility else 0,
+            trainable_susceptibility=self.trainable_susceptibility,
+            susceptibility="2*sigmoid(slow_susceptibility); bounded positive write multiplier, initialized exactly one" if self.trainable_susceptibility else None,
+            expanded_structure=self.expanded_structure, structure_path=self.structure_path, structure=self.structure_metadata,
+            original_candidate_edges=self.original_candidate_count,
+            base_graph_sha256_before_selection=self.base_graph_sha256_before_selection,
+            base_graph_sha256_after_selection=self.base_graph_sha256_after_selection,
+            base_graph_digest_definition="In-memory canonical neuron_ids, raw outgoing ptr/post/weight; excludes selected plastic edges",
+            original_selection_inclusive_fingerprint=self.original_selection_inclusive_fingerprint,
+            selection_inclusive_fingerprint=self.initial_graph_fingerprint,
+            graph_fingerprint_definition="Full fixed base graph plus selected edge IDs/endpoints/groups/weights and populations",
+            candidate_correction="weight*expm1(log(2)*tanh(H)); fixed CSR sum to unique posts" if self.expanded_structure else "effective_weight-base_weight; original index_add",
             feedback={"dimensions": self.feedback_dimensions, "rank_error_dimensions": 11,
                       "observed_identity_dimensions": self.identity_dimensions,
                       "observed_word_code_seed": self.seed + 7320,
@@ -245,7 +379,8 @@ class FeedbackActionBrain(CandidateActionBrain):
                       "position": "(observed word position - 1) / 6, positions 1..7",
                       "rank_error": "onehot(observed rank or OTHER) - [original probabilities, other mass]"},
             eligibility="E'=sigmoid(lambda)*E+(1-sigmoid(lambda))*mean_internal(tanh(pre/scale)*tanh(post/scale))",
-            write="H'=sigmoid(retention)*H + max_eta*tanh(eta)*sigmoid(g0+gpre*pre+gpost*post)*tanh(U*feedback)*E",
+            write="H'=sigmoid(retention)*H + max_eta*tanh(eta)*sigmoid(g0+gpre*pre+gpost*post)*tanh(U*feedback)*E"
+                  + (" * (2*sigmoid(slow_susceptibility))" if self.trainable_susceptibility else ""),
             fast_write_timing="Only observe(); prediction only reads frozen base plus bounded fast gain",
             override_off="Disables fast reading and writing; activity and eligibility still advance",
             reset="All neural activity, fast weights and eligibility reset for every eight-word window",

@@ -9,6 +9,8 @@ from torch.nn import functional as F
 
 from fly_wordbrain.action_model import CandidateActionBrain
 from fly_wordbrain.feedback_model import FeedbackActionBrain, FeedbackSelector, fixed_identity_codes
+from fly_wordbrain.fast_structure import (ARRAY_KEYS, ORIGINAL_GROUPS, array_digest,
+    file_sha256, original_selection_sha256, save_structure)
 
 
 def toy_graph(path, n=64):
@@ -25,6 +27,36 @@ def toy_graph(path, n=64):
         descending=np.arange(r, n), candidate_edge_ids=selected, candidate_pre=pre[selected],
         candidate_post=post[selected], candidate_group=np.arange(4))
     (path / "metadata.json").write_text(json.dumps({"toy_graph": True}))
+
+
+def expanded_sidecar(path):
+    """Keep the toy's four original edges, then select remaining real edges."""
+    with np.load(path / "graph.npz", allow_pickle=False) as source:
+        graph = {key: source[key].copy() for key in source.files}
+    ids = np.arange(len(graph["weight"]), dtype=np.int64)
+    groups = np.r_[np.arange(4), 4 + np.arange(len(ids)-4) % 2].astype(np.int64)
+    arrays = dict(candidate_edge_ids=ids, candidate_group=groups,
+        candidate_pre=(np.searchsorted(graph["ptr"], ids, side="right")-1).astype(np.int64),
+        candidate_post=graph["post"][ids].astype(np.int64), candidate_weight=graph["weight"][ids].copy())
+    metadata = dict(schema=1, kind="fast_structure", graph_sha256=file_sha256(path / "graph.npz"),
+        original_selection_sha256=original_selection_sha256(graph),
+        selection_array_sha256=array_digest([arrays[key] for key in ARRAY_KEYS]),
+        group_names=list(ORIGINAL_GROUPS)+["toy_extra_even", "toy_extra_odd"],
+        neurons=len(graph["ids"]), edges=len(ids), candidate_edges=len(ids), original_candidate_edges=4)
+    sidecar = path / "expanded.npz"
+    save_structure(sidecar, arrays, metadata)
+    return sidecar, arrays
+
+
+@pytest.fixture
+def expanded_brain(tmp_path):
+    torch.set_num_threads(1)
+    toy_graph(tmp_path)
+    sidecar, _ = expanded_sidecar(tmp_path)
+    result = FeedbackActionBrain(tmp_path, 20, .5, strict_full_graph=False, seed=0,
+        input_gain=10., internal_steps=4, structure_path=sidecar, trainable_susceptibility=True)
+    result.set_activity_scales(.1, .1)
+    return result
 
 
 def batch():
@@ -254,3 +286,150 @@ def test_invalid_feedback_positions_rejected(brain, position):
     inputs = batch()
     with pytest.raises(ValueError, match="position"):
         brain.feedback_features(inputs.candidates[:, 0], inputs.probabilities[:, 0], inputs.observed_ids[:, 0], position)
+
+
+def test_expanded_selection_preserves_actual_base_graph_and_original_rule_initialization(expanded_brain):
+    brain = expanded_brain
+    original = FeedbackActionBrain(brain.graph_path, 20, .5, strict_full_graph=False,
+        seed=0, input_gain=10., internal_steps=4)
+    for name in ("neuron_ids", "raw_outgoing_ptr", "raw_outgoing_post", "raw_outgoing_weight", "retina", "descending"):
+        assert torch.equal(getattr(brain, name), getattr(original, name)), name
+    for name in ("incoming", "outgoing"):
+        for component in ("crow_indices", "col_indices", "values"):
+            assert torch.equal(getattr(getattr(brain, name), component)(),
+                               getattr(getattr(original, name), component)())
+    for name in ("candidate_edge_ids", "candidate_group", "candidate_pre", "candidate_post", "candidate_weight"):
+        assert torch.equal(getattr(brain, name)[:4], getattr(original, name)), name
+    for name in original.rule_parameter_names:
+        assert torch.equal(getattr(brain, name)[:4], getattr(original, name)), name
+    assert brain.base_graph_sha256_before_selection == brain.base_graph_sha256_after_selection == original.base_graph_fingerprint()
+    assert brain.original_selection_inclusive_fingerprint == original.frozen_fingerprint()
+    assert brain.frozen_fingerprint() != original.frozen_fingerprint()  # Selection is included here.
+    assert brain.group_count == 6 and len(brain.group_names) == 6
+    assert brain.candidates == 64
+    assert brain.trainable_parameter_count() == 34 * 6 + 64
+    model = FeedbackSelector(brain)
+    assert model.trainable_parameter_count() == 34 * 6 + 64 + 2570
+    assert torch.equal(model(batch()), batch().probabilities[:, 7].log())
+    metadata = brain.metadata()
+    assert metadata["group_count"] == 6 and metadata["group_names"] == brain.group_names
+    assert metadata["trainable_susceptibility_parameters"] == 64
+    assert metadata["base_graph_sha256_before_selection"] == metadata["base_graph_sha256_after_selection"]
+    assert metadata["structure"]["selection_array_sha256"]
+    assert brain.verify_frozen() == brain.initial_graph_fingerprint
+
+
+def test_expanded_incidence_matches_dense_sum_and_transpose_gradient_without_padding(expanded_brain):
+    brain = expanded_brain
+    generator = torch.Generator().manual_seed(24)
+    correction = torch.randn(3, brain.candidates, generator=generator, requires_grad=True)
+    actual = brain.aggregate_candidate_corrections(correction)
+    membership = (brain.candidate_unique_posts[:, None] == brain.candidate_post[None, :]).to(torch.float32)
+    reference = correction @ membership.T
+    torch.testing.assert_close(actual, reference, rtol=1e-6, atol=5e-7)
+    probe = torch.randn(actual.shape, generator=generator)
+    gradient = torch.autograd.grad((actual * probe).sum(), correction)[0]
+    assert torch.equal(gradient, probe @ membership)
+    assert brain.fast_incidence.values().numel() == brain.candidates
+    assert brain.fast_incidence_transpose.values().numel() == brain.candidates
+    assert torch.all(membership.sum(dim=0) == 1)
+    for _ in range(3):
+        assert torch.equal(brain.aggregate_candidate_corrections(correction), actual)
+    assert not brain.fast_incidence.requires_grad and not brain.fast_incidence_transpose.requires_grad
+    before = brain.verify_frozen()
+    with torch.no_grad():
+        brain.fast_incidence.values()[0] += 1
+    with pytest.raises(RuntimeError, match="interface"):
+        brain.verify_frozen()
+
+
+def test_expanded_final_loss_trains_shared_groups_and_edge_susceptibility(expanded_brain):
+    brain = expanded_brain
+    model = FeedbackSelector(brain)
+    assert torch.equal(2 * torch.sigmoid(brain.slow_susceptibility), torch.ones(brain.candidates))
+    action_targets = torch.tensor([5, 8])
+    F.cross_entropy(model(batch()), action_targets).backward()
+    torch.optim.SGD(model.readout.parameters(), lr=.1).step()
+    model.zero_grad(set_to_none=True)
+    F.cross_entropy(model(batch()), action_targets).backward()
+    for name, parameter in brain.named_parameters():
+        assert parameter.requires_grad and parameter.grad is not None, name
+        assert bool(torch.isfinite(parameter.grad).all()) and parameter.grad.abs().sum() > 0, name
+    # Both added groups must learn. Two original singleton toy edges have
+    # exactly zero eligibility for this sparse sensory batch, so requiring
+    # every original row to change would assert activity the inputs lack.
+    assert torch.all(brain.feedback_modulation.grad[4:].abs().sum(dim=1) > 0)
+    assert brain.slow_susceptibility.grad[4:].abs().sum() > 0
+    assert (brain.slow_susceptibility.grad != 0).sum() > 4
+    assert not brain.candidate_weight.requires_grad
+    before = brain.slow_susceptibility.detach().clone()
+    torch.optim.Adam([brain.slow_susceptibility], lr=.01, eps=1e-12).step()
+    assert not torch.equal(before, brain.slow_susceptibility)
+    _, state = model.features(batch())
+    ratios = brain.effective_candidate_weights(state.fast) / brain.candidate_weight
+    assert bool(torch.all(ratios >= .5)) and bool(torch.all(ratios <= 2.))
+    assert brain.verify_frozen() == brain.initial_graph_fingerprint
+
+
+def test_expanded_correction_keeps_tiny_signal_and_episode_reset(expanded_brain):
+    brain = expanded_brain
+    # The original subtract-after-exp formula rounds this nonzero gain away.
+    tiny = torch.full((2, brain.candidates), 1e-9)
+    old = brain.effective_candidate_weights(tiny) - brain.candidate_weight
+    accurate = brain.candidate_weight * torch.expm1(np.log(2.) * torch.tanh(tiny))
+    assert torch.all(old == 0) and torch.all(accurate != 0)
+    model = FeedbackSelector(brain)
+    on, state = model.features(batch())
+    off, disabled = model.features(batch(), plasticity=False)
+    assert (on - off).abs().max() > 1e-8
+    assert torch.all(disabled.fast == 0) and state.fast.abs().sum() > 0
+    replay, replay_state = model.features(batch())
+    assert torch.equal(on, replay) and torch.equal(state.fast, replay_state.fast)
+    fresh = brain.initial_state(2)
+    assert fresh.fast.shape == (2, brain.candidates)
+    assert torch.all(fresh.h == 0) and torch.all(fresh.fast == 0) and torch.all(fresh.eligibility == 0)
+
+
+def test_expanded_group_activity_scales_and_optional_susceptibility(expanded_brain):
+    brain = expanded_brain
+    values = torch.arange(1, brain.group_count + 1, dtype=torch.float32)
+    brain.set_activity_scales(values, values + 2)
+    assert torch.equal(brain.pre_scale, values[brain.candidate_group])
+    assert torch.equal(brain.post_scale, (values + 2)[brain.candidate_group])
+    with pytest.raises(ValueError, match="per-group"):
+        brain.set_activity_scales(torch.ones(4), .1)
+    without = FeedbackActionBrain(brain.graph_path, 20, .5, strict_full_graph=False,
+        seed=0, structure_path=brain.structure_path)
+    assert without.slow_susceptibility is None
+    assert without.trainable_parameter_count() == 34 * brain.group_count
+    assert "slow_susceptibility" not in without.rule_parameter_names
+
+
+@pytest.mark.parametrize("field", ["candidate_pre", "candidate_post", "candidate_weight", "candidate_edge_ids"])
+def test_model_rejects_sidecar_that_invents_or_changes_edges(tmp_path, field):
+    toy_graph(tmp_path)
+    sidecar, arrays = expanded_sidecar(tmp_path)
+    metadata = json.loads(sidecar.with_suffix(".json").read_text())
+    arrays[field][7] += 1
+    metadata["selection_array_sha256"] = array_digest([arrays[key] for key in ARRAY_KEYS])
+    tampered = tmp_path / ("tampered_" + field + ".npz")
+    save_structure(tampered, arrays, metadata)
+    with pytest.raises(ValueError):
+        FeedbackActionBrain(tmp_path, 20, .5, strict_full_graph=False, structure_path=tampered)
+
+
+def test_default_rule_keeps_original_formula_and_has_no_expanded_cache(brain):
+    assert not brain.expanded_structure and not brain.trainable_susceptibility
+    assert not hasattr(brain, "fast_incidence") and brain.slow_susceptibility is None
+    values, _, state = predict_first(brain)
+    features = brain.feedback_features(values.candidates[:, 0], values.probabilities[:, 0], values.observed_ids[:, 0], 1)
+    group = brain.candidate_group
+    modulation = torch.tanh(features @ brain.feedback_modulation.T)[:, group]
+    pre = torch.tanh(state.h[:, brain.candidate_pre] / brain.pre_scale)
+    post = torch.tanh(state.h[:, brain.candidate_post] / brain.post_scale)
+    gate = torch.sigmoid(brain.gate_bias[group] + brain.gate_pre[group] * pre + brain.gate_post[group] * post)
+    expected = (torch.sigmoid(brain.retention_logit[group]) * state.fast
+        + brain.max_write_strength * torch.tanh(brain.write_strength[group]) * gate * modulation * state.eligibility)
+    actual = brain.observe(state, values.candidates[:, 0], values.probabilities[:, 0], values.observed_ids[:, 0], 1)
+    assert torch.equal(actual.fast, expected)
+    assert brain.trainable_parameter_count() == 136

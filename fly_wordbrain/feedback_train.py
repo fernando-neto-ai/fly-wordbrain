@@ -20,12 +20,13 @@ from .action_candidates import ActionCandidates
 from .action_train import ActionMetrics, utc_now, write_json, validate_training_validation
 from .feedback_data import make_windows, collate_feedback, windows_identity
 from .feedback_model import FeedbackActionBrain, FeedbackSelector
+from .feedback_diagnostics import measure_action_effect, measure_group_state
 from .pair_decoder import file_sha256
 
 KIND, ARM = "feedback_action", "feedback_fast_weights"
 SOURCES = ("feedback_train.py", "feedback_model.py", "feedback_data.py", "action_train.py",
            "action_candidates.py", "action_model.py", "plastic_brain.py", "metal_sparse.py",
-           "brain.py", "pair_brain.py", "pair_decoder.py")
+           "brain.py", "pair_brain.py", "pair_decoder.py", "fast_structure.py", "feedback_diagnostics.py")
 
 
 def source_hashes():
@@ -52,6 +53,26 @@ def _norm(parameters):
     return float(torch.sqrt(sum(values)).cpu()) if values else 0.
 
 
+def make_optimizer(model, lr=.001, rule_lr=None, rule_eps=1e-8):
+    """Keep small plasticity gradients out of the head's optimizer scale."""
+    if rule_lr is None:
+        return torch.optim.Adam([p for p in model.parameters() if p.requires_grad], lr=lr, eps=rule_eps)
+    if not all(math.isfinite(x) and x > 0 for x in (lr, rule_lr, rule_eps)):
+        raise ValueError("Optimizer learning rates and epsilon must be finite and positive")
+    return torch.optim.Adam([
+        {"params": [p for p in model.brain.parameters() if p.requires_grad], "lr": rule_lr, "eps": rule_eps,
+         "name": "plasticity"},
+        {"params": list(model.readout.parameters()), "lr": lr, "eps": 1e-8, "name": "action_head"}])
+
+
+def clip_gradients(model, separate=False):
+    if separate:
+        torch.nn.utils.clip_grad_norm_(model.readout.parameters(), 1., error_if_nonfinite=True)
+        torch.nn.utils.clip_grad_norm_(model.brain.parameters(), 1., error_if_nonfinite=True)
+    else:
+        torch.nn.utils.clip_grad_norm_(model.parameters(), 1., error_if_nonfinite=True)
+
+
 def _identity(windows, dataset_sha, split="val"):
     identity = windows_identity(windows, dataset_sha, split)
     return {"dataset_sha256": dataset_sha, "subset_sha256": identity["subset_sha256"],
@@ -59,8 +80,8 @@ def _identity(windows, dataset_sha, split="val"):
             "window_count": len(windows), "story_count": len({w.story_id for w in windows})}
 
 
-def calibrate(model, windows, proposals, batch_size, progress=None):
-    """Training-only LOO moments; fast state disabled during calibration."""
+def calibrate(model, windows, proposals, batch_size, progress=None, fast_features=False):
+    """Train-only LOO activity scales, then optionally fast-enabled features."""
     brain = model.brain
     feature_values, pre_values, post_values = [], [], []
     with torch.no_grad():
@@ -80,30 +101,42 @@ def calibrate(model, windows, proposals, batch_size, progress=None):
             feature_values.append(features.cpu().numpy())
             if progress:
                 progress(min(start + batch_size, len(windows)), len(windows))
-    values = np.concatenate(feature_values).astype(np.float64)
-    raw_std = values.std(0)
-    std_floor = max(float(raw_std.max()) * 1e-4, 1e-6)
-    std = np.maximum(raw_std, std_floor).astype(np.float32)
-    mean = values.mean(0).astype(np.float32)
     scales = []
     for chunks in (pre_values, post_values):
         a = np.concatenate(chunks).astype(np.float64)
         scales.append(np.maximum(np.sqrt(np.mean(a * a, axis=0)), 1e-6).astype(np.float32))
     brain.set_activity_scales(*scales)
+    if fast_features:
+        feature_values = []
+        with torch.no_grad():
+            for start in range(0, len(windows), batch_size):
+                batch = collate_feedback(windows[start:start + batch_size], proposals,
+                                         device=brain.device, exclude_own_story=True)
+                features, _ = model.features(batch, plasticity=True)
+                feature_values.append(features.cpu().numpy())
+                if progress:
+                    progress(min(start + batch_size, len(windows)), len(windows))
+    values = np.concatenate(feature_values).astype(np.float64)
+    raw_std = values.std(0)
+    std_floor = max(float(raw_std.max()) * 1e-4, 1e-6)
+    std = np.maximum(raw_std, std_floor).astype(np.float32)
+    mean = values.mean(0).astype(np.float32)
     model.feature_mean.copy_(torch.as_tensor(mean, device=brain.device))
     model.feature_std.copy_(torch.as_tensor(std, device=brain.device))
     model.features_calibrated = True
     if not all(np.isfinite(x).all() for x in (values, mean, std, *scales)):
         raise RuntimeError("Nonfinite training calibration")
     return {"schema": 1, "kind": KIND, "training_only": True, "window_count": len(windows),
-            "proposal_exclusion": "entire current training story", "plasticity_enabled": False,
+            "proposal_exclusion": "entire current training story", "plasticity_enabled": bool(fast_features),
+            "activity_scales_plasticity_enabled": False,
             "varying_features": int((raw_std > 1e-10).sum()), "feature_std_floor": std_floor,
             "feature_std_max": float(raw_std.max()), "pre_scale_min": float(scales[0].min()),
             "pre_scale_max": float(scales[0].max()), "post_scale_min": float(scales[1].min()),
             "post_scale_max": float(scales[1].max()), "timestamp_utc": utc_now()}
 
 
-def preflight(model, windows, proposals, batch_size):
+def preflight(model, windows, proposals, batch_size, *, lr=.001, rule_lr=None, rule_eps=1e-8,
+              optimizer_steps=3, minimum_feature_effect=1e-5, minimum_action_tv=0.):
     """Actual full-graph forward, backward, optimizer and delayed-feedback checks.
 
     Restore every slow parameter afterward; these train-only probe steps never
@@ -150,9 +183,9 @@ def preflight(model, windows, proposals, batch_size):
         scales = scales[:, model.brain.candidate_weight != 0]
         sign_bounded = bool(torch.all((scales >= .5) & (scales <= 2)).cpu())
         disabled_zero = bool(torch.all(disabled_state.fast == 0).cpu())
-    optimizer = torch.optim.Adam([p for p in model.parameters() if p.requires_grad], lr=.001)
+    optimizer = make_optimizer(model, lr=lr, rule_lr=rule_lr, rule_eps=rule_eps)
     steps, rule_norms, head_norms, elapsed = [], [], [], []
-    for _ in range(3):
+    for _ in range(optimizer_steps):
         start = time.perf_counter()
         optimizer.zero_grad(set_to_none=True)
         logits = model(batch)
@@ -162,14 +195,23 @@ def preflight(model, windows, proposals, batch_size):
         loss.backward()
         head_norms.append(_norm(model.readout.parameters()))
         rule_norms.append(_norm(p for p in model.brain.parameters() if p.requires_grad))
-        torch.nn.utils.clip_grad_norm_(model.parameters(), 1., error_if_nonfinite=True)
+        clip_gradients(model, separate=rule_lr is not None)
         optimizer.step()
         steps.append(float(loss.detach().cpu()))
         if model.brain.device.type == "mps":
             torch.mps.synchronize()
         elapsed.append(time.perf_counter() - start)
-    rule_delta = max(float((p.detach() - initial[name]).abs().max().cpu())
-                     for name, p in model.named_parameters() if name.startswith("brain.") and p.requires_grad)
+    parameter_deltas = {name: float((p.detach() - initial[name]).abs().max().cpu())
+                        for name, p in model.named_parameters() if p.requires_grad}
+    rule_delta = max(value for name, value in parameter_deltas.items() if name.startswith("brain."))
+    with torch.no_grad():
+        trained_features, trained_state = model.features(batch, plasticity=True)
+        trained_logits = batch.probabilities[:, 7].log() + model.correction(trained_features)
+        off_logits = model(batch, plasticity=False)
+        replay_logits = model(batch, plasticity=True)
+        action_effect = measure_action_effect(trained_logits, off_logits)
+        action_noise = measure_action_effect(trained_logits, replay_logits)
+        group_state = measure_group_state(trained_state.fast, model.brain.candidate_group)
     with torch.no_grad():
         for name, parameter in model.named_parameters():
             parameter.copy_(initial[name])
@@ -179,14 +221,17 @@ def preflight(model, windows, proposals, batch_size):
         "eighth_target_hidden": target_hidden, "initial_count_prior_exact": baseline_exact,
         "fast_memory_written": fast_max > 0, "disabled_fast_state_zero": disabled_zero,
         "feedback_changes_fast_memory": fast_effect > 1e-8,
-        "fast_readout_visible": effect > max(10 * noise, 1e-5),
-        "feedback_readout_visible": feedback_effect > max(10 * noise, 1e-5),
+        "fast_readout_visible": effect > max(10 * noise, minimum_feature_effect),
+        "feedback_readout_visible": feedback_effect > max(10 * noise, minimum_feature_effect),
         "head_gradients_nonzero_finite": all(math.isfinite(x) and x > 0 for x in head_norms),
         "rule_gradients_nonzero_finite_after_head_warmup": all(math.isfinite(x) and x > 0 for x in rule_norms[1:]),
         "slow_rules_updated": rule_delta > 0, "frozen_graph_preserved": before == after,
         "effective_weight_signs_and_bounds": sign_bounded,
         "parameters_restored": all(torch.equal(p, initial[n]) for n, p in model.named_parameters()),
     }
+    if minimum_action_tv > 0:
+        checks["fast_changes_action_distribution"] = action_effect["mean_total_variation"] > max(
+            minimum_action_tv, 10 * action_noise["mean_total_variation"])
     return {"schema": 1, "kind": KIND, "passed": all(checks.values()), "checks": checks,
             "training_only": True, "batch_size": len(batch.targets), "covered_targets": covered,
             "graph_fingerprint": before, "feature_replay_noise": noise,
@@ -195,6 +240,9 @@ def preflight(model, windows, proposals, batch_size):
             "observed_feedback_fast_effect": fast_effect, "fast_abs_max": fast_max,
             "head_gradient_norms": head_norms, "rule_gradient_norms": rule_norms,
             "rule_parameter_max_delta": rule_delta, "probe_losses": steps,
+            "parameter_max_deltas": parameter_deltas, "action_effect": action_effect,
+            "action_replay_noise": action_noise, "group_fast_state": group_state,
+            "minimum_feature_effect": minimum_feature_effect, "minimum_action_tv": minimum_action_tv,
             "optimizer_step_seconds": elapsed, "elapsed_seconds": time.perf_counter() - began,
             "mps_allocated_bytes": torch.mps.current_allocated_memory() if model.brain.device.type == "mps" else None,
             "timestamp_utc": utc_now()}
@@ -203,6 +251,7 @@ def preflight(model, windows, proposals, batch_size):
 def evaluate(model, windows, proposals, batch_size=16, baseline_only=False, progress=None):
     main, disabled = ActionMetrics(), ActionMetrics()
     overrides, changed_by_fast, logit_difference = 0, 0, 0.
+    action_on, action_off = [], []
     modes = [(m, m.training) for m in model.modules()] if model is not None else []
     if model is not None:
         model.eval()
@@ -219,16 +268,23 @@ def evaluate(model, windows, proposals, batch_size=16, baseline_only=False, prog
                 overrides += int((logits.argmax(-1) != final.probabilities.argmax(-1)).sum().cpu())
                 changed_by_fast += int((logits.argmax(-1) != ablated.argmax(-1)).sum().cpu())
                 logit_difference = max(logit_difference, float((logits - ablated).abs().max().cpu()))
+                action_on.append(logits.detach().cpu())
+                action_off.append(ablated.detach().cpu())
                 if progress:
                     progress(min(start + batch_size, len(windows)), len(windows))
     finally:
         for module, mode in modes:
             module.training = mode
     result, control = main.summary(), disabled.summary()
+    sensitivity = measure_action_effect(torch.cat(action_on), torch.cat(action_off))
     return {**result, "overrides": overrides, "override_rate": overrides / len(windows),
             "disabled_fast_accuracy": control["accuracy"],
             "disabled_fast_conditional_cross_entropy": control["conditional_cross_entropy"],
             "fast_changed_predictions": changed_by_fast, "fast_max_logit_difference": logit_difference,
+            "fast_centered_logit_rms": sensitivity["centered_logit_rms"],
+            "fast_centered_logit_max": sensitivity["centered_logit_max"],
+            "fast_mean_total_variation": sensitivity["mean_total_variation"],
+            "fast_changed_prediction_rate": sensitivity["changed_prediction_rate"],
             "disabled_fast_method": "Same trained head; all temporary writes and reads disabled; not a separately trained control"}
 
 
@@ -282,14 +338,21 @@ def save_checkpoint(path, model, protocol, step, epoch, role, metrics=None):
 def train(dataset_path, graph, output, *, device="mps", epochs=1, batch_size=16, lr=.001,
           seed=0, monitor_stories=128, monitor_every=128, progress_every=8,
           calibration_windows=256, threads=4, global_scale=.002, internal_steps=8,
-          strict_full_graph=True, probe_only=False):
+          strict_full_graph=True, probe_only=False, structure_path=None, trainable_susceptibility=False,
+          rule_lr=None, rule_eps=1e-8, probe_steps=3, minimum_feature_effect=1e-5, minimum_action_tv=0.):
     for name, value in (("epochs", epochs), ("batch_size", batch_size), ("monitor_stories", monitor_stories),
                         ("monitor_every", monitor_every), ("progress_every", progress_every),
-                        ("calibration_windows", calibration_windows), ("threads", threads)):
+                        ("calibration_windows", calibration_windows), ("threads", threads), ("probe_steps", probe_steps)):
         if type(value) is not int or value < 1:
             raise ValueError(name + " must be positive integer")
     if not math.isfinite(lr) or lr <= 0:
         raise ValueError("Learning rate must be finite and positive")
+    if probe_steps < 2 or rule_eps <= 0 or not math.isfinite(rule_eps):
+        raise ValueError("Need at least two probe steps and finite positive rule epsilon")
+    if rule_lr is not None and (rule_lr <= 0 or not math.isfinite(rule_lr)):
+        raise ValueError("Rule learning rate must be finite and positive")
+    if not all(math.isfinite(x) and x >= 0 for x in (minimum_feature_effect, minimum_action_tv)):
+        raise ValueError("Sensitivity gates must be finite and nonnegative")
     output = Path(output)
     allowed = {"launch.json", "process-status.json", "stdout.log"}
     if output.exists() and any(p.name not in allowed for p in output.iterdir()):
@@ -316,9 +379,17 @@ def train(dataset_path, graph, output, *, device="mps", epochs=1, batch_size=16,
         "source_sha256": source_hashes(), "train_windows": len(training), "validation_windows": len(validation),
         "monitor_windows": len(monitor), "train_story_count": len(train_stories), "validation_story_count": len(val_stories),
         "batch_size": batch_size, "epochs": epochs, "lr": lr, "seed": seed, "device": device,
+        "training_plasticity_enabled": True, "rule_lr": rule_lr, "rule_eps": rule_eps,
+        "structure_path": str(Path(structure_path).resolve()) if structure_path else None,
+        "structure_sha256": file_sha256(structure_path) if structure_path else None,
+        "trainable_susceptibility": bool(trainable_susceptibility),
         "config": {"global_scale": global_scale, "internal_steps": internal_steps, "leak": .5,
                    "input_high": .02, "batch_size": batch_size, "epochs": epochs, "lr": lr,
-                   "monitor_every": monitor_every, "calibration_windows": len(calibration_rows), "threads": threads},
+                   "monitor_every": monitor_every, "calibration_windows": len(calibration_rows), "threads": threads,
+                   "rule_lr": rule_lr, "rule_eps": rule_eps, "probe_steps": probe_steps,
+                   "minimum_feature_effect": minimum_feature_effect, "minimum_action_tv": minimum_action_tv,
+                   "feature_calibration_fast_enabled": bool(structure_path),
+                   "trainable_susceptibility": bool(trainable_susceptibility)},
         "vocabulary": data["vocabulary"], "training_resume_supported": False,
         "window_contract": "Nonoverlapping eight lexical words; tails dropped; no story crossing; BOS,BOS count context and zero neural/fast/eligibility state at each window start",
         "training_proposals": "All training counts minus the entire current story; no target-dependent candidate injection",
@@ -334,11 +405,13 @@ def train(dataset_path, graph, output, *, device="mps", epochs=1, batch_size=16,
     proposals = ActionCandidates(train_stories, len(data["vocabulary"]), top_k=10)
     recorder.progress("loading_brain")
     brain = FeedbackActionBrain(graph, len(data["vocabulary"]), global_scale=global_scale, top_k=10,
-        internal_steps=internal_steps, leak=.5, input_high=.02, seed=seed, device=device, strict_full_graph=strict_full_graph)
+        internal_steps=internal_steps, leak=.5, input_high=.02, seed=seed, device=device, strict_full_graph=strict_full_graph,
+        structure_path=structure_path, trainable_susceptibility=trainable_susceptibility)
     model = FeedbackSelector(brain)
     recorder.progress("calibration")
     calibration = calibrate(model, calibration_rows, proposals, batch_size,
-        progress=lambda done, total: recorder.progress("calibration", phase_windows_completed=done, phase_total_windows=total))
+        progress=lambda done, total: recorder.progress("calibration", phase_windows_completed=done, phase_total_windows=total),
+        fast_features=bool(structure_path))
     write_json(output / "calibration.json", {**calibration, **_identity(calibration_rows, dataset_sha, "train")})
     protocol["model"] = {"neurons": brain.neurons, "edges": brain.edges, "candidate_edges": brain.candidates,
         "trainable_parameters": model.trainable_parameter_count(), "metadata": model.metadata()}
@@ -347,7 +420,8 @@ def train(dataset_path, graph, output, *, device="mps", epochs=1, batch_size=16,
     protocol["brain"] = brain.metadata()
     write_json(output / "protocol.json", protocol)
     recorder.progress("preflight")
-    probe = preflight(model, calibration_rows, proposals, batch_size)
+    probe = preflight(model, calibration_rows, proposals, batch_size, lr=lr, rule_lr=rule_lr, rule_eps=rule_eps,
+        optimizer_steps=probe_steps, minimum_feature_effect=minimum_feature_effect, minimum_action_tv=minimum_action_tv)
     probe.update(dataset_sha256=dataset_sha, graph_sha256=protocol["graph_sha256"], source_sha256=source_hashes())
     write_json(output / "preflight.json", probe)
     if not probe["passed"]:
@@ -367,7 +441,7 @@ def train(dataset_path, graph, output, *, device="mps", epochs=1, batch_size=16,
         if scope == "full_validation":
             best = snapshot
             save_checkpoint(output / "best.pt", model, protocol, 0, 0, "best_full_validation", best)
-    optimizer = torch.optim.Adam([p for p in model.parameters() if p.requires_grad], lr=lr)
+    optimizer = make_optimizer(model, lr=lr, rule_lr=rule_lr, rule_eps=rule_eps)
     step, optimizer_steps, completed, start_time = 0, 0, 0, time.perf_counter()
     last_loss, last_rule_norm, last_head_norm = None, None, None
     for epoch in range(1, epochs + 1):
@@ -378,13 +452,13 @@ def train(dataset_path, graph, output, *, device="mps", epochs=1, batch_size=16,
             windows = [training[i] for i in order[start:start + batch_size]]
             batch = collate_feedback(windows, proposals, device=brain.device, exclude_own_story=True)
             optimizer.zero_grad(set_to_none=True)
-            logits = model(batch)
+            logits = model(batch, plasticity=True)
             loss, covered = window_loss(logits, batch)
             if covered:
                 loss.backward()
                 last_rule_norm = _norm(p for p in brain.parameters() if p.requires_grad)
                 last_head_norm = _norm(model.readout.parameters())
-                torch.nn.utils.clip_grad_norm_(model.parameters(), 1., error_if_nonfinite=True)
+                clip_gradients(model, separate=rule_lr is not None)
                 optimizer.step()
                 optimizer_steps += 1
                 last_loss = float(loss.detach().cpu())
@@ -405,7 +479,9 @@ def train(dataset_path, graph, output, *, device="mps", epochs=1, batch_size=16,
                 snapshot = recorder.validation("monitor_subset", monitor, metrics, step, epoch)
                 save_checkpoint(output / "partial.pt", model, protocol, step, epoch, "monitor_only", snapshot)
                 recorder.progress("training", step, epoch, completed, rule_gradient_norm=last_rule_norm,
-                                  fast_effect=metrics["fast_max_logit_difference"])
+                                  fast_effect=metrics["fast_centered_logit_max"],
+                                  fast_mean_total_variation=metrics["fast_mean_total_variation"],
+                                  fast_changed_predictions=metrics["fast_changed_predictions"])
         recorder.progress("full_validation", step, epoch, completed)
         metrics = evaluate(model, validation, proposals, batch_size,
             progress=lambda done, total: recorder.progress("full_validation", step, epoch, completed,
@@ -437,6 +513,13 @@ def main():
     parser.add_argument("--lr", type=float, default=.001)
     parser.add_argument("--global-scale", type=float, default=.002)
     parser.add_argument("--probe-only", action="store_true")
+    parser.add_argument("--structure-path")
+    parser.add_argument("--trainable-susceptibility", action="store_true")
+    parser.add_argument("--rule-lr", type=float)
+    parser.add_argument("--rule-eps", type=float, default=1e-8)
+    parser.add_argument("--probe-steps", type=int, default=3)
+    parser.add_argument("--minimum-feature-effect", type=float, default=1e-5)
+    parser.add_argument("--minimum-action-tv", type=float, default=0.)
     args = vars(parser.parse_args())
     args["dataset_path"] = args.pop("dataset")
     train(**args)

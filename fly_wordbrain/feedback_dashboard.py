@@ -24,7 +24,9 @@ CSV_FIELDS = ("arm", "scope", "epoch", "global_step", "top_k", "window_words", "
               "story_count", "window_count", "target_count", "accuracy", "baseline_accuracy",
               "topk_coverage", "conditional_accuracy", "conditional_cross_entropy", "known_word_accuracy",
               "fixes", "regressions", "overrides", "override_rate", "disabled_fast_accuracy",
-              "disabled_fast_conditional_cross_entropy", "evaluation_method", "dataset_sha256",
+              "disabled_fast_conditional_cross_entropy", "fast_centered_logit_rms", "fast_centered_logit_max",
+              "fast_mean_total_variation", "fast_changed_predictions", "fast_changed_prediction_rate",
+              "fast_max_logit_difference", "evaluation_method", "dataset_sha256",
               "subset_sha256", "timestamp_utc")
 
 
@@ -65,6 +67,31 @@ def _snapshot(row):
         if point["topk_coverage"] == 0:
             raise ValueError("disabled-fast conditional loss must be null for zero coverage")
     point.update(disabled_fast_accuracy=accuracy, disabled_fast_conditional_cross_entropy=ce)
+    for key in ("fast_centered_logit_rms", "fast_centered_logit_max", "fast_max_logit_difference"):
+        if row.get(key) is not None:
+            point[key] = _number(row[key], key, lower=0)
+    if row.get("fast_mean_total_variation") is not None:
+        point["fast_mean_total_variation"] = _number(
+            row["fast_mean_total_variation"], "fast_mean_total_variation", lower=0, upper=1)
+    if (point["fast_centered_logit_rms"] is not None and point["fast_centered_logit_max"] is not None
+            and point["fast_centered_logit_rms"] > point["fast_centered_logit_max"] + 1e-10):
+        raise ValueError("fast centered RMS exceeds its maximum difference")
+    changed = row.get("fast_changed_predictions")
+    rate = row.get("fast_changed_prediction_rate")
+    if changed is not None:
+        changed = _integer(changed, "fast_changed_predictions")
+        if changed > point["target_count"]:
+            raise ValueError("fast_changed_predictions exceeds target_count")
+        expected_rate = changed / point["target_count"]
+        if rate is not None:
+            rate = _number(rate, "fast_changed_prediction_rate", lower=0, upper=1)
+            if not math.isclose(rate, expected_rate, rel_tol=1e-9, abs_tol=1e-9):
+                raise ValueError("fast changed-prediction rate does not match its count")
+        if accuracy is not None and abs(point["accuracy"] - accuracy) > expected_rate + 1e-10:
+            raise ValueError("fast accuracy change exceeds changed-prediction count")
+        point.update(fast_changed_predictions=changed, fast_changed_prediction_rate=expected_rate)
+    elif rate is not None:
+        raise ValueError("fast_changed_prediction_rate requires its changed-prediction count")
     return point
 
 

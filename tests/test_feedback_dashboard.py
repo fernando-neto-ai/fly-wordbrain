@@ -99,6 +99,43 @@ def test_optional_ablation_missing_is_not_a_fake_zero(tmp_path):
     assert state["points"][0]["disabled_fast_conditional_cross_entropy"] is None
 
 
+def test_optional_expanded_diagnostics_roundtrip_and_legacy_count_rate(tmp_path):
+    lines(tmp_path, "validation.jsonl", [snapshot(fast_changed_predictions=0,
+          fast_max_logit_difference=.00001), snapshot(32,
+          fast_centered_logit_rms=.02, fast_centered_logit_max=.03,
+          fast_mean_total_variation=.01, fast_changed_predictions=10,
+          fast_changed_prediction_rate=.01)])
+    write(tmp_path, "protocol.json", protocol(model={"trainable_parameters": 11046,
+          "metadata": {"rule_trainable_parameters": 8476,
+                       "brain": {"group_count": 14, "group_names": ["group a", "group b"]}}}))
+    state = read_state(tmp_path)
+    assert state["errors"] == []
+    old, new = state["points"]
+    assert old["fast_changed_prediction_rate"] == 0.
+    assert old["fast_centered_logit_max"] is None and old["fast_mean_total_variation"] is None
+    assert old["fast_max_logit_difference"] == .00001
+    assert new["fast_mean_total_variation"] == .01 and new["fast_changed_predictions"] == 10
+    assert state["protocol"]["model"]["metadata"]["rule_trainable_parameters"] == 8476
+    rows = list(csv.DictReader(io.StringIO(validation_csv(state))))
+    assert rows[0]["fast_centered_logit_max"] == ""
+    assert rows[1]["fast_centered_logit_rms"] == "0.02"
+    assert rows[1]["fast_changed_prediction_rate"] == "0.01"
+
+
+@pytest.mark.parametrize("change", [
+    {"fast_centered_logit_rms": -.1}, {"fast_centered_logit_max": float("nan")},
+    {"fast_centered_logit_rms": .2, "fast_centered_logit_max": .1},
+    {"fast_mean_total_variation": 1.01}, {"fast_changed_predictions": 1001},
+    {"fast_changed_predictions": 10, "fast_changed_prediction_rate": .2},
+    {"fast_changed_prediction_rate": .1},
+    {"fast_changed_predictions": 0, "disabled_fast_accuracy": .2},
+])
+def test_expanded_diagnostics_require_finite_ranges_and_count_identities(tmp_path, change):
+    lines(tmp_path, "validation.jsonl", [snapshot(**change)])
+    state = read_state(tmp_path)
+    assert state["points"] == [] and state["errors"]
+
+
 def test_zero_coverage_keeps_conditional_loss_null(tmp_path):
     lines(tmp_path, "validation.jsonl", [snapshot(accuracy=0., baseline_accuracy=0., topk_coverage=0.,
           conditional_accuracy=None, conditional_cross_entropy=None, disabled_fast_accuracy=0.,
