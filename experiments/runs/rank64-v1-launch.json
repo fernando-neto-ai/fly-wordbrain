@@ -1,0 +1,35 @@
+{
+  "command": [
+    "/Users/fernando/fly_wordbrain_connectorch/.venv-connectorch/bin/python",
+    "-u",
+    "/Users/fernando/fly_wordbrain_connectorch/scripts/run_connectorch_rank64_campaign.py",
+    "--root",
+    "/Users/fernando/fly_wordbrain_connectorch",
+    "--parent",
+    "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-decoder-v1",
+    "--accepted-e-receipt",
+    "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-decoder-v1/arms/E32rank128fixed/accepted-early-stop.json",
+    "--preflight-receipt",
+    "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-rank64-preparation-v1/parity.json",
+    "--experiment-branches",
+    "/Users/fernando/fly_wordbrain_connectorch/experiments/records/rank64-branch-mapping.json",
+    "--output",
+    "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-rank64-v1",
+    "--python",
+    "/Users/fernando/fly_wordbrain_connectorch/.venv-connectorch/bin/python",
+    "--worker",
+    "--launch-id",
+    "bd29bc14-f3a1-4971-b6bf-fed447a7622d"
+  ],
+  "cwd": "/Users/fernando/fly_wordbrain_connectorch",
+  "environment": {
+    "PYTORCH_ENABLE_MPS_FALLBACK": "0",
+    "OMP_NUM_THREADS": "4",
+    "VECLIB_MAXIMUM_THREADS": "4"
+  },
+  "created_at_utc": "2026-09-15T22:09:07.403012+00:00",
+  "launch_id": "bd29bc14-f3a1-4971-b6bf-fed447a7622d",
+  "manifest_sha256": "412bbd505baf6da2be16f603d01dde865f0fc7bd65fd917f0656e8da764b5df0",
+  "worker_pid": 20942,
+  "process_birth": "Tue Sep 15 19:09:07 2026"
+}

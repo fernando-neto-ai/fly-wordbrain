@@ -1,0 +1,13 @@
+# Rank64 fixed-edge training launched on macm3
+
+G32rank64fixed full training started2026-09-15T22:09:21UTC on macm3 and passed100optimizer updates. The preceding eight-update smoke was a separate run. The user corrected the next experiment to rank64; F was stopped and preserved, and no F completion or text assessment gates G.
+
+The encoder remains482,816parameters. The bias-free readout is49,393→64→1,024, with3,226,688parameters, exactly half of E's rank128 head. Total trainable parameters are3,956,469. All canonical base edges and values remain fixed; the same148,179neuron dynamics values and98,786LayerNorm parameters train. Data, seed42, eight delays, batch8/TBPTT32 and30+14planned optimizer recipe match E. All learned weights initialize from scratch. Head shape and initial logit variance change with rank; this is not initialization-matched compression or a warm start.
+
+Native M3 CPU/MPS preflight passed on the full49,393-neuron/9,050,172-edge graph: loss difference4.76837158203125e-7 and worst parameter-gradient relativeL2 error5.012918607144246e-5. Both readout factors had nonzero finite gradients and changed during the eight-update smoke.31focused audit/controller/progress tests pass; an independent controller review found no rank128 launch path. Existing training sources remain unchanged and all deployment/source/input hashes were verified.
+
+Full training dispatcher20942 (birth19:09:07local) and trainer20985 (birth19:09:21local) were verified after100updates; source bindings remain intact. Launch ID`bd29bc14-f3a1-4971-b6bf-fed447a7622d`; campaign manifest SHA`412bbd505baf6da2be16f603d01dde865f0fc7bd65fd917f0656e8da764b5df0`. Artifact root:`macm3:/Users/fernando/fly_wordbrain_connectorch/results/connectorch-rank64-v1`. These PIDs are historical launch identities, not authorization to signal without birth/command rechecks.
+
+[Launch receipt](../runs/rank64-v1-launch.json), [branch/config binding](../records/rank64-branch-mapping.json), [numerical parity](../records/decoder-rank64-parity.json), [optimizer smoke](../records/rank64-smoke.json), and [F correction](F32rank128bounded-order-correction.md) preserve provenance. Refresh `scripts/refresh_connectorch_rank64_progress.py` for partial validation and both retained selectors. Full validation uses100stories/21,874next-BPE targets. Final test remains deferred.
+
+E is the stopped rank128 comparator: minimumCE3.149704 at13,700 and maximumaccuracy36.5822% at14,300,15,900durable updates total. Compare at shared updates/token budgets and both selected winners. G quality is not established by this launch or numerical preflight. The scheduled follow-up now monitors G only and cannot requeue F.

@@ -130,3 +130,8 @@ preserved rank128 comparator. No automatic F restart is selected.
 
 Refresh G and E comparison with `scripts/refresh_connectorch_rank64_progress.py`;
 its output is `results/connectorch-rank64-v1/progress.md`.
+
+G full training launched at22:09:21UTC after its native M3 parity and eight-update
+smoke passed; more than100full updates were verified. See the
+[rank64 launch report](reports/G32rank64fixed-launch.md) and
+[launch receipt](runs/rank64-v1-launch.json).
