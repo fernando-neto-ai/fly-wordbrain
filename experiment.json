@@ -22,6 +22,8 @@
   },
   "training_host": "macm3",
   "artifact_root": "macm3:/Users/fernando/fly_wordbrain_connectorch/results/connectorch-decoder-v1/arms/E32rank128fixed",
-  "status": "prepared",
-  "result_policy": "Commit compact provenance and reports here; preserve checkpoint binaries and dataset in verified artifact storage."
+  "status": "accepted_early_stop",
+  "result_policy": "Commit compact provenance and reports here; preserve checkpoint binaries and dataset in verified artifact storage.",
+  "execution_report": "experiments/reports/E32rank128fixed-accepted-early-stop.md",
+  "continuation_launch": "experiments/runs/decoder-v1-continuation-launch.json"
 }
