@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "experiment_id": "B32fixed",
+  "status": "queued",
+  "status_as_of_utc": "2026-09-15T14:52:21.975896+00:00",
+  "repository": "https://github.com/fernando-neto-ai/fly-wordbrain",
+  "branch": "exp/encoder32-fixed",
+  "training_source_commit": "68d721ef82de4401f2665c6fdf33579f2865014a",
+  "common_pipeline_commit": "3aaa2120cb01c30c670009d33e716c9c8e0318fc",
+  "source_sha256": {
+    "scripts/run_connectorch_campaign.py": "85e699c6048cb1667825d7865e7016c21afcb94cb3f1f029ca97242c8c42831f",
+    "scripts/train_connectorch.py": "b50be2b34228439fa9d72756d18f7c8a293c8f502a15f23803d484b20461d1ab",
+    "scripts/train_ngxson.py": "b7712487070a313e688da5397bcfdb7021f73e19d539771c2c965ef6c43235cc",
+    "scripts/audit_connectorch.py": "154188a3b18361877999fee930b5305b1f759736f28056474f53d820c0e34448",
+    "scripts/prepare_connectorch_groups.py": "f46c84e6bfb4739f8651b6524e9b65aa059f660eb26187cecfb25cd925e53312",
+    "scripts/prepare_ngxson.py": "997e8894eba19bd756ba0073d30ce5cc19dd1e63577ec5574a95388529114867",
+    "fly_wordbrain/connectorch_model.py": "235ff815ae7fa1e2d693eb3293453c6f0e879f2e2c639e0c39d06a5bc57668fa",
+    "fly_wordbrain/connectorch_backend.py": "2e7d0efec68014ef41b91d16552af49c7fa6fea7bbb69956e17c4dd8a2107ebc",
+    "fly_wordbrain/metal_sparse_trainable.py": "d9d53f871f845b5e534998f3f505b50a39ec3002e90294bd5b8a18aa002462e4",
+    "fly_wordbrain/metal_sparse.py": "7ba777491221a700d63e20d1d052d42e53d5be1320fed789ec57befe503ca9db",
+    "fly_wordbrain/plastic_brain.py": "8a230179d3f7796c43c62e1c400c66f9a870bde2c5e4d79cbc86478238e94936",
+    "connectorch-source.json": "34a007b5791507bde32d225d4cba36bcd141f03ffa54438a5640b8ab45ce0636",
+    "requirements-connectorch.txt": "3b28980aeedb9ea12d7e385f804aface144e4054e9e52666d8b0e5fac41f5bb5",
+    "requirements-ngxson.txt": "9ca61364432cd639fd4be4368ef3d14991d6713824457e7cf710c78cca9a4b68"
+  },
+  "configuration": "experiments/configs/B32fixed.json",
+  "configuration_sha256": "27874ac60fb0ebc378f393835b478bf23666749fbdc5ec766ba7ebde359e7a6d",
+  "training_host": "macm3",
+  "device": "mps",
+  "campaign_launch_id": "41d491df-5a3b-4d4e-a965-55fc9d8b6849",
+  "campaign_created_at_utc": "2026-09-15T14:52:20.744353+00:00",
+  "campaign_worker_pid_at_launch": 48399,
+  "campaign_artifact_root": "macm3:/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1",
+  "artifact_root": "macm3:/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1/arms/B32fixed",
+  "baseline_acceptance_mode": "user_accepted_early_stop",
+  "dataset_sha256": "c1f553263545744786a8811ee6af7ace8c452820bbb99d15140b81625e40b3a8",
+  "groups_sha256": "a07d311cd04126b5e54ea9cb3e8945470af9049bcb8499fb406e3c38d185dd7f",
+  "planned_phase_updates": [
+    35877,
+    16732
+  ],
+  "parameter_count": 51308213,
+  "validation_selection": [
+    "minimum_validation_ce",
+    "maximum_validation_accuracy"
+  ],
+  "test_policy": "reserved; --skip-final-test",
+  "provenance_method": "Each experiment branch records its configuration. All bound runtime source files are byte-identical to that branch commit; four arms execute serially from one immutable deployed source tree. Branch-specific experiment.json is a selector, not divergent model code."
+}
