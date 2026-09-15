@@ -21,7 +21,9 @@
     "scripts/run_connectorch_decoder_campaign.py": "bd6d43be963f7f343789b75f86a4daf1d7a02b3d79a281008db08495bb2d3ec3"
   },
   "training_host": "macm3",
-  "artifact_root": "macm3:/Users/fernando/fly_wordbrain_connectorch/results/connectorch-decoder-v1/arms/F32rank128bounded",
-  "status": "prepared",
-  "result_policy": "Commit compact provenance and reports here; preserve checkpoint binaries and dataset in verified artifact storage."
+  "artifact_root": "macm3:/Users/fernando/fly_wordbrain_connectorch/results/connectorch-decoder-v1-continuation/arms/F32rank128bounded",
+  "status": "running",
+  "result_policy": "Commit compact provenance and reports here; preserve checkpoint binaries and dataset in verified artifact storage.",
+  "execution_report": "experiments/reports/E32rank128fixed-accepted-early-stop.md",
+  "continuation_launch": "experiments/runs/decoder-v1-continuation-launch.json"
 }
