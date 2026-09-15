@@ -36,11 +36,13 @@ per-neuron gains remain unconstrained, so a ±10% base-edge bound does not bound
 the complete effective recurrence. Width 32 reduces input-interface parameters
 by 75%; it reduces the full fixed model by only 2.75%.
 
-The [next decoder experiment](experiments/DECODER_REDUCTION.md) keeps width32 and
-factorizes the readout to rank128:6,453,376 decoder parameters and7,183,157 total
-with fixed base edges, or7,201,479 with bounded gains. The
-[completed encoder assessment](experiments/reports/encoder32-post-B-assessment.md)
-preserves both validation winners; decoder quality remains to be measured.
+The [current decoder experiment](experiments/DECODER_REDUCTION.md) keeps width32
+and reduces the readout from rank128 to rank64:3,226,688 decoder parameters and
+3,956,469 total with fixed base edges. E's preserved rank128 baseline reached
+minimum validation CE3.149704 and maximum accuracy36.5822% at separate checkpoints.
+The user corrected the ordering to run G rank64 immediately; the adaptive rank128
+continuation F is stopped and its partial checkpoints are preserved. See the
+[experiment registry](experiments/INDEX.md) for execution receipts.
 
 ## Start here
 

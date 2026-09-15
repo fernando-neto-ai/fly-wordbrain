@@ -13,7 +13,7 @@ run manifests and stop/completion receipts are authoritative for execution.
 | D32bounded | `exp/encoder32-bounded` | [D](configs/D32bounded.json) | 51,326,535 |
 | E32rank128fixed | `exp/encoder32-readout128-fixed` | [E](configs/E32rank128fixed.json) | 7,183,157 |
 | F32rank128bounded | `exp/encoder32-readout128-bounded` | [F](configs/F32rank128bounded.json) | 7,201,479 |
-| G32rank64fixed (later, authorized) | `exp/encoder32-readout64-fixed` | [G](configs/G32rank64fixed.json) | 3,956,469 |
+| G32rank64fixed (current selection) | `exp/encoder32-readout64-fixed` | [G](configs/G32rank64fixed.json) | 3,956,469 |
 
 ## Protocol and status
 
@@ -115,4 +115,18 @@ at13,700 and accuracy36.5822% at14,300. F32rank128bounded launched separately
 from scratch through the receipt-verified F-only handoff. See
 [the E stop report](reports/E32rank128fixed-accepted-early-stop.md). The old
 dispatcher's native signal failure is intentional history; the new continuation
-manifest and process state govern live F execution.
+manifest and process state govern that historical F execution.
+
+## Rank64 order correction
+
+The user clarified that rank64 should already be training. The automatic F
+continuation was the wrong next experiment. It stopped at22:04:28UTC on2026-09-15
+after2,630 observed /2,600 durable updates and2completedepochs. Both winners and
+latest are preserved, with exact process cessation and source/checkpoint audits.
+This is an explicit correction of ordering, not a plateau or full completion.
+G32rank64fixed is selected immediately after its own parity and smoke gates;
+F completion or generated-text evaluation is not a prerequisite. E is the
+preserved rank128 comparator. No automatic F restart is selected.
+
+Refresh G and E comparison with `scripts/refresh_connectorch_rank64_progress.py`;
+its output is `results/connectorch-rank64-v1/progress.md`.

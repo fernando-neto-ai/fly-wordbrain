@@ -1,0 +1,159 @@
+{
+  "format_version": 1,
+  "status": "accepted_early_stop",
+  "arm": "F32rank128bounded",
+  "training_host": "macm3",
+  "accepted_at_utc": "2026-09-15T22:04:28.528814+00:00",
+  "accepted_by": "agent_under_explicit_user_correction",
+  "acceptance_basis": "Superseded under explicit user correction of experiment ordering. Not a plateau decision; schedule incomplete.",
+  "full_schedule_completed": false,
+  "observed_updates": 2630,
+  "durable_updates": 2600,
+  "completed_epochs": 2,
+  "planned_updates": 52609,
+  "selected_checkpoints": {
+    "format_version": 1,
+    "selectors": {
+      "minimum_validation_ce": {
+        "path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-decoder-v1-continuation/arms/F32rank128bounded/stopped-checkpoints/best.pt",
+        "sha256": "2104854e366860309b047693f6506a3e6c92c293230ab1eb92f8a59a51a819d7",
+        "cursor": {
+          "epoch": 2,
+          "batch": 21,
+          "offset": 192,
+          "updates": 2600,
+          "phase": 0,
+          "epoch_loss_sum": 155845.28569555283,
+          "epoch_tokens": 42054,
+          "epoch_correct": 11384
+        },
+        "validation": {
+          "cross_entropy": 3.7786049545056493,
+          "top1_accuracy": 0.27448111913687484,
+          "correct": 6004,
+          "tokens": 21874,
+          "stories": 100
+        },
+        "frozen_buffers_preserved": true,
+        "frozen_buffers_sha256": {
+          "brain.w_offsets": "53b216d7bc2503c539c2d2b03ce56f66eb8a2e9b902f0a20deda0ec4be37ade0",
+          "brain.w_indices": "0f17b9563457fbf84404c54227db86b5adcf04a689cdff5e33d32ec5d5e0b771",
+          "brain.w_values": "e6408887d3312783c65d3f10bb69b28fe50bb06699f0a8a9341d444e6eb0549a",
+          "brain.in_index": "ee440072f6c94b59c552cb09812af5894066ae28f686cda2cd2e35a3626beda6",
+          "brain.out_index": "5ac16e2c38cf0a1b4b4aea74eadeb2d487e153113d046895a813e09d010f0a18",
+          "brain.edge_group_index": "4b9af4b1e2313aba5a9a139ae3ecfc8fcae09a440c65802207a26775700f6eca",
+          "brain.node_type_index": "9ea440846c4bfde95c8c007320ad3bc3b79cfb3b69c2ff6a136c39fd41f658be"
+        },
+        "original_path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-decoder-v1-continuation/arms/F32rank128bounded/best.pt",
+        "checkpoint_contents_verified": true
+      },
+      "maximum_validation_accuracy": {
+        "path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-decoder-v1-continuation/arms/F32rank128bounded/stopped-checkpoints/best-accuracy.pt",
+        "sha256": "ed4adb497ce5378e18c700865335545f96936a1885aa817d01c6d55b643cb72a",
+        "cursor": {
+          "epoch": 2,
+          "batch": 21,
+          "offset": 192,
+          "updates": 2600,
+          "phase": 0,
+          "epoch_loss_sum": 155845.28569555283,
+          "epoch_tokens": 42054,
+          "epoch_correct": 11384
+        },
+        "validation": {
+          "cross_entropy": 3.7786049545056493,
+          "top1_accuracy": 0.27448111913687484,
+          "correct": 6004,
+          "tokens": 21874,
+          "stories": 100
+        },
+        "frozen_buffers_preserved": true,
+        "frozen_buffers_sha256": {
+          "brain.w_offsets": "53b216d7bc2503c539c2d2b03ce56f66eb8a2e9b902f0a20deda0ec4be37ade0",
+          "brain.w_indices": "0f17b9563457fbf84404c54227db86b5adcf04a689cdff5e33d32ec5d5e0b771",
+          "brain.w_values": "e6408887d3312783c65d3f10bb69b28fe50bb06699f0a8a9341d444e6eb0549a",
+          "brain.in_index": "ee440072f6c94b59c552cb09812af5894066ae28f686cda2cd2e35a3626beda6",
+          "brain.out_index": "5ac16e2c38cf0a1b4b4aea74eadeb2d487e153113d046895a813e09d010f0a18",
+          "brain.edge_group_index": "4b9af4b1e2313aba5a9a139ae3ecfc8fcae09a440c65802207a26775700f6eca",
+          "brain.node_type_index": "9ea440846c4bfde95c8c007320ad3bc3b79cfb3b69c2ff6a136c39fd41f658be"
+        },
+        "original_path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-decoder-v1-continuation/arms/F32rank128bounded/best-accuracy.pt",
+        "checkpoint_contents_verified": true
+      }
+    }
+  },
+  "latest_checkpoint": {
+    "path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-decoder-v1-continuation/arms/F32rank128bounded/stopped-checkpoints/latest.pt",
+    "sha256": "4d676800d37f4a0582f53b975fcd79d11f0fe4e4423e6b504e420fd020158b6f",
+    "cursor": {
+      "epoch": 2,
+      "batch": 21,
+      "offset": 192,
+      "updates": 2600,
+      "phase": 0,
+      "epoch_loss_sum": 155845.28569555283,
+      "epoch_tokens": 42054,
+      "epoch_correct": 11384
+    },
+    "frozen_buffers_sha256": {
+      "brain.w_offsets": "53b216d7bc2503c539c2d2b03ce56f66eb8a2e9b902f0a20deda0ec4be37ade0",
+      "brain.w_indices": "0f17b9563457fbf84404c54227db86b5adcf04a689cdff5e33d32ec5d5e0b771",
+      "brain.w_values": "e6408887d3312783c65d3f10bb69b28fe50bb06699f0a8a9341d444e6eb0549a",
+      "brain.in_index": "ee440072f6c94b59c552cb09812af5894066ae28f686cda2cd2e35a3626beda6",
+      "brain.out_index": "5ac16e2c38cf0a1b4b4aea74eadeb2d487e153113d046895a813e09d010f0a18",
+      "brain.edge_group_index": "4b9af4b1e2313aba5a9a139ae3ecfc8fcae09a440c65802207a26775700f6eca",
+      "brain.node_type_index": "9ea440846c4bfde95c8c007320ad3bc3b79cfb3b69c2ff6a136c39fd41f658be"
+    },
+    "frozen_buffers_preserved": true,
+    "optimizer_rng_and_cache_retained": true
+  },
+  "plateau_evidence": {
+    "decision_at_utc": "2026-09-15T22:04:26.187809+00:00",
+    "decision_validation_update": 2600,
+    "criterion": "Explicit user correction: rank64 should already be training; F is superseded.",
+    "plateau_assessed": false
+  },
+  "process_cessation": {
+    "confirmed": true,
+    "confirmed_at_utc": "2026-09-15T22:04:28.517905+00:00",
+    "signal_target": "dispatcher",
+    "processes": [
+      {
+        "pid": 13662,
+        "birth": "Tue Sep 15 18:47:09 2026",
+        "alive": false,
+        "kernel_state": null,
+        "exited": true
+      },
+      {
+        "pid": 13675,
+        "birth": "Tue Sep 15 18:47:14 2026",
+        "alive": false,
+        "kernel_state": null,
+        "exited": true
+      }
+    ],
+    "kernel_exit_events": [
+      13675,
+      13662
+    ]
+  },
+  "test_evaluated": false,
+  "stop_receipt": {
+    "path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-decoder-v1-continuation/arms/F32rank128bounded/stop-receipt.json",
+    "sha256": "98908656b41008d3f533131101e745f41917d3a30353a7ead11d24e825da7903"
+  },
+  "decision_receipt": {
+    "path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-decoder-v1-continuation/arms/F32rank128bounded/early-stop-decision.json",
+    "sha256": "bff9e40bc66a84529db85933d0585f5da03eb0864ffdde3bc892a4efc7d84e33"
+  },
+  "artifact_sha256": {
+    "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-decoder-v1-continuation/arms/F32rank128bounded/manifest.json": "153f55643c7ff1097b03dff5a83427253a90a17de6918a1cbde292307c01ccbe",
+    "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-decoder-v1-continuation/arms/F32rank128bounded/launch.json": "28c38345007c70d70bbcfd58b28d51b55940a71a5eabf44e23967023eb6ee413",
+    "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-decoder-v1-continuation/arms/F32rank128bounded/metrics.jsonl": "0e12d0e4ec73a65dbe63647cba2629bc6b16e78f98886285b5ae2b17389bf203",
+    "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-decoder-v1-continuation/arms/F32rank128bounded/selected-checkpoints.json": "27fc869e7e90d2e2e285753e3ee656e3a18617c6d9a1a029eb2d7898d0ee03fe",
+    "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-decoder-v1-continuation/arms/F32rank128bounded/status.json": "ff9eef517ed34e16879c1161d1f05aa8af501df2fe58f10db32970a0eb756c63",
+    "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-decoder-v1-continuation/arms/F32rank128bounded/process-status.json": "3a77e55cebc482a83c60c26aca7ee98e671337a1882e0114f89f57267f604547"
+  },
+  "comparison_policy": "F is preserved as an interrupted, superseded experiment. G rank64 starts from scratch and compares to preserved E rank128."
+}

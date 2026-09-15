@@ -239,7 +239,11 @@ cannot establish an anatomical advantage. Final test evaluation is deferred;
 additional seeds, randomized topology controls, history changes and readout
 compression are distinct subsequent experiments.
 
-## 6b. Rank128 decoder pair
+## 6b. Rank128 decoder pair (historical order)
+
+The user corrected the next experiment to rank64 on 2026-09-15. The F-only
+continuation below was launched in error and is superseded; do not execute it
+as the next step. G follows the preserved E baseline after its own preflight.
 
 After the completed B quality assessment, the user selected E32rank128fixed and
 F32rank128bounded. See [the protocol](../experiments/DECODER_REDUCTION.md).
@@ -294,6 +298,35 @@ python scripts/refresh_connectorch_decoder_progress.py
 Read `results/connectorch-decoder-v1/progress.md` for B/E/F comparison and both
 checkpoint selectors. The older A/B quality evaluator accepts only full heads;
 use a rank-aware evaluation extension before scoring E/F retained checkpoints.
+
+## 6c. Rank64 fixed-edge comparison (current selection)
+
+G follows preserved E. F was stopped under the user's explicit ordering correction;
+its completion or quality audit is not required. Keep the original model/trainer
+sources unchanged and run the new rank64-specific gates on idle macm3:
+
+```bash
+"$FLY_PYTHON" scripts/audit_connectorch_rank64.py \
+  --model "$FLY_MODEL" --data "$FLY_DATA" --groups "$FLY_GROUPS" \
+  --output "$FLY_ROOT/results/connectorch-rank64-preparation-v1/parity.json"
+"$FLY_PYTHON" scripts/run_connectorch_rank64_campaign.py \
+  --parent "$FLY_ROOT/results/connectorch-decoder-v1" \
+  --accepted-e-receipt "$FLY_ROOT/results/connectorch-decoder-v1/arms/E32rank128fixed/accepted-early-stop.json" \
+  --preflight-receipt "$FLY_ROOT/results/connectorch-rank64-preparation-v1/parity.json" \
+  --experiment-branches "$FLY_ROOT/experiments/records/rank64-branch-mapping.json" \
+  --output "$FLY_ROOT/results/connectorch-rank64-v1" --launch
+```
+
+Use fresh outputs for a new experiment; the published parity receipt already
+exists for this run. The controller runs an eight-update G smoke and verifies
+both readout factors changed before launching the full G arm. A failed gate
+halts execution. It does not restart or queue F. The fixed edges, encoder32,
+eight delays, data/seed and30+14planned recipe match E. Rank changes the head
+shapes and initialization scale, so early curves are not initialization-matched.
+
+From the control host, run `python scripts/refresh_connectorch_rank64_progress.py`
+to update `results/connectorch-rank64-v1/progress.md`. Compare E/G at common
+validation updates and retain minimum-CE and maximum-accuracy weights separately.
 
 ## 7. Quality scoring and generated-text comparison
 

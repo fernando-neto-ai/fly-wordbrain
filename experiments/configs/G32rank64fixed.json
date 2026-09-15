@@ -41,7 +41,7 @@
     "primary": "minimum token-weighted validation cross-entropy",
     "secondary": "maximum validation top-1 accuracy; retain actual weights and selection receipt"
   },
-  "claim_scope": "authorized later rank64 comparison; quality and numerical preflight not yet measured",
+  "claim_scope": "User-selected immediate rank64 comparison against preserved E rank128 baseline; quality not yet measured",
   "environment": {
     "PYTORCH_ENABLE_MPS_FALLBACK": "0",
     "OMP_NUM_THREADS": "4",
@@ -87,10 +87,9 @@
     "intermediate_activation": null
   },
   "initialization_note": "Same from-scratch trainer initialization and seed42; preserve encoder and neuron initialization. Rank64 changes readout shapes and initial logit variance relative to rank128; verify rank64-specific gradients and optimizer updates before training.",
-  "execution_status": "planned after rank128 E/F training and quality assessment; not launched",
+  "execution_status": "selected for immediate launch under user correction; separate rank64 preflight required",
   "prerequisites": [
-    "Complete or accept early stops for the current E/F pair, preserving both selectors and honest execution receipts",
-    "Assess E/F validation and generated texts before the rank64 comparison",
+    "Confirm no competing GPU worker remains after stopping F under explicit user correction; preserve its checkpoint history",
     "Run separate rank64 CPU/MPS parity and eight-update optimizer smoke on macm3 before the full G run"
   ]
 }
