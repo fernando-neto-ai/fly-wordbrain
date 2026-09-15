@@ -7,10 +7,12 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
+from datetime import datetime, timezone
 import hashlib
 import json
 import math
 from pathlib import Path
+import random
 import time
 from typing import Any, Dict, Sequence
 
@@ -324,14 +326,18 @@ def load_calibration(calibration, graph, dataset_path, dataset):
     return arrays, metadata, kwargs, provenance
 
 
-def save_checkpoint(path, model, scales, config, vocabulary, epoch, validation_ce):
+def save_checkpoint(path, model, scales, config, vocabulary, epoch, validation_ce, *, global_step=None):
     """Save parameters and small calibration only; never serialize fixed graph buffers."""
     path = Path(path)
     parameters = {name: p.detach().cpu().clone() for name, p in model.named_parameters()}
     payload = {"schema": 1, "parameters": parameters,
         "scales": {key: torch.as_tensor(value).detach().cpu().clone() for key, value in scales.items()},
         "config": config, "vocabulary": list(vocabulary), "epoch": int(epoch),
-        "validation_head1_cross_entropy": float(validation_ce)}
+        "validation_head1_cross_entropy": None if validation_ce is None else float(validation_ce)}
+    if global_step is not None:
+        payload.update(global_step=int(global_step), checkpoint_role="rolling_partial",
+                       inference_only=True, training_resume_supported=False,
+                       selection_eligible=False)
     temporary = path.with_suffix(path.suffix + ".partial")
     torch.save(payload, temporary)
     temporary.replace(path)
@@ -396,12 +402,90 @@ def _rule_gradient_norm(model):
     return float(torch.stack(terms).sum().sqrt().cpu()) if terms else 0.
 
 
+def monitor_due(step, every):
+    """Baseline, first optimizer update, then the fixed update cadence."""
+    if every < 1 or step < 0:
+        raise ValueError("Monitor cadence must be positive and step nonnegative")
+    return step in (0, 1) or step % every == 0
+
+
+def validation_identity(stories, dataset_sha256):
+    identity = {"dataset_sha256": dataset_sha256, "split": "val",
+                "story_ids": [str(story["id"]) for story in stories]}
+    encoded = json.dumps(identity, sort_keys=True, separators=(",", ":")).encode()
+    return {**identity, "subset_sha256": hashlib.sha256(encoded).hexdigest()}
+
+
+def evaluate_preserving_training(model, stories, feature_mean, feature_std, *, arm, batch_size):
+    """Monitoring must neither consume training RNG nor alter module modes."""
+    modes = [(module, module.training) for module in model.modules()]
+    cpu_rng, numpy_rng, python_rng = torch.get_rng_state(), np.random.get_state(), random.getstate()
+    device = feature_mean.device.type
+    device_rng = None
+    if device == "mps":
+        device_rng = torch.mps.get_rng_state()
+    elif device == "cuda":
+        device_rng = torch.cuda.get_rng_state_all()
+    try:
+        return evaluate_stories(model, stories, feature_mean, feature_std, arm=arm, batch_size=batch_size)
+    finally:
+        torch.set_rng_state(cpu_rng)
+        np.random.set_state(numpy_rng)
+        random.setstate(python_rng)
+        if device == "mps":
+            torch.mps.set_rng_state(device_rng)
+        elif device == "cuda":
+            torch.cuda.set_rng_state_all(device_rng)
+        for module, mode in modes:
+            module.training = mode
+
+
+class ValidationRecorder:
+    """Atomic dashboard artifacts containing genuine held-out forward results."""
+
+    def __init__(self, output, dataset_sha256, started):
+        self.output, self.dataset_sha256, self.started = Path(output), dataset_sha256, started
+        self.history = []
+
+    def record(self, arm, epoch, step, scope, stories, metrics, evaluation_seconds, checkpoint=None):
+        if scope not in ("monitor_subset", "full_validation"):
+            raise ValueError("Unknown validation scope")
+        identity = validation_identity(stories, self.dataset_sha256)
+        horizons = metrics["horizons"]
+        counts = {name: value["examples"] for name, value in horizons.items()}
+        row = {"event": "validation_snapshot", "arm": arm, "epoch": epoch,
+            "global_step": step, "scope": scope, "phase": "validation",
+            "story_count": len(stories), "target_count": sum(counts.values()),
+            "target_counts": counts, **identity, "metrics": metrics,
+            "head1_cross_entropy": horizons["next_1"]["cross_entropy"],
+            "head1_perplexity": horizons["next_1"]["perplexity"],
+            "head1_accuracy": horizons["next_1"]["accuracy"],
+            "evaluation_seconds": evaluation_seconds,
+            "elapsed_seconds": time.perf_counter() - self.started,
+            "timestamp_utc": datetime.now(timezone.utc).isoformat(),
+            "selection_eligible": scope == "full_validation"}
+        if checkpoint is not None:
+            row.update(checkpoint_sha256=checkpoint["sha256"], checkpoint_path=checkpoint["path"],
+                       checkpoint_retention="rolling_latest_only", checkpoint_inference_only=True)
+        self.history.append(row)
+        path = self.output / "validation.jsonl"
+        temporary = path.with_suffix(".jsonl.partial")
+        temporary.write_text("".join(json.dumps(item, allow_nan=False) + "\n" for item in self.history))
+        temporary.replace(path)
+        write_json(self.output / arm / "validation-history.json",
+                   [item for item in self.history if item["arm"] == arm])
+        _log(self.output, row)
+        return row
+
+
 def train(dataset_path, graph, calibration, output, *, device="cuda", arms=ARMS,
           epochs=10, patience=4, batch_size=8, seed=0, head_lr=.001, rule_lr=.003,
-          weight_decay=.0001, threads=4, gradient_clip=1., model_factory=None, strict_full_graph=True):
+          weight_decay=.0001, threads=4, gradient_clip=1., model_factory=None, strict_full_graph=True,
+          monitor_stories=0, monitor_every=64, progress_every=0):
     if (not arms or len(set(arms)) != len(arms) or any(arm not in ARMS for arm in arms)
             or epochs < 1 or patience < 1 or batch_size < 1 or threads < 1
-            or not math.isfinite(gradient_clip) or gradient_clip <= 0):
+            or not math.isfinite(gradient_clip) or gradient_clip <= 0
+            or monitor_stories < 0 or monitor_every < 1 or progress_every < 0):
         raise ValueError("Invalid bounded training configuration")
     torch.set_num_threads(threads)
     if model_factory is None:
@@ -413,6 +497,9 @@ def train(dataset_path, graph, calibration, output, *, device="cuda", arms=ARMS,
         raise ValueError("Output already contains a run; use a fresh directory")
     dataset = json.loads(Path(dataset_path).read_text())
     validate_dataset(dataset)
+    if monitor_stories > len(dataset["splits"]["val"]):
+        raise ValueError("Monitoring subset exceeds the validation split")
+    monitor_subset = dataset["splits"]["val"][:monitor_stories]
     scales, calibration_meta, dynamics, provenance = load_calibration(calibration, graph, dataset_path, dataset)
     vocabulary = dataset["vocabulary"]
     model_kwargs = {**dynamics, "internal_steps": int(dynamics["internal_steps"]),
@@ -428,6 +515,13 @@ def train(dataset_path, graph, calibration, output, *, device="cuda", arms=ARMS,
         "targets": "ordered previous,current -> next1,next2; never feed either future target to same-row model",
         "bptt": "full bounded story; no detach inside story; both states frozen on batch padding",
         "scoring": "two overlapping horizons; average forecast CE is NOT standard sequence perplexity"}
+    if monitor_stories or progress_every:
+        protocol["monitoring"] = {"enabled": bool(monitor_stories), "story_count": monitor_stories,
+            "every_updates": monitor_every, "baseline_step_zero": bool(monitor_stories),
+            "first_update": bool(monitor_stories), "progress_every_updates": progress_every,
+            "subset": validation_identity(monitor_subset, provenance["dataset_sha256"]),
+            "selection": "Subset snapshots never select checkpoints; only full epoch validation selects.",
+            "partial_checkpoint": "Rolling compact inference-only parameters at step1 and monitor cadence; no optimizer/RNG state and no training resume support."}
     write_json(output / "protocol.json", protocol)
     feature_mean = torch.as_tensor(scales["feature_mean"], device=device)
     feature_std = torch.as_tensor(scales["feature_std"], device=device)
@@ -444,6 +538,7 @@ def train(dataset_path, graph, calibration, output, *, device="cuda", arms=ARMS,
                "scales": scales}
     selections = {}
     started = time.perf_counter()
+    recorder = ValidationRecorder(output, provenance["dataset_sha256"], started) if monitor_stories else None
     for arm in arms:
         directory = output / arm
         directory.mkdir()
@@ -456,7 +551,21 @@ def train(dataset_path, graph, calibration, output, *, device="cuda", arms=ARMS,
         config = {**protocol, "arm": arm, "parameters": counts}
         rng = np.random.default_rng(seed)
         best, best_epoch, step, history = math.inf, 0, 0, []
+        processed_stories, processed_targets = 0, 0
         _log(output, {"event": "arm_start", "arm": arm, "parameters": counts, "rule": _rule_snapshot(model)})
+        def snapshot(epoch, step, checkpoint=None):
+            _log(output, {"event": "phase", "phase": "validation", "scope": "monitor_subset",
+                "arm": arm, "epoch": epoch, "global_step": step,
+                "timestamp_utc": datetime.now(timezone.utc).isoformat()})
+            clock = time.perf_counter()
+            summary, _ = evaluate_preserving_training(model, monitor_subset, feature_mean, feature_std,
+                                                       arm=arm, batch_size=batch_size)
+            recorder.record(arm, epoch, step, "monitor_subset", monitor_subset, summary,
+                            time.perf_counter() - clock, checkpoint=checkpoint)
+            _log(output, {"event": "phase", "phase": "training", "arm": arm,
+                "epoch": epoch, "global_step": step, "timestamp_utc": datetime.now(timezone.utc).isoformat()})
+        if recorder is not None:
+            snapshot(0, 0)
         for epoch in range(1, epochs + 1):
             model.train()
             order = rng.permutation(len(dataset["splits"]["train"]))
@@ -478,6 +587,9 @@ def train(dataset_path, graph, calibration, output, *, device="cuda", arms=ARMS,
                     error_if_nonfinite=True).detach().cpu())
                 optimizer.step()
                 step += 1
+                if progress_every:
+                    processed_stories += len(stories)
+                    processed_targets += int(batch.target_mask.sum().detach().cpu())
                 gradient_norms.append(norm)
                 total_gradient_norms.append(total_norm)
                 records.append(_batch_records(batch, logits, losses))
@@ -486,10 +598,34 @@ def train(dataset_path, graph, calibration, output, *, device="cuda", arms=ARMS,
                         "loss": float(loss.detach().cpu()), "rule_gradient_norm": norm,
                         "total_gradient_norm_before_clip": total_norm, "gradient_clip": gradient_clip,
                         "seconds": time.perf_counter() - epoch_start})
+                if progress_every and (step == 1 or step % progress_every == 0):
+                    _log(output, {"event": "training_progress", "phase": "training", "arm": arm,
+                        "epoch": epoch, "global_step": step, "batch_loss": float(loss.detach().cpu()),
+                        "processed_stories": processed_stories, "processed_targets": processed_targets,
+                        "updates_per_epoch": math.ceil(len(order) / batch_size),
+                        "elapsed_seconds": time.perf_counter() - started,
+                        "timestamp_utc": datetime.now(timezone.utc).isoformat()})
                 del loss, logits, losses, state, batch
+                if recorder is not None and monitor_due(step, monitor_every):
+                    partial_hash = save_checkpoint(directory / "partial.pt", model, scales, config,
+                        vocabulary, epoch, None, global_step=step)
+                    _log(output, {"event": "partial_checkpoint", "arm": arm, "epoch": epoch,
+                        "global_step": step, "path": str(directory / "partial.pt"),
+                        "sha256": partial_hash, "inference_only": True, "training_resume_supported": False,
+                        "timestamp_utc": datetime.now(timezone.utc).isoformat()})
+                    snapshot(epoch, step, checkpoint={"sha256": partial_hash,
+                                                     "path": str(directory / "partial.pt")})
             train_metrics = _summarize(_combine(records))
+            if recorder is not None:
+                _log(output, {"event": "phase", "phase": "validation", "scope": "full_validation",
+                    "arm": arm, "epoch": epoch, "global_step": step,
+                    "timestamp_utc": datetime.now(timezone.utc).isoformat()})
+            validation_start = time.perf_counter()
             validation, _ = evaluate_stories(model, dataset["splits"]["val"], feature_mean, feature_std,
                                               arm=arm, batch_size=batch_size)
+            if recorder is not None:
+                recorder.record(arm, epoch, step, "full_validation", dataset["splits"]["val"],
+                                validation, time.perf_counter() - validation_start)
             score = validation["horizons"]["next_1"]["cross_entropy"]
             if not math.isfinite(score):
                 raise RuntimeError("Nonfinite validation selection metric")
@@ -571,10 +707,16 @@ def main():
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--threads", type=int, default=4)
     parser.add_argument("--gradient-clip", type=float, default=1.)
+    parser.add_argument("--monitor-stories", type=int, default=0,
+                        help="Fixed first N validation stories; zero disables live snapshots")
+    parser.add_argument("--monitor-every", type=int, default=64)
+    parser.add_argument("--progress-every", type=int, default=0,
+                        help="Emit update progress at this cadence; zero keeps legacy logging")
     args = parser.parse_args()
     train(args.dataset, args.graph, args.calibration, args.output, device=args.device,
           arms=args.arms, epochs=args.epochs, patience=args.patience,
-          batch_size=args.batch_size, seed=args.seed, threads=args.threads, gradient_clip=args.gradient_clip)
+          batch_size=args.batch_size, seed=args.seed, threads=args.threads, gradient_clip=args.gradient_clip,
+          monitor_stories=args.monitor_stories, monitor_every=args.monitor_every, progress_every=args.progress_every)
 
 
 if __name__ == "__main__":
