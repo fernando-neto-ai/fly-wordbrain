@@ -18,6 +18,12 @@ and `decoder/` artifacts. Pair extraction uses the same corpus and word timing.
 Results are described in [PAIR_REPORT.md](PAIR_REPORT.md); the original report
 and checkpoints remain intact.
 
+The new [fast-plasticity arm](PLASTIC_PROTOCOL.md) keeps the full graph and
+526,336-parameter decoder, adds 20 shared synaptic-rule parameters, and uses
+explicitly different smooth rate dynamics. Its [custom Metal backend](MPS_REPORT.md)
+runs forward and backward on macm3's GPU with the existing PyTorch 2.8 runtime.
+The sections below describe the original frozen spiking experiments.
+
 ## What is preserved
 
 The project vendors byte-identical source from
