@@ -9,23 +9,54 @@ import shlex
 
 ROOT = Path(__file__).resolve().parents[1]
 ARMS = ("A128fixed", "B32fixed", "C128bounded", "D32bounded")
+DEFAULT_REMOTE_RUN = "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1"
 FILES = ["manifest.json", "launch.json", "campaign-status.json", "readiness.json", "results.json", "partial-results.json",
-         "failure.json", "smoke-results.json", "preflight/parity.json"]
+         "failure.json", "smoke-results.json", "preflight/parity.json", "continuation-disposition.json"]
 FILES += [f"arms/{arm}/{name}" for arm in ARMS for name in
           ("manifest.json", "launch.json", "status.json", "process-status.json", "metrics.jsonl",
-           "selected-checkpoints.json", "results.json", "failure.json")]
+           "selected-checkpoints.json", "results.json", "failure.json", "accepted-early-stop.json", "stop-receipt.json")]
+PARENT_FILES = ("manifest.json", "partial-results.json", "continuation-disposition.json")
+SNAPSHOT_FILES = FILES + ["parent/" + name for name in PARENT_FILES]
 REMOTE = '''from pathlib import Path
 import hashlib,json,sys
-root=Path(sys.argv[1]).resolve()
-files={}
-for name in json.loads(sys.argv[2]):
- p=root/name
- if not p.exists():continue
+request=json.loads(sys.argv[1])
+candidates=[Path(p).resolve() for p in request['candidates']]
+root=next((p for p in candidates if (p/'manifest.json').exists()),candidates[-1])
+files={};sources={}
+def fetch(p,name,expected=None):
+ if not p.exists():
+  if expected:raise ValueError('Bound artifact is missing: '+str(p))
+  return
  if p.is_symlink():raise ValueError('Unexpected artifact symlink')
  with p.open('rb') as f:body=f.read(16777217)
  if len(body)>16777216:raise ValueError('Artifact exceeds16MiB bound')
- files[name]={'text':body.decode(),'sha256':hashlib.sha256(body).hexdigest()}
-print(json.dumps(files))
+ digest=hashlib.sha256(body).hexdigest()
+ if expected and digest!=expected:raise ValueError('Bound artifact changed: '+str(p))
+ files[name]={'text':body.decode(),'sha256':digest};sources[name]=str(p)
+for name in request['files']:fetch(root/name,name)
+manifest=json.loads(files.get('manifest.json',{}).get('text','{}'))
+parent_entry=manifest.get('parent_campaign')
+if parent_entry:
+ parent_manifest=Path(parent_entry['path']).resolve()
+ parent=parent_manifest.parent
+ if parent_manifest.name!='manifest.json' or parent==root:raise ValueError('Invalid parent campaign')
+ fetch(parent_manifest,'parent/manifest.json',parent_entry['sha256'])
+ for name in request['parent_files']:
+  if name!='manifest.json':fetch(parent/name,'parent/'+name)
+ accepted=manifest['accepted_early_stopped_arm']
+ arm='A128fixed';prefix='arms/'+arm+'/'
+ if accepted.get('name')!=arm or Path(accepted['output']).resolve()!=parent/prefix:
+  raise ValueError('Unexpected accepted-arm output')
+ for name in request['files']:
+  if name.startswith(prefix):fetch(parent/name,name)
+ acceptance=Path(manifest['acceptance_receipt']).resolve()
+ if acceptance!=parent/prefix/'accepted-early-stop.json':raise ValueError('Unexpected acceptance receipt path')
+ fetch(acceptance,prefix+'accepted-early-stop.json',manifest['input_files_sha256'][str(acceptance)])
+ receipt=json.loads(files[prefix+'accepted-early-stop.json']['text'])
+ stop=Path(receipt['stop_receipt']['path']).resolve()
+ if stop!=parent/prefix/'stop-receipt.json':raise ValueError('Unexpected stop receipt path')
+ fetch(stop,prefix+'stop-receipt.json',receipt['stop_receipt']['sha256'])
+print(json.dumps({'remote_run':str(root),'files':files,'source_paths':sources}))
 '''
 
 
@@ -47,14 +78,31 @@ def render_report(files, host, now):
         baseline = ("Baseline launch gate: a successfully completed reference or an explicitly accepted, "
                     "verified early-stop receipt is required before M3 preflight and training.")
     phase, active_arm = status.get("phase", "pending"), status.get("arm")
+    accepted_arm = manifest.get("accepted_early_stopped_arm") or {}
+    acceptance = read("arms/A128fixed/accepted-early-stop.json")
+    if not accepted_arm and acceptance.get("status") == "accepted_early_stop" and acceptance.get("accepted_by") == "user":
+        accepted_arm = {"name": "A128fixed", "status": "accepted_early_stop",
+                        "updates": acceptance.get("preserved_checkpoints", {}).get("latest", {}).get("cursor", {}).get("updates"),
+                        "observed_updates": acceptance.get("observed_updates"), "epochs": acceptance.get("completed_epochs")}
+    if accepted_arm and read("continuation-disposition.json") and not manifest.get("parent_campaign"):
+        status = {**status, "status": "accepted_early_stop"}
+        phase, active_arm = "awaiting_continuation", None
+    def count(value):
+        return f"{value:,}" if isinstance(value, int) else "—"
     report = ["# Connectorch encoder experiment — partial validation", "",
               f"Snapshot: {now}. Host: {host}.", "",
               f"Campaign status: **{status.get('status', 'waiting')}**. Phase: **{phase}**. "
               f"Current arm: **{active_arm or '—'}**.", "", baseline,
               "All arms retain the full output head, eight explicit input lags, 49,393 neurons and 9,050,172 base edges.",
-              "Bounded arms add 18,322 source/destination cell-type gains; base-edge multipliers stay within 0.9–1.1. Original neuron gains remain unconstrained.", "",
+              "Bounded arms add 18,322 source/destination cell-type gains; base-edge multipliers stay within 0.9–1.1. Original neuron gains remain unconstrained.", ""]
+    if accepted_arm:
+        report.extend([f"A128fixed: **accepted early stop**, {accepted_arm.get('epochs', '—')} completed epochs; "
+                       f"{count(accepted_arm.get('updates'))} durable updates and {count(accepted_arm.get('observed_updates'))} observed updates. "
+                       "Its complete history and both checkpoint winners are retained from the parent campaign. "
+                       "Retained-best comparisons use unequal training budgets; A did not complete the 44-epoch schedule.", ""])
+    report.extend([
               "| Arm | Width | Edge gains | Status | Updates | Minimum CE (accuracy; update) | Maximum accuracy (CE; update) |",
-              "|---|---:|---|---|---:|---|---|"]
+              "|---|---:|---|---|---:|---|---|"])
     histories, selections, provenance = {}, {}, {}
     for arm in ARMS:
         prefix = "arms/" + arm + "/"
@@ -92,15 +140,23 @@ def render_report(files, host, now):
         ce = selected_cell("minimum_validation_ce", "cross_entropy")
         accuracy = selected_cell("maximum_validation_accuracy", "top1_accuracy", maximize=True)
         arm_state = arm_status.get("status", "pending")
-        if arm_status.get("activity"):
+        if arm == accepted_arm.get("name"):
+            arm_state = "accepted early stop"
+        elif arm_status.get("activity"):
             arm_state += " / " + arm_status["activity"]
         updates = arm_status.get("updates", rows[-1]["updates"] if rows else 0)
+        if arm == accepted_arm.get("name"):
+            updates = accepted_arm.get("updates") or updates
         report.append(f"| {arm} | {128 if '128' in arm else 32} | {'fixed' if 'fixed' in arm else 'bounded10'} | "
                       f"{arm_state} | {updates:,} | {ce} | {accuracy} |")
     report.extend(["", "Winner columns use the saved checkpoint receipts when available. A newer validation can "
                    "appear in the history while its checkpoint is still being saved; exact metric ties retain the earlier checkpoint."])
     if read("failure.json"):
-        report.extend(["", "Campaign failure: `" + json.dumps(read("failure.json")) + "`"])
+        if accepted_arm and read("continuation-disposition.json") and not manifest.get("parent_campaign"):
+            report.extend(["", "The parent controller was interrupted for the accepted stop of A. "
+                           "Its raw failure record is preserved; no continuation failure is reported in this parent snapshot."])
+        else:
+            report.extend(["", "Campaign failure: `" + json.dumps(read("failure.json")) + "`"])
     for arm, rows in histories.items():
         git = provenance[arm]
         if not rows and not git.get("branch"):
@@ -127,21 +183,24 @@ def render_report(files, host, now):
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--host", default="macm3")
-    p.add_argument("--remote-run", default="/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1")
+    p.add_argument("--remote-run", help="Exact remote run; default selects the continuation when its manifest exists, otherwise the original campaign")
     p.add_argument("--output", type=Path, default=ROOT / "results/connectorch-encoder-v1")
     args = p.parse_args()
     import cluster_runner as cr
-    command = "python3 -c " + shlex.quote(REMOTE) + " " + shlex.quote(args.remote_run) + " " + shlex.quote(json.dumps(FILES))
+    request = {"candidates": [args.remote_run] if args.remote_run else [DEFAULT_REMOTE_RUN + "-continuation", DEFAULT_REMOTE_RUN],
+               "files": FILES, "parent_files": PARENT_FILES}
+    command = "python3 -c " + shlex.quote(REMOTE) + " " + shlex.quote(json.dumps(request))
     result = cr.run(command, host=args.host, timeout=30)
     if result.exit_code:
         raise RuntimeError(result.stderr or result.stdout)
-    files = json.loads(result.stdout)
+    snapshot = json.loads(result.stdout)
+    files = snapshot["files"]
     if not files:
         raise RuntimeError("No campaign artifacts found")
     args.output.mkdir(parents=True, exist_ok=True)
     hashes = {}
     for name, item in files.items():
-        if name not in FILES:
+        if name not in SNAPSHOT_FILES:
             raise ValueError("Unexpected artifact path")
         body = item["text"].encode()
         if hashlib.sha256(body).hexdigest() != item["sha256"]:
@@ -156,7 +215,8 @@ def main():
     report = render_report(files, args.host, now)
     (args.output / "progress.md").write_text("\n".join(report))
     (args.output / "snapshot-receipt.json").write_text(json.dumps({"fetched_at_utc": now, "host": args.host,
-                     "remote_run": args.remote_run, "sha256": hashes}, indent=2) + "\n")
+                     "remote_run": snapshot["remote_run"], "source_paths": snapshot["source_paths"],
+                     "sha256": hashes}, indent=2) + "\n")
     print("\n".join(report[:17]))
 
 

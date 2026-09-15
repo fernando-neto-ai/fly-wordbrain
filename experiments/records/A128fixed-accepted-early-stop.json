@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "experiment_id": "A128fixed",
+  "status": "accepted_early_stop",
+  "training_host": "macm3",
+  "full_schedule_completed": false,
+  "observed_updates": 12442,
+  "durable_updates": 12400,
+  "completed_epochs": 10,
+  "selected_checkpoints": {
+    "minimum_validation_ce": {
+      "path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1/arms/A128fixed/stopped-checkpoints/best.pt",
+      "sha256": "2f6fad5b9c1a17d0ff616159510a8c37dc0e03f56b8aee0ff345c41f8ea9db40",
+      "cursor": {
+        "epoch": 3,
+        "batch": 1,
+        "offset": 128,
+        "updates": 3600,
+        "phase": 0,
+        "epoch_loss_sum": 7227.341816365719,
+        "epoch_tokens": 2918,
+        "epoch_correct": 1378
+      },
+      "validation": {
+        "cross_entropy": 4.728279257099709,
+        "top1_accuracy": 0.30488250891469326,
+        "correct": 6669,
+        "tokens": 21874,
+        "stories": 100
+      },
+      "frozen_buffers_preserved": true,
+      "frozen_buffers_sha256": {
+        "brain.w_offsets": "53b216d7bc2503c539c2d2b03ce56f66eb8a2e9b902f0a20deda0ec4be37ade0",
+        "brain.w_indices": "0f17b9563457fbf84404c54227db86b5adcf04a689cdff5e33d32ec5d5e0b771",
+        "brain.w_values": "e6408887d3312783c65d3f10bb69b28fe50bb06699f0a8a9341d444e6eb0549a",
+        "brain.in_index": "ee440072f6c94b59c552cb09812af5894066ae28f686cda2cd2e35a3626beda6",
+        "brain.out_index": "5ac16e2c38cf0a1b4b4aea74eadeb2d487e153113d046895a813e09d010f0a18",
+        "brain.edge_group_index": "4b9af4b1e2313aba5a9a139ae3ecfc8fcae09a440c65802207a26775700f6eca",
+        "brain.node_type_index": "9ea440846c4bfde95c8c007320ad3bc3b79cfb3b69c2ff6a136c39fd41f658be"
+      }
+    },
+    "maximum_validation_accuracy": {
+      "path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1/arms/A128fixed/stopped-checkpoints/best-accuracy.pt",
+      "sha256": "eddb423ef0ff5180d9e740f357c2206c1c544f93de2b1c35549ff4cfa4e3da5f",
+      "cursor": {
+        "epoch": 10,
+        "batch": 24,
+        "offset": 0,
+        "updates": 12200,
+        "phase": 0,
+        "epoch_loss_sum": 15172.476004578955,
+        "epoch_tokens": 44928,
+        "epoch_correct": 41277
+      },
+      "validation": {
+        "cross_entropy": 5.546981212239799,
+        "top1_accuracy": 0.32897503885891927,
+        "correct": 7196,
+        "tokens": 21874,
+        "stories": 100
+      },
+      "frozen_buffers_preserved": true,
+      "frozen_buffers_sha256": {
+        "brain.w_offsets": "53b216d7bc2503c539c2d2b03ce56f66eb8a2e9b902f0a20deda0ec4be37ade0",
+        "brain.w_indices": "0f17b9563457fbf84404c54227db86b5adcf04a689cdff5e33d32ec5d5e0b771",
+        "brain.w_values": "e6408887d3312783c65d3f10bb69b28fe50bb06699f0a8a9341d444e6eb0549a",
+        "brain.in_index": "ee440072f6c94b59c552cb09812af5894066ae28f686cda2cd2e35a3626beda6",
+        "brain.out_index": "5ac16e2c38cf0a1b4b4aea74eadeb2d487e153113d046895a813e09d010f0a18",
+        "brain.edge_group_index": "4b9af4b1e2313aba5a9a139ae3ecfc8fcae09a440c65802207a26775700f6eca",
+        "brain.node_type_index": "9ea440846c4bfde95c8c007320ad3bc3b79cfb3b69c2ff6a136c39fd41f658be"
+      }
+    },
+    "latest": {
+      "cursor": {
+        "epoch": 10,
+        "batch": 44,
+        "offset": 288,
+        "updates": 12400,
+        "phase": 0,
+        "epoch_loss_sum": 30133.917000682497,
+        "epoch_tokens": 83722,
+        "epoch_correct": 76393
+      },
+      "frozen_buffers_sha256": {
+        "brain.w_offsets": "53b216d7bc2503c539c2d2b03ce56f66eb8a2e9b902f0a20deda0ec4be37ade0",
+        "brain.w_indices": "0f17b9563457fbf84404c54227db86b5adcf04a689cdff5e33d32ec5d5e0b771",
+        "brain.w_values": "e6408887d3312783c65d3f10bb69b28fe50bb06699f0a8a9341d444e6eb0549a",
+        "brain.in_index": "ee440072f6c94b59c552cb09812af5894066ae28f686cda2cd2e35a3626beda6",
+        "brain.out_index": "5ac16e2c38cf0a1b4b4aea74eadeb2d487e153113d046895a813e09d010f0a18",
+        "brain.edge_group_index": "4b9af4b1e2313aba5a9a139ae3ecfc8fcae09a440c65802207a26775700f6eca",
+        "brain.node_type_index": "9ea440846c4bfde95c8c007320ad3bc3b79cfb3b69c2ff6a136c39fd41f658be"
+      },
+      "frozen_buffers_preserved": true,
+      "path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1/arms/A128fixed/stopped-checkpoints/latest.pt",
+      "sha256": "372bbaadd9d01a11dc132d6a07f943afa23b18f24d67cf991033b301c5719fae"
+    }
+  },
+  "plateau_evidence": {
+    "decision_validation_update": 11500,
+    "trailing_updates": 2000,
+    "minimum_ce_improvement": 0.0,
+    "maximum_accuracy_improvement_percentage_points": 0.192008777544114,
+    "reason": "Validation CE stale since3600; latest CE5.427668 vsbest4.728279 while training CE keeps falling. Accuracy has diminishing returns; later gains remain possible.",
+    "policy_chosen_after_observation": true
+  },
+  "latest_validation": {
+    "cross_entropy": 5.476233814559864,
+    "top1_accuracy": 0.3219804333912407,
+    "correct": 7043,
+    "tokens": 21874,
+    "stories": 100
+  },
+  "acceptance_artifact": "macm3:/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1/arms/A128fixed/accepted-early-stop.json",
+  "acceptance_sha256": "96c8f865e4b5f40c61d067dc9e0be2601ee72656ace41b819aff97290938a031",
+  "process_cessation": {
+    "confirmed": true,
+    "processes": [
+      {
+        "pid": 48756,
+        "birth": "Tue Sep 15 11:54:25 2026",
+        "alive": false
+      },
+      {
+        "pid": 48399,
+        "birth": "Tue Sep 15 11:52:20 2026",
+        "alive": false
+      },
+      {
+        "pid": 48401,
+        "birth": "Tue Sep 15 11:52:21 2026",
+        "alive": false
+      }
+    ]
+  },
+  "test_evaluated": false,
+  "comparison_policy": "Report actual unequal budgets and compare all arms at a common recorded validation update; the late-learning-rate phase of A was not tested."
+}

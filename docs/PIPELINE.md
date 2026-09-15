@@ -185,6 +185,27 @@ checkpoints and stopped-process evidence. The launcher verifies the receipt;
 an accepted early stop remains distinct from recipe completion. Inspect
 `readiness.json`, `launch.json` and `campaign-status.json` to confirm dispatch.
 
+If A128fixed is subsequently accepted and stopped early, preserve both winners,
+latest checkpoint, metrics, native exit status and a checksum-bound acceptance
+receipt with process cessation evidence. Do not edit the original controller's
+completion gates or relabel the stopped run as successful completion. The
+companion verifies the stopped arm plus original parity and smoke receipts, and
+continues only B/C/D in a fresh output:
+
+```bash
+export FLY_PARENT="$FLY_ROOT/results/connectorch-encoder-v1"
+"$FLY_PYTHON" scripts/continue_connectorch_campaign.py \
+  --parent "$FLY_PARENT" \
+  --accepted-arm-receipt "$FLY_PARENT/arms/A128fixed/accepted-early-stop.json" \
+  --output "$FLY_ROOT/results/connectorch-encoder-v1-continuation" --launch
+```
+
+This is the current campaign disposition. A stopped after10 complete epochs;
+B/C/D keep their declared schedules. The continuation records unequal budgets
+and a comparison at the latest validation update present in every arm. The
+refresh helper automatically combines stopped A with continuation results;
+`--remote-run` still selects an explicit campaign.
+
 A single full arm can be run in its own immutable checkout after preflight:
 
 ```bash

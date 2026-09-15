@@ -1,5 +1,10 @@
 # Encoder/connectome campaign launch
 
+Update: A128fixed was later accepted and stopped after10 epochs. B32fixed now
+runs in the continuation, followed by C/D. See the [stop and continuation
+record](A128fixed-accepted-early-stop.md). The launch protocol below records the
+original plan; actual budgets now differ.
+
 The campaign started on **Apple M3 Max (macm3)** on 2026-09-15. The original
 reference was accepted and stopped by the user; both final validation winners
 are preserved. This does not imply completion of its planned 44 epochs or full
