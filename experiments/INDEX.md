@@ -131,12 +131,6 @@ preserved rank128 comparator. No automatic F restart is selected.
 Refresh G and E comparison with `scripts/refresh_connectorch_rank64_progress.py`;
 its output is `results/connectorch-rank64-v1/progress.md`.
 
-<<<<<<< HEAD
-The [latest partial comparison](reports/G32rank64fixed-progress.md) records the
-13,000-update snapshot. An immediate recheck found renewed accuracy gains, so
-the earlier plateau observation was superseded and G continues. No stop signal
-or concurrent GPU quality evaluation was issued.
-=======
 G full training launched at22:09:21UTC after its native M3 parity and eight-update
 smoke passed; more than100full updates were verified. See the
 [rank64 launch report](reports/G32rank64fixed-launch.md) and
@@ -157,4 +151,3 @@ The subsequent idle-macm3 evaluation completed. See the
 [text review](reports/rank64-text-review.md). E/G total training budgets differ;
 both selectors and common-budget comparisons remain explicit. No further
 training experiment has been selected.
->>>>>>> eb4b3f2 (Accept rank64 plateau stop and record matched rank128 quality assessment)
