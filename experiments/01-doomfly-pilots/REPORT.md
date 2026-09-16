@@ -2,7 +2,7 @@
 
 **The complete frozen graph runs and a small decoder trains successfully. This configuration did not beat unigram or bigram next-word perplexity, and did not establish reliable delayed-name recall.**
 
-![Pilot results](artifacts/pilot-results.png)
+![Pilot results](../../artifacts/pilot-results.png)
 
 ## Model and data
 
@@ -82,4 +82,4 @@ This is a completed first interface experiment. It neither establishes nor rules
 
 Artifacts are under `results/pilot-verified`: `decoder/checkpoint.pt`, `decoder/metrics.json`, `features/manifest.json`, `recall/report.json`, `generation.json`, `checkpoint-audit.json`, and `replay-check.json`. Full per-story caches and the original graph data remain on macm3 at `/Users/fernando/fly_wordbrain`.
 
-See [README.md](README.md) for reproduction and [DATA_PROVENANCE.md](DATA_PROVENANCE.md) for source and tokenization details.
+See [README.md](../../README.md) for reproduction and [DATA_PROVENANCE.md](DATA_PROVENANCE.md) for source and tokenization details.

@@ -246,7 +246,7 @@ continuation below was launched in error and is superseded; do not execute it
 as the next step. G follows the preserved E baseline after its own preflight.
 
 After the completed B quality assessment, the user selected E32rank128fixed and
-F32rank128bounded. See [the protocol](../experiments/DECODER_REDUCTION.md).
+F32rank128bounded. See [the protocol](../experiments/04-decoder-compression/DECODER_REDUCTION.md).
 Use fresh outputs; both scripts reject overwriting an existing execution.
 With the registered macm3 environment and pinned paths:
 
@@ -386,7 +386,7 @@ Each snapshot writes `progress.md` and a receipt with retrieval time/checksums.
 These are snapshots, not live browser dashboards. Campaign partial results show
 completed arms while the remaining arms are pending or running.
 
-Follow the [experiment registry](../experiments/INDEX.md) to commit a small
+Follow the [experiment registry](../experiments/README.md) to commit a small
 summary, exact source commit, configuration hash, source-data/checkpoint hashes,
 actual training cursor, selection criterion and metrics on each branch. Keep
 large raw data, optimizer states and weights in artifact storage or the macm3

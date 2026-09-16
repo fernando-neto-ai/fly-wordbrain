@@ -1,0 +1,76 @@
+[
+  {
+    "label": "released-reference",
+    "kind": "reference",
+    "baseline": true,
+    "note": "ngxson/fly-llm-hf at the pinned revision; 52,756,661 trainable parameters"
+  },
+  {
+    "label": "reconstruction/min-ce",
+    "kind": "ngxson",
+    "checkpoint": "/Users/fernando/fly_wordbrain/results/ngxson-reconstructed-v1/stopped-checkpoints/best-ce.pt",
+    "sha256": "7c89ceadd6e0902b4b7677822f684e2f0c0692b09fe816ed6146b6797ad212fc",
+    "expected_validation_ce": 4.6928161145281155,
+    "updates": 3500
+  },
+  {
+    "label": "A128fixed/min-ce",
+    "kind": "connectorch",
+    "config": "A128fixed",
+    "checkpoint": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1/arms/A128fixed/stopped-checkpoints/best.pt",
+    "sha256": "2f6fad5b9c1a17d0ff616159510a8c37dc0e03f56b8aee0ff345c41f8ea9db40",
+    "selector": "minimum_validation_ce",
+    "expected_validation_ce": 4.728279257099709,
+    "updates": 3600
+  },
+  {
+    "label": "B32fixed/min-ce",
+    "kind": "connectorch",
+    "config": "B32fixed",
+    "checkpoint": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1-continuation/arms/B32fixed/stopped-checkpoints/best.pt",
+    "sha256": "19b9ad33d2b7014706ca29ec479273965114061be773125f30806813274b6229",
+    "selector": "minimum_validation_ce",
+    "expected_validation_ce": 4.512509241960402,
+    "updates": 9700
+  },
+  {
+    "label": "E32rank128fixed/min-ce",
+    "kind": "connectorch",
+    "config": "E32rank128fixed",
+    "checkpoint": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-decoder-v1/arms/E32rank128fixed/stopped-checkpoints/best.pt",
+    "sha256": "ace7a540aa3721076cef93dcd8f438e233a0e892b13ab6804d7b04fca33d1421",
+    "selector": "minimum_validation_ce",
+    "expected_validation_ce": 3.149704195043336,
+    "updates": 13700
+  },
+  {
+    "label": "G32rank64fixed/min-ce",
+    "kind": "connectorch",
+    "config": "G32rank64fixed",
+    "checkpoint": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-rank64-v1/arms/G32rank64fixed/stopped-checkpoints/best.pt",
+    "sha256": "a552be53892d43d461e65e2c93488779ce0e7f12d93860d9968d90035df23b75",
+    "selector": "minimum_validation_ce",
+    "expected_validation_ce": 3.09370507828396,
+    "updates": 16600
+  },
+  {
+    "label": "G32rank64fixed/max-accuracy",
+    "kind": "connectorch",
+    "config": "G32rank64fixed",
+    "checkpoint": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-rank64-v1/arms/G32rank64fixed/stopped-checkpoints/best-accuracy.pt",
+    "sha256": "d25b495e1bb9f9096331af393eefcd55564d5394849a095f78b4daf6d5dbcbb8",
+    "selector": "maximum_validation_accuracy",
+    "expected_validation_ce": 3.103450365102279,
+    "updates": 15552
+  },
+  {
+    "label": "H32rank32fixed/min-ce",
+    "kind": "connectorch",
+    "config": "H32rank32fixed",
+    "checkpoint": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-rank32-v1/arms/H32rank32fixed/stopped-checkpoints/best.pt",
+    "sha256": "6b9badc7fb43d883b50ff3538601b333690317cab572a7c90619c83633cf0515",
+    "selector": "minimum_validation_ce",
+    "expected_validation_ce": 3.1376539814501627,
+    "updates": 16600
+  }
+]

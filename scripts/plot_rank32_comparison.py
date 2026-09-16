@@ -163,7 +163,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--g", type=Path, default=ROOT / "results/connectorch-rank32-v1/baseline")
     parser.add_argument("--h", type=Path, default=ROOT / "results/connectorch-rank32-v1/arms/H32rank32fixed")
-    parser.add_argument("--output", type=Path, default=ROOT / "experiments/reports/figures/rank32-vs-rank64-validation.png")
+    parser.add_argument("--output", type=Path, default=ROOT / "experiments/04-decoder-compression/figures/rank32-vs-rank64-validation.png")
     args = parser.parse_args()
     arms = [load_arm(path, specification) for path, specification in zip((args.g, args.h), ARM_SPECS)]
     render(arms, args.output)

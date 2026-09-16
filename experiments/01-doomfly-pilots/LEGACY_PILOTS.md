@@ -1,6 +1,6 @@
 # Frozen fly brain word-prediction pilot
 
-The [ngxson reference replication](NGXSON_REPLICATION.md) is a separate,
+The [ngxson reference replication](../02-ngxson-reference/NGXSON_REPLICATION.md) is a separate,
 faithful reproduction of the Hugging Face Fly LLM: a frozen 49,393-neuron
 central-brain reservoir, an eight-token delay line, and 52,756,661 trainable
 parameters including its full-state readout. It includes a pinned checkpoint

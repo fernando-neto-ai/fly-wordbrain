@@ -9,18 +9,18 @@ below describes the historical plan only.
 **Preserved rank64 baseline:** G is accepted as an early stop after 14 completed epochs,
 16,808 observed / 16,800 durable updates. Its separate winners are validation
 CE 3.093705 at 16,600 and accuracy 36.8885% at 15,552. The
-[post-G assessment](reports/rank64-post-G-assessment.md),
-[matched texts](reports/rank64-generated-texts.md) and
-[text review](reports/rank64-text-review.md) report the completed E/G evaluation.
+[post-G assessment](rank64-post-G-assessment.md),
+[matched texts](rank64-generated-texts.md) and
+[text review](rank64-text-review.md) report the completed E/G evaluation.
 **Current state:** H32rank32fixed is accepted as an early stop after 14 completed
 epochs, 17,409 observed / 17,400 durable updates. Both selectors retain update
 16,600 with CE 3.137654 and accuracy 35.4713%. Its 2,343,125 trainable parameters
 are 40.7774% fewer than G's. The subsequent idle-macm3 numerical quality audit
 completed; all four G/H full-validation checkpoint replays passed. See the
-[H stop report](reports/H32rank32fixed-accepted-early-stop.md),
-[post-H assessment](reports/rank32-post-H-assessment.md),
-[matched texts](reports/rank32-generated-texts.md), and
-[validation curves](reports/figures/rank32-vs-rank64-validation.png).
+[H stop report](H32rank32fixed-accepted-early-stop.md),
+[post-H assessment](rank32-post-H-assessment.md),
+[matched texts](rank32-generated-texts.md), and
+[validation curves](figures/rank32-vs-rank64-validation.png).
 
 The user authorized this pair on 2026-09-15: reduce the decoder as proposed,
 retain the reduced encoder, and test whether modest brain adaptation recovers
@@ -111,10 +111,10 @@ The launch-specific `scripts/stop_connectorch_rank64_plateau.py` performed the
 accepted stop after fresh plateau, process-identity and coherent-checkpoint checks;
 it never starts a successor and must not be rerun against the stopped arm.
 Renewed accuracy gains had superseded the first plateau observation at
-13,000 updates; that [partial report](reports/G32rank64fixed-progress.md) is
+13,000 updates; that [partial report](G32rank64fixed-progress.md) is
 preserved as historical evidence. At 16,800, trailing 2,000-update global-best
 gains were 0.014504 CE and 0.233154 accuracy percentage points, meeting both
-thresholds. The [accepted-stop report](reports/G32rank64fixed-accepted-early-stop.md)
+thresholds. The [accepted-stop report](G32rank64fixed-accepted-early-stop.md)
 records preservation and the incomplete schedule.
 
 After G's accepted stop and confirmed process cessation, the rank-aware
@@ -165,10 +165,10 @@ eight-update optimizer smoke passed, verifying nonzero gradients and changes to
 both decoder factors. Full training then launched at 00:57:20 UTC on 2026-09-16,
 with MPS fallback disabled. These gates verify the execution path, not text quality.
 
-The [configuration](configs/H32rank32fixed.json) is tracked on
+The [configuration](../configs/H32rank32fixed.json) is tracked on
 `exp/encoder32-readout32-fixed`; outputs are under
-`results/connectorch-rank32-v1`. The [launch report](reports/H32rank32fixed-launch.md)
-and [launch receipt](runs/rank32-v1-launch.json) identify the actual run.
+`results/connectorch-rank32-v1`. The [launch report](H32rank32fixed-launch.md)
+and [launch receipt](../runs/rank32-v1-launch.json) identify the actual run.
 Refresh H against preserved G with `scripts/refresh_connectorch_rank32_progress.py`.
 
 H's minimum-CE and maximum-accuracy weights are preserved separately, even though

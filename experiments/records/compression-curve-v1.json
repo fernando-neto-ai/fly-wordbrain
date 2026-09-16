@@ -1,0 +1,802 @@
+{
+  "protocol": {
+    "created_at_utc": "2026-09-16T20:58:47.923886+00:00",
+    "training_run": false,
+    "reserved_test_evaluated": false,
+    "device": "mps",
+    "threads": 4,
+    "hostname": "Fernandos-MacBook-Pro-2.local",
+    "platform": "macOS-15.6.1-arm64-arm-64bit-Mach-O",
+    "torch": "2.11.0",
+    "environment": {
+      "python": "3.13.3 (main, Apr  8 2025, 13:54:08) [Clang 16.0.0 (clang-1600.0.26.6)]",
+      "platform": "macOS-15.6.1-arm64-arm-64bit-Mach-O",
+      "packages": {
+        "torch": "2.11.0",
+        "transformers": "5.9.0",
+        "numpy": "2.2.6",
+        "safetensors": "0.7.0",
+        "connectorch": "0.0.1"
+      },
+      "mps_available": true,
+      "pytorch_enable_mps_fallback": "0"
+    },
+    "evaluator_sha256": "efef58168e8f7725e9ff66089ba8e2b46722bc813433d0a88e63b5d2e7867022",
+    "source_receipt": {
+      "scripts/train_connectorch.py": "b50be2b34228439fa9d72756d18f7c8a293c8f502a15f23803d484b20461d1ab",
+      "scripts/prepare_ngxson.py": "997e8894eba19bd756ba0073d30ce5cc19dd1e63577ec5574a95388529114867",
+      "scripts/prepare_connectorch_groups.py": "f46c84e6bfb4739f8651b6524e9b65aa059f660eb26187cecfb25cd925e53312",
+      "connectorch-source.json": "34a007b5791507bde32d225d4cba36bcd141f03ffa54438a5640b8ab45ce0636",
+      "fly_wordbrain/connectorch_model.py": "235ff815ae7fa1e2d693eb3293453c6f0e879f2e2c639e0c39d06a5bc57668fa",
+      "fly_wordbrain/connectorch_backend.py": "2e7d0efec68014ef41b91d16552af49c7fa6fea7bbb69956e17c4dd8a2107ebc",
+      "fly_wordbrain/metal_sparse_trainable.py": "d9d53f871f845b5e534998f3f505b50a39ec3002e90294bd5b8a18aa002462e4",
+      "fly_wordbrain/metal_sparse.py": "7ba777491221a700d63e20d1d052d42e53d5be1320fed789ec57befe503ca9db",
+      "fly_wordbrain/plastic_brain.py": "8a230179d3f7796c43c62e1c400c66f9a870bde2c5e4d79cbc86478238e94936"
+    },
+    "reference_files": {
+      "README.md": {
+        "bytes": 8205,
+        "sha256": "7c7a5789f8dbd6df11366ce2e3d4a7f52a1971a02c8a661f4a10ca3d1853c336",
+        "upstream_hash": "df1ee681a0804bbdf59214b8f1dfdc866e3782d4",
+        "hash_kind": "git"
+      },
+      "config.json": {
+        "bytes": 723,
+        "sha256": "4d1803c19b6c7c52719910758bf7ac21a0cb165e72a9fe60afb694c08415c2e7",
+        "upstream_hash": "bad00de7c077eb17762c8eb47d0184b44e5b0733",
+        "hash_kind": "git"
+      },
+      "configuration_fly.py": {
+        "bytes": 1569,
+        "sha256": "b565734525fc10fb05b7da4c1d00e0ed244341ad0bb40d10cb1311d7c8c0c66a",
+        "upstream_hash": "ea0fd7381f6cd6a9103e8d23f7bb65be05723479",
+        "hash_kind": "git"
+      },
+      "generation_config.json": {
+        "bytes": 216,
+        "sha256": "ec36960ffaccb09d682bc355b89a64a969a16417de96d64350fcb66aebaec7eb",
+        "upstream_hash": "92633eeb0790412fffaf8e8c70fd75e7b3a40d43",
+        "hash_kind": "git"
+      },
+      "model.safetensors": {
+        "bytes": 284134372,
+        "sha256": "355f06c44d14e38af50e9c801f51839c37a0a56ac4ca016da2be9b3ae6f215ad",
+        "upstream_hash": "355f06c44d14e38af50e9c801f51839c37a0a56ac4ca016da2be9b3ae6f215ad",
+        "hash_kind": "sha256"
+      },
+      "modeling_fly.py": {
+        "bytes": 10322,
+        "sha256": "43efb042f2809fe87eb172718511aa884b7b9f7c356181bede9f70148bb87319",
+        "upstream_hash": "c11110d0aaa6db2cc5c500b2a87e64a83c4d3a5d",
+        "hash_kind": "git"
+      },
+      "tokenizer.json": {
+        "bytes": 54528,
+        "sha256": "23fa13e034934738acffb418c9cbaa36d2f95e4d14b576e5d5313857feb81efb",
+        "upstream_hash": "bbd4e01e8bca8ace788e0f3498186a2953da7f20",
+        "hash_kind": "git"
+      },
+      "tokenizer_config.json": {
+        "bytes": 245,
+        "sha256": "42607e96e3e680826b662f1e772fe31af3572eb2a5b19ebca1ce665d5fe69758",
+        "upstream_hash": "2be9bbf6111a5252897b47d578ab9c71075f6a90",
+        "hash_kind": "git"
+      }
+    },
+    "arms_spec_sha256": "3d5aa36e2c891b3d793e1bdf7d1b7e50f8475b65e37ffeb98c692ed2071964fe",
+    "arms": [
+      {
+        "label": "released-reference",
+        "kind": "reference",
+        "baseline": true,
+        "note": "ngxson/fly-llm-hf at the pinned revision; 52,756,661 trainable parameters"
+      },
+      {
+        "label": "reconstruction/min-ce",
+        "kind": "ngxson",
+        "checkpoint": "/Users/fernando/fly_wordbrain/results/ngxson-reconstructed-v1/stopped-checkpoints/best-ce.pt",
+        "sha256": "7c89ceadd6e0902b4b7677822f684e2f0c0692b09fe816ed6146b6797ad212fc",
+        "expected_validation_ce": 4.6928161145281155,
+        "updates": 3500
+      },
+      {
+        "label": "A128fixed/min-ce",
+        "kind": "connectorch",
+        "config": "A128fixed",
+        "checkpoint": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1/arms/A128fixed/stopped-checkpoints/best.pt",
+        "sha256": "2f6fad5b9c1a17d0ff616159510a8c37dc0e03f56b8aee0ff345c41f8ea9db40",
+        "selector": "minimum_validation_ce",
+        "expected_validation_ce": 4.728279257099709,
+        "updates": 3600
+      },
+      {
+        "label": "B32fixed/min-ce",
+        "kind": "connectorch",
+        "config": "B32fixed",
+        "checkpoint": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-encoder-v1-continuation/arms/B32fixed/stopped-checkpoints/best.pt",
+        "sha256": "19b9ad33d2b7014706ca29ec479273965114061be773125f30806813274b6229",
+        "selector": "minimum_validation_ce",
+        "expected_validation_ce": 4.512509241960402,
+        "updates": 9700
+      },
+      {
+        "label": "E32rank128fixed/min-ce",
+        "kind": "connectorch",
+        "config": "E32rank128fixed",
+        "checkpoint": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-decoder-v1/arms/E32rank128fixed/stopped-checkpoints/best.pt",
+        "sha256": "ace7a540aa3721076cef93dcd8f438e233a0e892b13ab6804d7b04fca33d1421",
+        "selector": "minimum_validation_ce",
+        "expected_validation_ce": 3.149704195043336,
+        "updates": 13700
+      },
+      {
+        "label": "G32rank64fixed/min-ce",
+        "kind": "connectorch",
+        "config": "G32rank64fixed",
+        "checkpoint": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-rank64-v1/arms/G32rank64fixed/stopped-checkpoints/best.pt",
+        "sha256": "a552be53892d43d461e65e2c93488779ce0e7f12d93860d9968d90035df23b75",
+        "selector": "minimum_validation_ce",
+        "expected_validation_ce": 3.09370507828396,
+        "updates": 16600
+      },
+      {
+        "label": "G32rank64fixed/max-accuracy",
+        "kind": "connectorch",
+        "config": "G32rank64fixed",
+        "checkpoint": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-rank64-v1/arms/G32rank64fixed/stopped-checkpoints/best-accuracy.pt",
+        "sha256": "d25b495e1bb9f9096331af393eefcd55564d5394849a095f78b4daf6d5dbcbb8",
+        "selector": "maximum_validation_accuracy",
+        "expected_validation_ce": 3.103450365102279,
+        "updates": 15552
+      },
+      {
+        "label": "H32rank32fixed/min-ce",
+        "kind": "connectorch",
+        "config": "H32rank32fixed",
+        "checkpoint": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-rank32-v1/arms/H32rank32fixed/stopped-checkpoints/best.pt",
+        "sha256": "6b9badc7fb43d883b50ff3538601b333690317cab572a7c90619c83633cf0515",
+        "selector": "minimum_validation_ce",
+        "expected_validation_ce": 3.1376539814501627,
+        "updates": 16600
+      }
+    ],
+    "training_data_sha256": "c1f553263545744786a8811ee6af7ace8c452820bbb99d15140b81625e40b3a8",
+    "audit_data_sha256": "5fd63f448a2e09a001520ef77c3f45611c5c66600fa96ac95bf880afab112731",
+    "groups_sha256": "a07d311cd04126b5e54ea9cb3e8945470af9049bcb8499fb406e3c38d185dd7f",
+    "populations": {
+      "validation": {
+        "stories": 100,
+        "role": "selected every retained checkpoint; biased in our arms' favour"
+      },
+      "audit": {
+        "stories": 200,
+        "role": "200 fresh official-validation stories excluded from all 1,200 existing rows"
+      }
+    },
+    "generation": {
+      "prompts": [
+        "Once upon a time, there was a",
+        "One day, a little girl named Lily found a needle",
+        "Tom and his dog",
+        "Sara put the red ball inside the box. Later,",
+        "The little bird was afraid of the rain. Its mother",
+        "Ben wanted to share his cake, but"
+      ],
+      "max_new_tokens": 80,
+      "greedy": true,
+      "fresh_cache_per_prompt": true,
+      "bos_once": true,
+      "eos_stopping": true
+    },
+    "limitations": [
+      "The released model's exact training stories are unknown; either population may overlap them.",
+      "Validation scores selected our checkpoints and are not a held-out estimate for our arms.",
+      "The audit population was revealed by an earlier audit and is no longer untouched.",
+      "One seed per arm; no randomized-graph or zero-edge control is included here."
+    ]
+  },
+  "summary": [
+    {
+      "label": "released-reference",
+      "parameters": 52756661,
+      "validation": {
+        "stories": 100,
+        "tokens": 21874,
+        "nll_sum": 80516.69813330428,
+        "correct": 7709,
+        "cross_entropy": 3.6809316143962825,
+        "perplexity": 39.68334643405466,
+        "top1_accuracy": 0.3524275395446649
+      },
+      "audit": {
+        "stories": 200,
+        "tokens": 45059,
+        "nll_sum": 179705.70758149194,
+        "correct": 14141,
+        "cross_entropy": 3.9882311542975195,
+        "perplexity": 53.959359118617655,
+        "top1_accuracy": 0.3138329745444861
+      }
+    },
+    {
+      "label": "reconstruction/min-ce",
+      "parameters": 52756661,
+      "validation": {
+        "stories": 100,
+        "tokens": 21874,
+        "nll_sum": 102650.65997698871,
+        "correct": 6689,
+        "cross_entropy": 4.692816127685321,
+        "perplexity": 109.16015630033206,
+        "top1_accuracy": 0.3057968364268081
+      },
+      "audit": {
+        "stories": 200,
+        "tokens": 45059,
+        "nll_sum": 226924.7106734641,
+        "correct": 11977,
+        "cross_entropy": 5.036168371989261,
+        "perplexity": 153.87927585860686,
+        "top1_accuracy": 0.26580705297498836
+      }
+    },
+    {
+      "label": "A128fixed/min-ce",
+      "parameters": 52756661,
+      "validation": {
+        "stories": 100,
+        "tokens": 21874,
+        "nll_sum": 103426.37955665603,
+        "correct": 6669,
+        "cross_entropy": 4.72827921535412,
+        "perplexity": 113.10077272808404,
+        "top1_accuracy": 0.30488250891469326
+      },
+      "audit": {
+        "stories": 200,
+        "tokens": 45059,
+        "nll_sum": 227563.55700399453,
+        "correct": 12382,
+        "cross_entropy": 5.050346368183815,
+        "perplexity": 156.0765150642134,
+        "top1_accuracy": 0.2747952684258417
+      }
+    },
+    {
+      "label": "B32fixed/min-ce",
+      "parameters": 51308213,
+      "validation": {
+        "stories": 100,
+        "tokens": 21874,
+        "nll_sum": 98706.62712751812,
+        "correct": 6896,
+        "cross_entropy": 4.512509240537539,
+        "perplexity": 91.15024969782482,
+        "top1_accuracy": 0.3152601261771967
+      },
+      "audit": {
+        "stories": 200,
+        "tokens": 45059,
+        "nll_sum": 221350.89992049077,
+        "correct": 12492,
+        "cross_entropy": 4.912468095618872,
+        "perplexity": 135.97459891647313,
+        "top1_accuracy": 0.27723651212854256
+      }
+    },
+    {
+      "label": "E32rank128fixed/min-ce",
+      "parameters": 7183157,
+      "validation": {
+        "stories": 100,
+        "tokens": 21874,
+        "nll_sum": 68896.62895421364,
+        "correct": 7980,
+        "cross_entropy": 3.1497041672402686,
+        "perplexity": 23.329162029607208,
+        "top1_accuracy": 0.36481667733382095
+      },
+      "audit": {
+        "stories": 200,
+        "tokens": 45059,
+        "nll_sum": 151986.80547869785,
+        "correct": 14705,
+        "cross_entropy": 3.373062106986348,
+        "perplexity": 29.16770508530252,
+        "top1_accuracy": 0.32634989680197074
+      }
+    },
+    {
+      "label": "G32rank64fixed/min-ce",
+      "parameters": 3956469,
+      "validation": {
+        "stories": 100,
+        "tokens": 21874,
+        "nll_sum": 67671.70489543657,
+        "correct": 7955,
+        "cross_entropy": 3.0937050788807063,
+        "perplexity": 22.058655816075323,
+        "top1_accuracy": 0.36367376794367745
+      },
+      "audit": {
+        "stories": 200,
+        "tokens": 45059,
+        "nll_sum": 147800.69115038987,
+        "correct": 15038,
+        "cross_entropy": 3.2801591502339127,
+        "perplexity": 26.580002576899584,
+        "top1_accuracy": 0.3337402072837835
+      }
+    },
+    {
+      "label": "G32rank64fixed/max-accuracy",
+      "parameters": 3956469,
+      "validation": {
+        "stories": 100,
+        "tokens": 21874,
+        "nll_sum": 67884.8734102702,
+        "correct": 8069,
+        "cross_entropy": 3.103450370772159,
+        "perplexity": 22.274674729800388,
+        "top1_accuracy": 0.368885434762732
+      },
+      "audit": {
+        "stories": 200,
+        "tokens": 45059,
+        "nll_sum": 147453.37981271307,
+        "correct": 15093,
+        "cross_entropy": 3.2724512264522754,
+        "perplexity": 26.375913504872553,
+        "top1_accuracy": 0.3349608291351339
+      }
+    },
+    {
+      "label": "H32rank32fixed/min-ce",
+      "parameters": 2343125,
+      "validation": {
+        "stories": 100,
+        "tokens": 21874,
+        "nll_sum": 68633.04354491424,
+        "correct": 7759,
+        "cross_entropy": 3.137653997664544,
+        "perplexity": 23.049728662111555,
+        "top1_accuracy": 0.354713358324952
+      },
+      "audit": {
+        "stories": 200,
+        "tokens": 45059,
+        "nll_sum": 149104.48977598827,
+        "correct": 14680,
+        "cross_entropy": 3.3090945155460236,
+        "perplexity": 27.36033988969138,
+        "top1_accuracy": 0.32579506868772057
+      }
+    }
+  ],
+  "comparisons": {
+    "reconstruction/min-ce": {
+      "validation": {
+        "direction": "ours minus released",
+        "delta_cross_entropy": 1.0118845132890386,
+        "delta_accuracy": -0.04663070311785682,
+        "perplexity_ratio": 2.7507800150305677,
+        "ce_95_ci": [
+          0.965995072572938,
+          1.0589887487037217
+        ],
+        "accuracy_95_ci": [
+          -0.052382530217591636,
+          -0.04094202155908148
+        ],
+        "point_estimates_within_margins": false,
+        "ce_noninferiority_supported": false,
+        "accuracy_noninferiority_supported": false,
+        "noninferiority_supported": false,
+        "two_sided_equivalence_supported": false,
+        "bootstrap": {
+          "unit": "paired whole story",
+          "resamples": 10000,
+          "seed": 1729,
+          "estimator": "token-weighted ratio of resampled story totals"
+        }
+      },
+      "audit": {
+        "direction": "ours minus released",
+        "delta_cross_entropy": 1.0479372176917416,
+        "delta_accuracy": -0.04802592156949777,
+        "perplexity_ratio": 2.8517624814693883,
+        "ce_95_ci": [
+          1.0148319460922406,
+          1.081276941158824
+        ],
+        "accuracy_95_ci": [
+          -0.052139673011894976,
+          -0.04368886003785568
+        ],
+        "point_estimates_within_margins": false,
+        "ce_noninferiority_supported": false,
+        "accuracy_noninferiority_supported": false,
+        "noninferiority_supported": false,
+        "two_sided_equivalence_supported": false,
+        "bootstrap": {
+          "unit": "paired whole story",
+          "resamples": 10000,
+          "seed": 1729,
+          "estimator": "token-weighted ratio of resampled story totals"
+        }
+      }
+    },
+    "A128fixed/min-ce": {
+      "validation": {
+        "direction": "ours minus released",
+        "delta_cross_entropy": 1.0473476009578382,
+        "delta_accuracy": -0.04754503062997165,
+        "perplexity_ratio": 2.8500815301963938,
+        "ce_95_ci": [
+          0.9953751615891403,
+          1.0991504320203322
+        ],
+        "accuracy_95_ci": [
+          -0.05422965992942255,
+          -0.0410420033919152
+        ],
+        "point_estimates_within_margins": false,
+        "ce_noninferiority_supported": false,
+        "accuracy_noninferiority_supported": false,
+        "noninferiority_supported": false,
+        "two_sided_equivalence_supported": false,
+        "bootstrap": {
+          "unit": "paired whole story",
+          "resamples": 10000,
+          "seed": 1729,
+          "estimator": "token-weighted ratio of resampled story totals"
+        }
+      },
+      "audit": {
+        "direction": "ours minus released",
+        "delta_cross_entropy": 1.0621152138862957,
+        "delta_accuracy": -0.03903770611864445,
+        "perplexity_ratio": 2.892482742819719,
+        "ce_95_ci": [
+          1.0267935428495152,
+          1.0980445584831142
+        ],
+        "accuracy_95_ci": [
+          -0.04314131594810031,
+          -0.034989955067309716
+        ],
+        "point_estimates_within_margins": false,
+        "ce_noninferiority_supported": false,
+        "accuracy_noninferiority_supported": false,
+        "noninferiority_supported": false,
+        "two_sided_equivalence_supported": false,
+        "bootstrap": {
+          "unit": "paired whole story",
+          "resamples": 10000,
+          "seed": 1729,
+          "estimator": "token-weighted ratio of resampled story totals"
+        }
+      }
+    },
+    "B32fixed/min-ce": {
+      "validation": {
+        "direction": "ours minus released",
+        "delta_cross_entropy": 0.8315776261412567,
+        "delta_accuracy": -0.037167413367468226,
+        "perplexity_ratio": 2.2969395952858287,
+        "ce_95_ci": [
+          0.7898711397402433,
+          0.8725672407683045
+        ],
+        "accuracy_95_ci": [
+          -0.04372015862124339,
+          -0.030543799554540518
+        ],
+        "point_estimates_within_margins": false,
+        "ce_noninferiority_supported": false,
+        "accuracy_noninferiority_supported": false,
+        "noninferiority_supported": false,
+        "two_sided_equivalence_supported": false,
+        "bootstrap": {
+          "unit": "paired whole story",
+          "resamples": 10000,
+          "seed": 1729,
+          "estimator": "token-weighted ratio of resampled story totals"
+        }
+      },
+      "audit": {
+        "direction": "ours minus released",
+        "delta_cross_entropy": 0.9242369413213528,
+        "delta_accuracy": -0.03659646241594354,
+        "perplexity_ratio": 2.5199446608986436,
+        "ce_95_ci": [
+          0.8895836959137475,
+          0.9586070167044439
+        ],
+        "accuracy_95_ci": [
+          -0.04005146481515836,
+          -0.03305634875850559
+        ],
+        "point_estimates_within_margins": false,
+        "ce_noninferiority_supported": false,
+        "accuracy_noninferiority_supported": false,
+        "noninferiority_supported": false,
+        "two_sided_equivalence_supported": false,
+        "bootstrap": {
+          "unit": "paired whole story",
+          "resamples": 10000,
+          "seed": 1729,
+          "estimator": "token-weighted ratio of resampled story totals"
+        }
+      }
+    },
+    "E32rank128fixed/min-ce": {
+      "validation": {
+        "direction": "ours minus released",
+        "delta_cross_entropy": -0.531227447156014,
+        "delta_accuracy": 0.012389137789156075,
+        "perplexity_ratio": 0.5878829314048739,
+        "ce_95_ci": [
+          -0.5761074043796685,
+          -0.4840364157087965
+        ],
+        "accuracy_95_ci": [
+          0.00696942114732669,
+          0.017784269971105725
+        ],
+        "point_estimates_within_margins": false,
+        "ce_noninferiority_supported": true,
+        "accuracy_noninferiority_supported": true,
+        "noninferiority_supported": true,
+        "two_sided_equivalence_supported": false,
+        "bootstrap": {
+          "unit": "paired whole story",
+          "resamples": 10000,
+          "seed": 1729,
+          "estimator": "token-weighted ratio of resampled story totals"
+        }
+      },
+      "audit": {
+        "direction": "ours minus released",
+        "delta_cross_entropy": -0.615169047311172,
+        "delta_accuracy": 0.01251692225748463,
+        "perplexity_ratio": 0.5405495091441653,
+        "ce_95_ci": [
+          -0.6426705320652004,
+          -0.5876952367065534
+        ],
+        "accuracy_95_ci": [
+          0.00863640325028225,
+          0.01658492063500482
+        ],
+        "point_estimates_within_margins": false,
+        "ce_noninferiority_supported": true,
+        "accuracy_noninferiority_supported": true,
+        "noninferiority_supported": true,
+        "two_sided_equivalence_supported": false,
+        "bootstrap": {
+          "unit": "paired whole story",
+          "resamples": 10000,
+          "seed": 1729,
+          "estimator": "token-weighted ratio of resampled story totals"
+        }
+      }
+    },
+    "G32rank64fixed/min-ce": {
+      "validation": {
+        "direction": "ours minus released",
+        "delta_cross_entropy": -0.5872265355155758,
+        "delta_accuracy": 0.011246228399012527,
+        "perplexity_ratio": 0.5558668257157232,
+        "ce_95_ci": [
+          -0.6354902885386615,
+          -0.5371631906107351
+        ],
+        "accuracy_95_ci": [
+          0.0047434410381378125,
+          0.01769558427499307
+        ],
+        "point_estimates_within_margins": false,
+        "ce_noninferiority_supported": true,
+        "accuracy_noninferiority_supported": true,
+        "noninferiority_supported": true,
+        "two_sided_equivalence_supported": false,
+        "bootstrap": {
+          "unit": "paired whole story",
+          "resamples": 10000,
+          "seed": 1729,
+          "estimator": "token-weighted ratio of resampled story totals"
+        }
+      },
+      "audit": {
+        "direction": "ours minus released",
+        "delta_cross_entropy": -0.7080720040636069,
+        "delta_accuracy": 0.019907232739297367,
+        "perplexity_ratio": 0.49259299982546784,
+        "ce_95_ci": [
+          -0.7378795449119818,
+          -0.6786553374674692
+        ],
+        "accuracy_95_ci": [
+          0.016132886245313883,
+          0.023680969457204007
+        ],
+        "point_estimates_within_margins": false,
+        "ce_noninferiority_supported": true,
+        "accuracy_noninferiority_supported": true,
+        "noninferiority_supported": true,
+        "two_sided_equivalence_supported": false,
+        "bootstrap": {
+          "unit": "paired whole story",
+          "resamples": 10000,
+          "seed": 1729,
+          "estimator": "token-weighted ratio of resampled story totals"
+        }
+      }
+    },
+    "G32rank64fixed/max-accuracy": {
+      "validation": {
+        "direction": "ours minus released",
+        "delta_cross_entropy": -0.5774812436241233,
+        "delta_accuracy": 0.016457895218067113,
+        "perplexity_ratio": 0.5613103916731468,
+        "ce_95_ci": [
+          -0.6279455338160116,
+          -0.5261714584687316
+        ],
+        "accuracy_95_ci": [
+          0.010328643456199051,
+          0.022631751836877767
+        ],
+        "point_estimates_within_margins": false,
+        "ce_noninferiority_supported": true,
+        "accuracy_noninferiority_supported": true,
+        "noninferiority_supported": true,
+        "two_sided_equivalence_supported": false,
+        "bootstrap": {
+          "unit": "paired whole story",
+          "resamples": 10000,
+          "seed": 1729,
+          "estimator": "token-weighted ratio of resampled story totals"
+        }
+      },
+      "audit": {
+        "direction": "ours minus released",
+        "delta_cross_entropy": -0.7157799278452447,
+        "delta_accuracy": 0.021127854590647817,
+        "perplexity_ratio": 0.4888107259927042,
+        "ce_95_ci": [
+          -0.7463758335797335,
+          -0.6857170601093546
+        ],
+        "accuracy_95_ci": [
+          0.01696793702675417,
+          0.02535048644491275
+        ],
+        "point_estimates_within_margins": false,
+        "ce_noninferiority_supported": true,
+        "accuracy_noninferiority_supported": true,
+        "noninferiority_supported": true,
+        "two_sided_equivalence_supported": false,
+        "bootstrap": {
+          "unit": "paired whole story",
+          "resamples": 10000,
+          "seed": 1729,
+          "estimator": "token-weighted ratio of resampled story totals"
+        }
+      }
+    },
+    "H32rank32fixed/min-ce": {
+      "validation": {
+        "direction": "ours minus released",
+        "delta_cross_entropy": -0.5432776167317382,
+        "delta_accuracy": 0.002285818780287099,
+        "perplexity_ratio": 0.5808413537002313,
+        "ce_95_ci": [
+          -0.5930714034921832,
+          -0.4921464204811546
+        ],
+        "accuracy_95_ci": [
+          -0.004210675900671635,
+          0.008704552804588704
+        ],
+        "point_estimates_within_margins": false,
+        "ce_noninferiority_supported": true,
+        "accuracy_noninferiority_supported": true,
+        "noninferiority_supported": true,
+        "two_sided_equivalence_supported": false,
+        "bootstrap": {
+          "unit": "paired whole story",
+          "resamples": 10000,
+          "seed": 1729,
+          "estimator": "token-weighted ratio of resampled story totals"
+        }
+      },
+      "audit": {
+        "direction": "ours minus released",
+        "delta_cross_entropy": -0.6791366387514961,
+        "delta_accuracy": 0.011962094143234426,
+        "perplexity_ratio": 0.5070545747132718,
+        "ce_95_ci": [
+          -0.7107926771638712,
+          -0.6470767043052105
+        ],
+        "accuracy_95_ci": [
+          0.007774858807412726,
+          0.016158794107394885
+        ],
+        "point_estimates_within_margins": false,
+        "ce_noninferiority_supported": true,
+        "accuracy_noninferiority_supported": true,
+        "noninferiority_supported": true,
+        "two_sided_equivalence_supported": false,
+        "bootstrap": {
+          "unit": "paired whole story",
+          "resamples": 10000,
+          "seed": 1729,
+          "estimator": "token-weighted ratio of resampled story totals"
+        }
+      }
+    }
+  },
+  "completed_at_utc": "2026-09-16T21:02:28.463912+00:00",
+  "artifact_note": "Per-story rows, generated samples and training-overlap detail stay in results/compression-curve-v1/ on macm3; this record carries the protocol, the aggregates and the paired statistics.",
+  "gates": {
+    "A128fixed/min-ce": {
+      "checkpoint_sha256": "2f6fad5b9c1a17d0ff616159510a8c37dc0e03f56b8aee0ff345c41f8ea9db40",
+      "parameters_unchanged": true,
+      "frozen_graph_unchanged": true,
+      "validation_replay_delta": -4.174558920766458e-08,
+      "updates": 3600
+    },
+    "B32fixed/min-ce": {
+      "checkpoint_sha256": "19b9ad33d2b7014706ca29ec479273965114061be773125f30806813274b6229",
+      "parameters_unchanged": true,
+      "frozen_graph_unchanged": true,
+      "validation_replay_delta": -1.4228627165380203e-09,
+      "updates": 9700
+    },
+    "E32rank128fixed/min-ce": {
+      "checkpoint_sha256": "ace7a540aa3721076cef93dcd8f438e233a0e892b13ab6804d7b04fca33d1421",
+      "parameters_unchanged": true,
+      "frozen_graph_unchanged": true,
+      "validation_replay_delta": -2.78030674039087e-08,
+      "updates": 13700
+    },
+    "G32rank64fixed/max-accuracy": {
+      "checkpoint_sha256": "d25b495e1bb9f9096331af393eefcd55564d5394849a095f78b4daf6d5dbcbb8",
+      "parameters_unchanged": true,
+      "frozen_graph_unchanged": true,
+      "validation_replay_delta": 5.669879676872824e-09,
+      "updates": 15552
+    },
+    "G32rank64fixed/min-ce": {
+      "checkpoint_sha256": "a552be53892d43d461e65e2c93488779ce0e7f12d93860d9968d90035df23b75",
+      "parameters_unchanged": true,
+      "frozen_graph_unchanged": true,
+      "validation_replay_delta": 5.967462080036512e-10,
+      "updates": 16600
+    },
+    "H32rank32fixed/min-ce": {
+      "checkpoint_sha256": "6b9badc7fb43d883b50ff3538601b333690317cab572a7c90619c83633cf0515",
+      "parameters_unchanged": true,
+      "frozen_graph_unchanged": true,
+      "validation_replay_delta": 1.6214381393098165e-08,
+      "updates": 16600
+    },
+    "reconstruction/min-ce": {
+      "checkpoint_sha256": "7c89ceadd6e0902b4b7677822f684e2f0c0692b09fe816ed6146b6797ad212fc",
+      "parameters_unchanged": true,
+      "frozen_graph_unchanged": true,
+      "validation_replay_delta": 1.3157205103198066e-08,
+      "updates": 3500
+    },
+    "released-reference": {
+      "checkpoint_sha256": null,
+      "parameters_unchanged": true,
+      "frozen_graph_unchanged": true,
+      "validation_replay_delta": null,
+      "updates": null
+    }
+  }
+}

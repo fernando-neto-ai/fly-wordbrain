@@ -4,7 +4,7 @@
 
 The complete original Doomfly connectome remains frozen. The new interface encodes the previous and current word in distinct fixed retinal roles, advances one word per 20 ms interval, and predicts two unseen future words. The decoder has **526,336 trainable parameters**: two independent 256 → 1,024 affine softmax heads.
 
-![Pair pilot comparison](artifacts/pair-pilot/comparison.png)
+![Pair pilot comparison](../../artifacts/pair-pilot/comparison.png)
 
 ## Primary held-out comparison
 

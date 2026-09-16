@@ -1,84 +1,171 @@
 # Fly Wordbrain
 
-Train and study a language model built around a measured fruit-fly connectome,
-using native Apple GPU sparse kernels. The current pipeline reproduces the
-[ngxson Fly LLM](https://huggingface.co/ngxson/fly-llm-hf) architecture and tests
-smaller input encoders and output decoders with minimally adapted synaptic weights through
-[ConnecTorch](https://github.com/us/connectorch).
+**A language model whose recurrent layer is the measured wiring diagram of a fruit fly
+brain — and an experiment in finding out how much of it was ever doing the work.**
 
-**All real training runs on macm3**, including pilots, fine-tuning and training
-smoke tests. Development, report inspection and small correctness checks may run
-locally. GPU jobs on macm3 run serially.
+![Held-out quality against trainable parameter count](experiments/05-shared-population/figures/compression-curve.png)
 
-## What this model preserves
+We took a published fly-connectome language model, held its 49,393 neurons and 9,050,172
+synapses completely fixed, and cut the learned machinery around them by **13.3×**. On a
+held-out population that selected neither model, the small one is **0.708 nats better** in
+cross-entropy and **1.99 accuracy points better** than the 52.7-million-parameter original.
 
-The pinned language-model checkpoint contains **49,393 neurons and 9,050,172
-directed edges**, a 1,024-token BPE, eight explicit token-delay slots and a
-full-state linear readout. Its original architecture has **52,756,661 trainable
-parameters**, including a 50,578,432-parameter output matrix. This is a central
-brain subset with rate dynamics; the separate historical Doomfly experiments
-used 166,700 neurons and spiking dynamics.
+That is a real measurement with a paired confidence interval. It is **not** evidence that
+the fly's wiring is doing something clever. What it actually shows is more interesting, and
+less flattering to the premise — see [What we did not find](#what-we-did-not-find).
 
-The Apple GPU implementation preserves the original recurrence and canonical
-graph buffers. The first ConnecTorch experiment changes input width and optional
-bounded edge gains while keeping neuron identities, every endpoint, tokenizer,
-readout and eight input-history slots matched.
+---
 
-| Experiment | Input width | Edge adaptation | Trainable parameters |
-|---|---:|---|---:|
-| A128fixed | 128 | Fixed base weights | 52,756,661 |
-| B32fixed | 32 | Fixed base weights | 51,308,213 |
-| C128bounded | 128 | Shared gains, ±10% | 52,774,983 |
-| D32bounded | 32 | Shared gains, ±10% | 51,326,535 |
+## Where this came from
 
-The bounded arms add 18,322 source/destination type-gain parameters. Existing
-per-neuron gains remain unconstrained, so a ±10% base-edge bound does not bound
-the complete effective recurrence. Width 32 reduces input-interface parameters
-by 75%; it reduces the full fixed model by only 2.75%.
+In 2026 Google Research and HHMI Janelia released the
+[complete connectome of a male fruit fly](https://research.google/blog/a-connectomics-milestone-mapping-the-complete-male-fruit-fly-brain/):
+every neuron, every synapse, measured. Within weeks people had wired it into things.
+[Doomfly](https://github.com/nftechie/doomfly) put it behind a first-person shooter.
+[FlyOCR](https://github.com/jerryjliu/fly_ocr) had it read characters.
+[Xenova's simulation](https://huggingface.co/spaces/Xenova/fruit-fly-simulation) gave it a
+body that walks and flies. Others had it play Mario.
 
-The [rank64 decoder experiment](experiments/DECODER_REDUCTION.md) keeps width32
-and uses 3,226,688 decoder parameters, 3,956,469 total, with fixed base edges.
-G is now accepted as an early stop: **14 completed epochs, 16,808 observed /
-16,800 durable updates**. Its separate retained winners are validation
-**CE 3.093705 at 16,600** and **accuracy 36.8885% at 15,552**. E's preserved
-rank128 baseline reached CE 3.149704 and accuracy 36.5822%; actual budgets differ.
-The [post-G assessment](experiments/reports/rank64-post-G-assessment.md),
-[matched generated texts](experiments/reports/rank64-generated-texts.md) and
-[text review](experiments/reports/rank64-text-review.md) document the comparison.
-F remains stopped; see the [experiment registry](experiments/INDEX.md) for receipts.
+Then [ngxson](https://huggingface.co/ngxson/fly-llm-hf) did the one that stuck with us:
+**replace a transformer's blocks with the fly's wiring diagram and train it to write
+bedtime stories.** It works. It rambles about Lily and Tom, and it is unmistakably
+language.
 
-The subsequent **H32rank32fixed** experiment is also accepted as an early stop:
-**14 completed epochs, 17,409 observed / 17,400 durable updates**. Both selectors
-retain update **16,600: CE 3.137654, accuracy 35.4713%**. Its 1,613,344-parameter
-decoder halves G's readout; **2,343,125 total parameters** is **40.7774% fewer**
-than G, with the same encoder and canonical graph. All four G/H checkpoint
-validation replays passed on macm3 without backward passes or parameter/graph
-changes; the reserved test was not evaluated. See the
-[H stop report](experiments/reports/H32rank32fixed-accepted-early-stop.md),
-[post-H assessment](experiments/reports/rank32-post-H-assessment.md),
-[matched texts](experiments/reports/rank32-generated-texts.md), and
-[validation curves](experiments/reports/figures/rank32-vs-rank64-validation.png).
-G remains the recommended quality baseline; H preserves a smaller option with
-a 1.4172-point retained-best accuracy cost. No subsequent training experiment
-is selected automatically.
+We started at the other end — a frozen 166,700-neuron spiking brain as a word-prediction
+feature extractor — and it lost to a bigram model
+([Stage 1](experiments/01-doomfly-pilots/README.md), a string of clean negative results).
+So we stopped inventing and reproduced ngxson's model exactly
+([Stage 2](experiments/02-ngxson-reference/README.md)). That is where we noticed the thing
+this repository is actually about.
 
-## Start here
+## The question
 
-- [Fly Stories demo](docs/RANK128_DEMO.md): an articulated fly, recorded rank128
-  stories and the corresponding measured neuron-state replay. Run locally with
-  `cd demo && npm ci && npm run dev -- --port 8781 --strictPort`.
-- [Complete pipeline](docs/PIPELINE.md): environments, pinned downloads, data,
-  training, checkpoint selection, evaluation and partial results.
-- [Experiment registry](experiments/INDEX.md): configurations, branch names,
-  controlled comparisons and result-recording rules.
-- [Reference implementation and provenance](NGXSON_REPLICATION.md).
-- [Quality audit](NGXSON_QUALITY_AUDIT.md) and
-  [next-stage research plan](CONNECTORCH_NEXT_STAGE.md).
-- [Historical frozen-brain and fast-weight pilots](LEGACY_PILOTS.md).
+Here is where the reference model's 52,756,661 learned parameters go:
 
-Run scripts from the checkout root. The project uses pinned requirements and
-repository imports; an editable package install is not needed. On macm3, with
-Python 3.13 available:
+| Component | Parameters | Share |
+|---|---:|---:|
+| Token embedding | 131,072 | 0.2% |
+| Eight input projections | 1,800,192 | 3.4% |
+| Neuron gain, recurrent gain, bias | 148,179 | 0.3% |
+| Output LayerNorm | 98,786 | 0.2% |
+| **Output readout matrix** | **50,578,432** | **95.9%** |
+
+The connectome is a frozen buffer — it costs zero parameters. **95.9% of everything this
+model learns is one 1024 × 49,393 output matrix** bolted onto the brain.
+
+So: how much of the quality is the fly, and how much is that matrix? The way to find out is
+to take the matrix away and see what survives.
+
+## What we found
+
+We shrank the interfaces and kept the brain untouched. Width 128 → 32 on the input
+([Stage 3](experiments/03-encoder-compression/README.md)) was free. Then we replaced the
+full readout with a factorized low-rank one — 49,393 → *r* → 1,024, no activation between,
+every neuron still reaching the output
+([Stage 4](experiments/04-decoder-compression/README.md)).
+
+Holding encoder width fixed so **only the readout parameterization changes**:
+
+| | full readout (B) | rank 64 (G) | change |
+|---|---:|---:|---|
+| trainable parameters | 51,308,213 | 3,956,469 | **12.97× fewer** |
+| audit cross-entropy | 4.912468 | **3.280159** | **−1.632 nats** |
+| audit perplexity | 135.97 | **26.58** | **5.12× lower** |
+| audit top-1 accuracy | 27.7237% | **33.3740%** | **+5.65 points** |
+
+Shrinking the readout did not cost quality — it **recovered** it. The 50.6M-parameter head
+was memorising 1,000 short stories; constraining its rank regularizes it.
+
+That effect is large enough to cross the reference model's line.
+[Stage 5](experiments/05-shared-population/README.md) scores every model on one shared
+200-story population (45,059 next-token targets) that selected none of our checkpoints:
+
+| Model | Trainable | Audit CE | Audit acc | ΔCE vs reference (95% CI) |
+|---|---:|---:|---:|---|
+| released reference | 52,756,661 | 3.988231 | 31.3833% | — |
+| our reconstruction | 52,756,661 | 5.036168 | 26.5807% | +1.048 [+1.015, +1.081] |
+| A128fixed | 52,756,661 | 5.050346 | 27.4795% | +1.062 [+1.027, +1.098] |
+| B32fixed | 51,308,213 | 4.912468 | 27.7237% | +0.924 [+0.890, +0.959] |
+| E32rank128fixed | 7,183,157 | 3.373062 | 32.6350% | **−0.615** [−0.643, −0.588] |
+| **G32rank64fixed** | **3,956,469** | **3.280159** | **33.3740%** | **−0.708** [−0.738, −0.679] |
+| H32rank32fixed | 2,343,125 | 3.309095 | 32.5795% | **−0.679** [−0.711, −0.647] |
+
+The split is by **readout**, not by size. Every full-readout arm sits above the reference on
+cross-entropy; every low-rank arm sits below it, with intervals excluding zero on both
+metrics.
+
+The evaluator reproduces the previously published numbers bit-for-bit and replays every
+arm's saved validation score to within 4.2e-08. The reserved 100-story test has never been
+opened.
+
+## What we did not find
+
+**We did not show that the fly's connectome helps.** Every arm in that table runs on the
+same frozen graph, so nothing in it separates "this wiring is a good prior for language"
+from "this recurrent shape with a rank-constrained readout suits 1,000 short stories".
+Answering that needs trained **randomized-graph and zero-edge controls** under the identical
+recipe, multiple seeds, and a declared final-test protocol. We have not run them. Until
+someone does, the honest reading of this work is a result about **readouts**, not about
+flies.
+
+**We did not modify the connectome.** G and H share byte-identical frozen graph buffers
+with the reference — `w_values` SHA256 `e6408887…` in both. Not one edge changed. What
+training changed is per-neuron dynamics (gain, recurrent gain, bias) and the interfaces.
+Arms that *would* have adapted synaptic strengths (±10%, still no rewiring) were deferred.
+
+**We did not beat the reference at writing.** The numbers improved; the prose did not.
+Across 24 generation records from G and H there are only 18 distinct texts, neither model
+reliably holds a story premise, and contiguous overlap with training passages reaches 20
+words. Low cross-entropy on TinyStories is not fluency.
+
+**We did not reproduce the reference's training.** ngxson released neither the training
+story IDs nor the full trainer. Our comparison against the released model is therefore
+uncontrolled: different 1,000 stories, different recipe. If its training set overlaps our
+audit population, its score here is *flattered* — which makes our margin conservative, not
+inflated. We cannot check.
+
+**128-word context was the original aspiration and has never been demonstrated.** The eight
+delay slots supply recent tokens externally; that is not learned retention.
+
+## The models
+
+Two preserved checkpoints, both with the exact reference graph and both selectors retained:
+
+- **G32rank64fixed** — 3,956,469 parameters (482,816 encoder, 3,226,688 decoder). The
+  recommended baseline.
+- **H32rank32fixed** — 2,343,125 parameters. 40.8% smaller than G, for 0.029 nats and 0.79
+  accuracy points on the audit population.
+
+We keep the **lowest-validation-CE** and **highest-validation-accuracy** weights as separate
+artifacts and never merge them into a single fictional "best" checkpoint.
+
+## How it works
+
+One recurrent step per token, over all 49,393 neurons:
+
+```
+x = 0.1·x + 0.9·tanh( gain · (rec_gain · W·x + input) + bias )
+```
+
+`W` is the connectome: 9,050,172 signed, measured synaptic weights, frozen. Eight explicit
+delay slots each project into 1,758 neurons, injecting the current token and the seven
+before it. The readout sees every neuron's state. The tokenizer is a 1,024-token byte-level
+BPE; stories are capped at 320 tokens.
+
+Training ran on an Apple M3 Max through custom Metal sparse kernels — dynamic-value CSR
+forward, transposed state backward, and batch-reduced edge gradients — which avoid both a
+dense 49,393² adjacency and an edges × batch message tensor. Those kernels were packaged
+and contributed upstream to [ConnecTorch](https://github.com/us/connectorch):
+
+```python
+import connectorch as ct
+model = ct.nn.ConnectomeRNN(brain, weights="trainable", backend="metal_csr").to("mps")
+```
+
+## Reproduce it
+
+[`docs/PIPELINE.md`](docs/PIPELINE.md) is the full path: pinned downloads, verified
+anatomical groups, numerical preflight, training, checkpoint selection and evaluation.
 
 ```bash
 python3.13 -m venv .venv-connectorch
@@ -87,41 +174,42 @@ python3.13 -m venv .venv-connectorch
 .venv-connectorch/bin/python scripts/prepare_ngxson_data.py
 ```
 
-ConnecTorch anatomical groups need an additional verified source-graph preparation
-step described in the pipeline. Keep all generated data and checkpoints outside
-Git; commit configurations, source provenance and compact reports on experiment
-branches.
+The shared-population comparison in this README regenerates with:
 
-## What has been reproduced
+```bash
+python scripts/evaluate_compression_curve.py --model <reference-dir> \
+  --groups data/connectorch-groups-v1/groups.npz \
+  --training-data data/ngxson-tinystories-v1/dataset.json \
+  --audit-data data/ngxson-quality-v1/dataset.json \
+  --arms experiments/configs/compression-curve-arms.json \
+  --output results/compression-curve-v2 --device mps
+```
 
-Released-checkpoint inference and CPU/Apple GPU numerical agreement are verified.
-Our reconstruction reaches similar top-1 accuracy under a declared practical
-margin, but substantially worse cross-entropy than the released model. Familiar
-text continuations can reproduce training passages. The author did not publish
-an exact training split or full trainer, so **full training-quality reproduction
-has not been established**.
+Configuration JSON files are **specifications, not runnable config files** — trainers take
+explicit flags. Generated data and checkpoints stay outside Git; `results/` is ignored.
 
-On 2026-09-15 the user accepted the current reconstruction as a working reference,
-requested that its training stop, and authorized the next experiments. This is
-an experimental decision; it does not change the quality-audit findings. Run
-receipts record the actual stopping cursor and retained checkpoints.
+## The research trail
 
-An anatomical language-learning advantage requires matched graph controls,
-multiple seeds and independent evaluation. These first four arms test encoder
-compression and bounded adaptation; they do not yet establish that advantage.
+Every stage keeps its negative results, its stop receipts and its unedited generated text.
 
-## Source and data attribution
+| Stage | Question | Answer |
+|---|---|---|
+| [1 — Doomfly pilots](experiments/01-doomfly-pilots/README.md) | Does a frozen spiking fly brain help predict words? | No. Lost to a bigram. |
+| [2 — ngxson reference](experiments/02-ngxson-reference/README.md) | Can we reproduce a working fly LLM exactly? | Numerically yes; training quality no. |
+| [3 — Encoder](experiments/03-encoder-compression/README.md) | How wide must the input interface be? | 32 is as good as 128. |
+| [4 — Decoder](experiments/04-decoder-compression/README.md) | What happens without the 50.6M readout? | Quality improves. |
+| [5 — Shared population](experiments/05-shared-population/README.md) | Are any of these numbers comparable? | They are now. |
 
-The reference is pinned to ngxson revision
-`65c677b3d566a2e9793d5f72999cdb441c6c0a9f`; ConnecTorch is pinned to
-`4bbfb645099aeb85bdbf850e1a87cc094769af87`. Downloaded model/data assets retain
-their upstream terms. The Fly LLM model card declares CC BY 4.0; ConnecTorch
-library code uses MIT. MaleCNS/FlyEM data attribution includes HHMI Janelia,
-University of Cambridge, MRC LMB and Google Research. TinyStories is by Eldan
-and Li; its source receipts and dataset terms must accompany redistribution.
+The [experiment registry](experiments/README.md) holds the arm table, recording rules and
+interpretation rules. `experiments/records/` holds machine-readable receipts: selector
+hashes, parity checks, source ancestry, stop decisions.
 
-The vendored Doomfly subset retains its [MIT license](vendor/doomfly/LICENSE),
-[third-party notices](vendor/doomfly/THIRD_PARTY_NOTICES.md) and
-[source inventory](vendor/DOOMFLY.md). Those licenses apply to their identified
-upstream material, not automatically to this repository's original code. No new
-blanket license is assigned here.
+## Attribution
+
+Connectome data: **MaleCNS v1.0, CC BY 4.0** — FlyEM / HHMI Janelia, University of
+Cambridge, MRC Laboratory of Molecular Biology, Google Research. Architecture and tokenizer
+from [ngxson/fly-llm-hf](https://huggingface.co/ngxson/fly-llm-hf) (CC BY 4.0). Text from
+[TinyStories](https://huggingface.co/datasets/roneneldan/TinyStories) (CDLA-Sharing-1.0),
+which we do not redistribute. Our code is MIT.
+
+Full terms in [NOTICE.md](NOTICE.md).
