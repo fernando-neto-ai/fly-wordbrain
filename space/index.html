@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Fly Recital — a fruit-fly connectome reciting stories in your browser</title>
+    <meta name="description" content="A 3.96M-parameter language model wired like a real fruit fly brain, running live in your browser and reciting the stories it writes." />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext y='26' font-size='26'%3E%F0%9F%AA%B0%3C/text%3E%3C/svg%3E" />
+  </head>
+  <body>
+    <div id="boot">
+      <div class="boot-inner">
+        <div class="boot-mark">🪰</div>
+        <h1>FLY RECITAL</h1>
+        <p class="boot-sub">A fruit-fly connectome, reciting out loud</p>
+        <div class="boot-facts">
+          <span><b>49,393</b> neurons</span>
+          <span><b>9,050,172</b> synapses</span>
+          <span><b>3,956,469</b> learned parameters</span>
+        </div>
+        <p class="boot-note">
+          The whole model runs in this tab. Nothing is sent to a server, and nothing is
+          pre-recorded — the brain below is downloaded once and then mixed, token by token,
+          on your own machine.
+        </p>
+        <button id="boot-start" type="button">Download the brain &amp; begin <span>≈71 MB, cached after the first visit</span></button>
+        <div id="boot-progress" hidden>
+          <div class="bar"><i></i></div>
+          <div class="boot-status">waking up</div>
+        </div>
+        <p class="boot-error" id="boot-error" hidden></p>
+      </div>
+    </div>
+
+    <main id="app" hidden>
+      <header class="topbar">
+        <div class="brand"><span class="mark">🪰</span> FLY RECITAL</div>
+        <div class="topbar-meta">
+          <span class="chip" id="chip-backend">LIVE IN-BROWSER INFERENCE</span>
+          <a class="chip link" href="https://github.com/fernando-neto-ai/fly-wordbrain" target="_blank" rel="noopener">THE RESEARCH ↗</a>
+        </div>
+      </header>
+
+      <section class="stage">
+        <div id="stage-canvas"></div>
+        <div class="stage-overlay">
+          <div class="stage-label">
+            <span class="dot"></span>
+            <span id="stage-state">STANDING BY</span>
+          </div>
+          <div class="stage-caption" id="stage-caption"></div>
+        </div>
+        <div class="stage-controls">
+          <button id="camera-orbit" class="ghost is-on" type="button" title="Toggle the slow camera orbit">ORBIT</button>
+          <button id="voice-toggle" class="ghost is-on" type="button" title="Toggle the spoken recital">VOICE</button>
+        </div>
+      </section>
+
+      <section class="console">
+        <div class="console-grid">
+          <div class="module module-cloud">
+            <div class="module-head"><h2>NEURAL ACTIVITY</h2><span id="cloud-meta">2,048 of 49,393 sampled</span></div>
+            <canvas id="cloud"></canvas>
+            <div class="module-foot">
+              <span>MEAN |h|</span><b id="stat-mean">0.0000</b>
+              <span>STRONGLY ACTIVE</span><b id="stat-active">0</b>
+            </div>
+          </div>
+
+          <div class="module module-raster">
+            <div class="module-head"><h2>STATE RASTER</h2><span>256 neurons × last 96 tokens</span></div>
+            <canvas id="raster"></canvas>
+            <div class="module-foot">
+              <span>RATES, NOT SPIKES</span><b id="stat-rate">|h| magnitude</b>
+            </div>
+          </div>
+
+          <div class="deck" id="deck-model">
+            <div class="deck-head"><span class="deck-id">DECK A</span><span class="deck-state" id="model-state">CUED</span></div>
+            <div class="deck-title">G32rank64fixed</div>
+            <div class="deck-row"><span id="model-updates">15,552 updates</span><span>3,956,469 PARAMS</span></div>
+            <canvas class="wave" id="wave-prob"></canvas>
+            <div class="fader">
+              <div class="fader-head"><span>CONFIDENCE</span><b id="fader-value">—</b></div>
+              <div class="fader-track"><i id="fader-fill"></i></div>
+            </div>
+            <div class="knobs">
+              <div class="knob" data-knob="temperature">
+                <canvas></canvas><span>TEMPERATURE</span><b>0.70</b>
+              </div>
+              <div class="knob" data-knob="topP">
+                <canvas></canvas><span>TOP-P</span><b>0.90</b>
+              </div>
+              <div class="knob" data-knob="pace">
+                <canvas></canvas><span>PACE</span><b>1.00×</b>
+              </div>
+            </div>
+          </div>
+
+          <div class="deck" id="deck-voice">
+            <div class="deck-head"><span class="deck-id">DECK B</span><span class="deck-state" id="voice-state">SILENT</span></div>
+            <div class="deck-title" id="voice-title">Awaiting a prompt</div>
+            <div class="deck-row"><span id="voice-count">0 TOKENS</span><span id="voice-rate">0.0 TOK/S</span></div>
+            <div class="transcript" id="transcript"><span class="prompt-echo" id="prompt-echo"></span><span id="continuation"></span><i class="caret"></i></div>
+            <form class="prompt" id="prompt-form">
+              <input id="prompt-input" type="text" autocomplete="off" spellcheck="false"
+                     placeholder="Once upon a time, there was a" maxlength="220" />
+              <button type="submit" id="recite">RECITE</button>
+            </form>
+            <div class="suggestions" id="suggestions"></div>
+          </div>
+        </div>
+
+        <footer class="colophon">
+          <p>
+            Every number above is measured from the running model. The point cloud shows real
+            soma positions for sampled neurons and its brightness is <code>|h|</code>, a
+            continuous rate — <b>not</b> biological spiking. The body is a female
+            <i>NeuroMechFly</i> rig; the connectome is from a male specimen. Its movement is
+            illustrative animation, not a motor output of the language model.
+          </p>
+          <p>
+            Connectome: MaleCNS v1.0 (CC BY 4.0) — FlyEM / HHMI Janelia, University of Cambridge,
+            MRC LMB, Google Research. Architecture and tokenizer after
+            <a href="https://huggingface.co/ngxson/fly-llm-hf" target="_blank" rel="noopener">ngxson/fly-llm-hf</a>.
+            Graph: <a href="https://huggingface.co/datasets/fernandofernandes/fly-connectome-49k" target="_blank" rel="noopener">fly-connectome-49k</a>.
+            Trained on TinyStories; it only knows how to ramble about Lily and Tom.
+          </p>
+        </footer>
+      </section>
+    </main>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

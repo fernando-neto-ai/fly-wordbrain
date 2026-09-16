@@ -1,0 +1,20 @@
+NeuroMechFly v2 assets vendored from flygym
+  source: https://github.com/NeLy-EPFL/flygym (ref dev-v2.0.3)
+  path:   src/flygym/assets/model
+
+flygym is distributed under the Apache License, Version 2.0. The
+bundled meshes (meshes/*.stl) and the derived metadata (rigging.json,
+neutral_pose.json, colors.json) originate from that project and remain
+subject to its license and attribution requirements.
+
+NeuroMechFly v2 reference:
+  Wang-Chen et al. (2024), NeuroMechFly v2, Nature Methods.
+  https://doi.org/10.1038/s41592-024-02497-y
+
+Regenerate with: python scripts/vendor_neuromechfly_assets.py
+
+Derived asset: fly.glb, converted into a neutral-pose, Y-up glTF mesh; original shape and uniform scales retained.
+
+Neuron point data: MaleCNS v1.0. Credit FlyEM / HHMI Janelia, University of Cambridge, MRC LMB, Google Research. CC BY4.0: https://creativecommons.org/licenses/by/4.0/
+Source: https://male-cns.janelia.org/download/ ; packaged by https://huggingface.co/spaces/Xenova/fruit-fly-simulation and https://huggingface.co/spaces/ngxson/fly-llm-demo .
+Neuron subset index mapping independently matched to the checkpoint's verified body-ID mapping. Missing coordinates remain null. Female body and male connectome are different specimens; placement and motion are illustrative.

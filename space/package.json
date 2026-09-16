@@ -1,0 +1,21 @@
+{
+  "name": "fly-recital",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "parity": "node test/parity.mjs ../results/web-model/G32rank64fixed ../../fly-connectome-49k"
+  },
+  "dependencies": {
+    "three": "0.170.0"
+  },
+  "devDependencies": {
+    "vite": "6.0.5"
+  },
+  "allowScripts": {
+    "esbuild@0.24.0": true
+  }
+}

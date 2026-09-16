@@ -1,0 +1,28 @@
+{
+  "source": "Google Fonts",
+  "repository_revision": "1ac2012c34919f5fa2675aacf723fa98edb30b5f",
+  "files": [
+    {
+      "file": "dm-sans-latin.woff2",
+      "url": "https://fonts.gstatic.com/s/dmsans/v17/rP2Yp2ywxg089UriI5-g4vlH9VoD8Cmcqbu0-K6z9mXg.woff2",
+      "sha256": "468d56b6b25b05b70190b6c233d773f6f1770e8579827ce022a57f03fa8002fb",
+      "license": "OFL-1.1"
+    },
+    {
+      "file": "dmsans-OFL.txt",
+      "url": "https://raw.githubusercontent.com/google/fonts/1ac2012c34919f5fa2675aacf723fa98edb30b5f/ofl/dmsans/OFL.txt",
+      "sha256": "9af36190332437f5ecd09974de43c1f7c77a310a996cdd8ceb25628b458840e1"
+    },
+    {
+      "file": "libre-caslon-display-latin.woff2",
+      "url": "https://fonts.gstatic.com/s/librecaslondisplay/v18/TuGOUUFxWphYQ6YI6q9Xp61FQzxDRKmzr1lWfxlPCz4c.woff2",
+      "sha256": "d7157ad1851673258b7bf8b9d16654e90ca5f2d687aa0c71506d83266e0a20a2",
+      "license": "OFL-1.1"
+    },
+    {
+      "file": "librecaslondisplay-OFL.txt",
+      "url": "https://raw.githubusercontent.com/google/fonts/1ac2012c34919f5fa2675aacf723fa98edb30b5f/ofl/librecaslondisplay/OFL.txt",
+      "sha256": "9cc8cef15f5e8bcbe99a13ee8d268f6f6f6a5811cd1ed05056ef4608c9b16fd1"
+    }
+  ]
+}

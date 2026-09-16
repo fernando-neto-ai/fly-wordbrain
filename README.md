@@ -14,6 +14,19 @@ That is a real measurement with a paired confidence interval. It is **not** evid
 the fly's wiring is doing something clever. What it actually shows is more interesting, and
 less flattering to the premise — see [What we did not find](#what-we-did-not-find).
 
+### 🪰 [Hear it: **Fly Recital**](https://huggingface.co/spaces/fernandofernandes/fly-recital)
+
+A fruit fly steps up to a microphone and reads you a story it is making up as it goes. The
+model runs **in your browser tab** — ~120 lines of plain JavaScript, no inference runtime,
+exact float32 weights, reproducing the PyTorch model token for token. The neuron cloud, the
+state raster and the confidence waveform are measurements from the pass that just ran.
+
+| | |
+|---|---|
+| **Demo** | [spaces/fernandofernandes/fly-recital](https://huggingface.co/spaces/fernandofernandes/fly-recital) |
+| **Model** | [fly-wordbrain-rank64](https://huggingface.co/fernandofernandes/fly-wordbrain-rank64) · [rank32](https://huggingface.co/fernandofernandes/fly-wordbrain-rank32) |
+| **Connectome** | [fly-connectome-49k](https://huggingface.co/datasets/fernandofernandes/fly-connectome-49k) |
+
 ---
 
 ## Where this came from
@@ -137,7 +150,17 @@ Two preserved checkpoints, both with the exact reference graph and both selector
   accuracy points on the audit population.
 
 We keep the **lowest-validation-CE** and **highest-validation-accuracy** weights as separate
-artifacts and never merge them into a single fictional "best" checkpoint.
+artifacts and never merge them into a single fictional "best" checkpoint. Both selectors ship
+for both models, with the checkpoint hashes from their accepted-stop receipts:
+[rank64](https://huggingface.co/fernandofernandes/fly-wordbrain-rank64) ·
+[rank32](https://huggingface.co/fernandofernandes/fly-wordbrain-rank32).
+
+The connectome itself is published once, separately, as
+**[fly-connectome-49k](https://huggingface.co/datasets/fernandofernandes/fly-connectome-49k)** —
+the exact 49,393-neuron / 9,050,172-edge graph joined to MaleCNS body IDs, cell types,
+superclasses and soma positions, with 18 standalone verification checks and the frozen-buffer
+digests that prove which graph these weights were trained on. Until now it was reachable only
+by parsing a 284 MB model checkpoint.
 
 ## How it works
 
@@ -199,6 +222,7 @@ Every stage keeps its negative results, its stop receipts and its unedited gener
 | [3 — Encoder](experiments/03-encoder-compression/README.md) | How wide must the input interface be? | 32 is as good as 128. |
 | [4 — Decoder](experiments/04-decoder-compression/README.md) | What happens without the 50.6M readout? | Quality improves. |
 | [5 — Shared population](experiments/05-shared-population/README.md) | Are any of these numbers comparable? | They are now. |
+| [Demo — `space/`](space/README.md) | Can it run, live, in a browser tab? | Yes, token-for-token exact. |
 
 The [experiment registry](experiments/README.md) holds the arm table, recording rules and
 interpretation rules. `experiments/records/` holds machine-readable receipts: selector
@@ -213,3 +237,12 @@ from [ngxson/fly-llm-hf](https://huggingface.co/ngxson/fly-llm-hf) (CC BY 4.0). 
 which we do not redistribute. Our code is MIT.
 
 Full terms in [NOTICE.md](NOTICE.md).
+
+The browser demo's source is in [`space/`](space/README.md); its forward pass
+([`space/src/engine.js`](space/src/engine.js)) is held to a golden trace exported from
+PyTorch by [`space/test/parity.mjs`](space/test/parity.mjs):
+
+```bash
+cd space && npm install
+node test/parity.mjs ../results/web-model/G32rank64fixed ../../fly-connectome-49k
+```
