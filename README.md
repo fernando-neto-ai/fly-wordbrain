@@ -1,18 +1,21 @@
 # Fly Wordbrain
 
-**A language model whose recurrent layer is the measured wiring diagram of a fruit fly
-brain — and an experiment in finding out how much of it was ever doing the work.**
+**A language model whose recurrent layer is the measured wiring of a fruit fly brain.**
 
 ![Held-out quality against trainable parameter count](experiments/05-shared-population/figures/compression-curve.png)
 
-We took a published fly-connectome language model, held its 49,393 neurons and 9,050,172
-synapses completely fixed, and cut the learned machinery around them by **13.3×**. On a
-held-out population that selected neither model, the small one is **0.708 nats better** in
-cross-entropy and **1.99 accuracy points better** than the 52.7-million-parameter original.
+We took a published fly-connectome language model, held all 49,393 neurons and 9,050,172
+synapses fixed, and deleted **92.5% of everything it learns**. It did not degrade. It got
+**better** — **0.708 nats** of cross-entropy and **1.99 accuracy points** better than the
+52.7-million-parameter original, on held-out text that selected neither model.
 
-That is a real measurement with a paired confidence interval. It is **not** evidence that
-the fly's wiring is doing something clever. What it actually shows is more interesting, and
-less flattering to the premise — see [What we did not find](#what-we-did-not-find).
+The reason is mundane and useful. That 92.5% was almost entirely a single output matrix,
+and the matrix was memorising the 1,000 stories it trained on. Replacing it with a low-rank
+one acts as a regularizer, and the model improves.
+
+So this is **a result about output layers, not about fly brains.** We set out to ask whether
+the connectome was pulling its weight; we could not answer that, and
+[What this is not](#what-this-is-not) says exactly what would be needed to.
 
 ### 🪰 [Hear it: **Fly Recital**](https://huggingface.co/spaces/fernandofernandes/fly-recital)
 
@@ -23,9 +26,9 @@ state raster and the confidence waveform are measurements from the pass that jus
 
 | | |
 |---|---|
-| **Demo** | [spaces/fernandofernandes/fly-recital](https://huggingface.co/spaces/fernandofernandes/fly-recital) |
-| **Model** | [fly-wordbrain-rank64](https://huggingface.co/fernandofernandes/fly-wordbrain-rank64) · [rank32](https://huggingface.co/fernandofernandes/fly-wordbrain-rank32) |
-| **Connectome** | [fly-connectome-49k](https://huggingface.co/datasets/fernandofernandes/fly-connectome-49k) |
+| **Demo** | [fly-recital](https://huggingface.co/spaces/fernandofernandes/fly-recital) |
+| **Models** | [rank64](https://huggingface.co/fernandofernandes/fly-wordbrain-rank64) (recommended) · [rank32](https://huggingface.co/fernandofernandes/fly-wordbrain-rank32) |
+| **Connectome** | [49k central-brain subset](https://huggingface.co/datasets/fernandofernandes/fly-connectome-49k) · [complete 166k MaleCNS](https://huggingface.co/datasets/fernandofernandes/fly-connectome-malecns-166k) |
 
 ---
 
@@ -69,9 +72,9 @@ model learns is one 1024 × 49,393 output matrix** bolted onto the brain.
 So: how much of the quality is the fly, and how much is that matrix? The way to find out is
 to take the matrix away and see what survives.
 
-## What we found
+## What happened when we took it away
 
-We shrank the interfaces and kept the brain untouched. Width 128 → 32 on the input
+We shrank the interfaces and left the brain alone. Width 128 → 32 on the input
 ([Stage 3](experiments/03-encoder-compression/README.md)) was free. Then we replaced the
 full readout with a factorized low-rank one — 49,393 → *r* → 1,024, no activation between,
 every neuron still reaching the output
@@ -86,8 +89,7 @@ Holding encoder width fixed so **only the readout parameterization changes**:
 | audit perplexity | 135.97 | **26.58** | **5.12× lower** |
 | audit top-1 accuracy | 27.7237% | **33.3740%** | **+5.65 points** |
 
-Shrinking the readout did not cost quality — it **recovered** it. The 50.6M-parameter head
-was memorising 1,000 short stories; constraining its rank regularizes it.
+Shrinking the readout did not cost quality — it **recovered** it.
 
 That effect is large enough to cross the reference model's line.
 [Stage 5](experiments/05-shared-population/README.md) scores every model on one shared
@@ -103,7 +105,7 @@ That effect is large enough to cross the reference model's line.
 | **G32rank64fixed** | **3,956,469** | **3.280159** | **33.3740%** | **−0.708** [−0.738, −0.679] |
 | H32rank32fixed | 2,343,125 | 3.309095 | 32.5795% | **−0.679** [−0.711, −0.647] |
 
-The split is by **readout**, not by size. Every full-readout arm sits above the reference on
+**The split is by readout, not by size.** Every full-readout arm sits above the reference on
 cross-entropy; every low-rank arm sits below it, with intervals excluding zero on both
 metrics.
 
@@ -111,78 +113,26 @@ The evaluator reproduces the previously published numbers bit-for-bit and replay
 arm's saved validation score to within 4.2e-08. The reserved 100-story test has never been
 opened.
 
-## What we did not find
+## What this is not
 
-**We did not show that the fly's connectome helps.** Every arm in that table runs on the
-same frozen graph, so nothing in it separates "this wiring is a good prior for language"
-from "this recurrent shape with a rank-constrained readout suits 1,000 short stories".
-Answering that needs trained **randomized-graph and zero-edge controls** under the identical
-recipe, multiple seeds, and a declared final-test protocol. We have not run them. Until
-someone does, the honest reading of this work is a result about **readouts**, not about
-flies.
+**It is not evidence that the connectome helps.** Every arm above runs the same frozen
+graph, so nothing here separates *"this wiring is a good prior for language"* from *"this
+recurrent shape with a rank-constrained readout suits 1,000 short stories"*. Settling that
+needs trained **randomized-graph and zero-edge controls** under the identical recipe,
+multiple seeds, and a declared final-test protocol. None has been run. That is why the
+headline above is about output layers.
 
-**We did not modify the connectome — but the brain is not inert either.** These are two
-different statements and both matter.
+**The comparison against the released model is uncontrolled.** ngxson published neither the
+training story IDs nor the full trainer, so our arms learned from our own 1,000 stories
+under a reconstructed recipe. If the reference's training set overlaps our audit population
+its score here is *flattered*, which would make our margin conservative rather than
+inflated — but we cannot check.
 
-The *wiring* is untouched. Every endpoint, sign and stored synaptic weight in G and H is
-byte-identical to the reference (`w_values` SHA256 `e6408887…`, plus six other graph
-buffers). Not one edge was changed, and none was rewired.
-
-The *neurons* are trained. Each of the 49,393 carries a learned input gain, recurrent gain
-and bias — 148,179 parameters, **part of the reference architecture rather than something
-we added** — and training moves them a long way. Rebuilding the initialization from the
-recorded seed and diffing against the trained weights:
-
-| Relative L2 change from initialization | G rank64 | H rank32 |
-|---|---:|---:|
-| `gain` (per-neuron input gain) | 58.66% | 60.57% |
-| `rec_gain` (per-neuron recurrent gain) | 12.51% | 13.04% |
-| **`gain × rec_gain`** (effective per-neuron scaling) | **50.61%** | **56.18%** |
-
-`rec_gain` multiplies a neuron's *entire* incoming sum, so it rescales all of that neuron's
-synapses by a single factor. It cannot change their relative strengths or their signs. The
-connectome's structure is preserved; its per-neuron scale is learned. Measured by
-[`scripts/measure_brain_displacement.py`](scripts/measure_brain_displacement.py), recorded in
-[`experiments/records/`](experiments/records/G32rank64fixed-brain-displacement.json).
-
-Arms that *would* have adapted individual synaptic strengths (±10%, still no rewiring) were
-deferred and never run.
-
-**We did not beat the reference at writing.** The numbers improved; the prose did not.
-Across 24 generation records from G and H there are only 18 distinct texts, neither model
-reliably holds a story premise, and contiguous overlap with training passages reaches 20
-words. Low cross-entropy on TinyStories is not fluency.
-
-**We did not reproduce the reference's training.** ngxson released neither the training
-story IDs nor the full trainer. Our comparison against the released model is therefore
-uncontrolled: different 1,000 stories, different recipe. If its training set overlaps our
-audit population, its score here is *flattered* — which makes our margin conservative, not
-inflated. We cannot check.
-
-**128-word context was the original aspiration and has never been demonstrated.** The eight
-delay slots supply recent tokens externally; that is not learned retention.
-
-## The models
-
-Two preserved checkpoints, both with the exact reference graph and both selectors retained:
-
-- **G32rank64fixed** — 3,956,469 parameters (482,816 encoder, 3,226,688 decoder). The
-  recommended baseline.
-- **H32rank32fixed** — 2,343,125 parameters. 40.8% smaller than G, for 0.029 nats and 0.79
-  accuracy points on the audit population.
-
-We keep the **lowest-validation-CE** and **highest-validation-accuracy** weights as separate
-artifacts and never merge them into a single fictional "best" checkpoint. Both selectors ship
-for both models, with the checkpoint hashes from their accepted-stop receipts:
-[rank64](https://huggingface.co/fernandofernandes/fly-wordbrain-rank64) ·
-[rank32](https://huggingface.co/fernandofernandes/fly-wordbrain-rank32).
-
-The connectome itself is published once, separately, as
-**[fly-connectome-49k](https://huggingface.co/datasets/fernandofernandes/fly-connectome-49k)** —
-the exact 49,393-neuron / 9,050,172-edge graph joined to MaleCNS body IDs, cell types,
-superclasses and soma positions, with 18 standalone verification checks and the frozen-buffer
-digests that prove which graph these weights were trained on. Until now it was reachable only
-by parsing a 284 MB model checkpoint.
+**The prose did not improve.** Across 24 generation records from G and H there are only 18
+distinct texts, neither model reliably holds a story premise, and contiguous overlap with
+training passages reaches 20 words. Low cross-entropy on TinyStories is not writing. The
+128-word context this project originally aimed at was never demonstrated either: the eight
+delay slots supply recent tokens externally, which is not learned retention.
 
 ## How it works
 
@@ -192,20 +142,68 @@ One recurrent step per token, over all 49,393 neurons:
 x = 0.1·x + 0.9·tanh( gain · (rec_gain · W·x + input) + bias )
 ```
 
-`W` is the connectome: 9,050,172 signed, measured synaptic weights, frozen. Eight explicit
-delay slots each project into 1,758 neurons, injecting the current token and the seven
-before it. The readout sees every neuron's state. The tokenizer is a 1,024-token byte-level
-BPE; stories are capped at 320 tokens.
+`W` is the connectome: 9,050,172 signed, measured synaptic weights. Eight explicit delay
+slots each project into 1,758 neurons, injecting the current token and the seven before it.
+The readout sees every neuron's state. The tokenizer is a 1,024-token byte-level BPE;
+stories are capped at 320 tokens.
 
-Training ran on an Apple M3 Max through custom Metal sparse kernels — dynamic-value CSR
-forward, transposed state backward, and batch-reduced edge gradients — which avoid both a
-dense 49,393² adjacency and an edges × batch message tensor. Those kernels were packaged
-and contributed upstream to [ConnecTorch](https://github.com/us/connectorch):
+### What is frozen, and what is trained
+
+Two facts, both true, easily confused for one another.
+
+**The wiring is untouched.** Every endpoint, sign and stored synaptic weight in our models
+is byte-identical to the reference — `w_values` SHA256 `e6408887…`, plus six other graph
+buffers. No edge was changed and none was rewired.
+
+**The neurons are not inert.** Each of the 49,393 carries a learned input gain, recurrent
+gain and bias — 148,179 parameters, part of ngxson's architecture rather than something we
+added — and training moves them a long way:
+
+| Relative L2 change from initialization | G rank64 | H rank32 |
+|---|---:|---:|
+| `gain` (per-neuron input gain) | 58.66% | 60.57% |
+| `rec_gain` (per-neuron recurrent gain) | 12.51% | 13.04% |
+| **`gain × rec_gain`** (effective per-neuron scaling) | **50.61%** | **56.18%** |
+
+`rec_gain` multiplies a neuron's *entire* incoming sum, so it rescales all of that neuron's
+synapses by a single factor. It cannot change their relative strengths or their signs.
+**Structure preserved, per-neuron scale learned.** Measured by
+[`scripts/measure_brain_displacement.py`](scripts/measure_brain_displacement.py) against an
+initialization rebuilt from the recorded seed, and committed as
+[a per-arm record](experiments/records/G32rank64fixed-brain-displacement.json). Arms that
+*would* have adapted individual synaptic strengths (±10%, still no rewiring) were specified
+but never run.
+
+### Training
+
+On an Apple M3 Max, through custom Metal sparse kernels — dynamic-value CSR forward,
+transposed state backward, and batch-reduced edge gradients — which avoid both a dense
+49,393² adjacency and an edges × batch message tensor. Those kernels were packaged and
+contributed upstream to [ConnecTorch](https://github.com/us/connectorch):
 
 ```python
 import connectorch as ct
 model = ct.nn.ConnectomeRNN(brain, weights="trainable", backend="metal_csr").to("mps")
 ```
+
+## The models
+
+- **G32rank64fixed** — 3,956,469 parameters (482,816 encoder, 3,226,688 decoder). The
+  recommended baseline, and what the demo runs.
+- **H32rank32fixed** — 2,343,125 parameters. 40.8% smaller than G, for 0.029 nats and 0.79
+  accuracy points on the audit population.
+
+We keep the **lowest-validation-CE** and **highest-validation-accuracy** weights as separate
+artifacts and never merge them into a single fictional "best" checkpoint. Both selectors
+ship for both models, with the checkpoint hashes from their accepted-stop receipts.
+
+The connectome is published separately, twice: the exact
+**[49,393-neuron subset](https://huggingface.co/datasets/fernandofernandes/fly-connectome-49k)**
+these models run on, with MaleCNS body IDs, cell types and soma positions; and the
+**[complete 166,700-neuron MaleCNS v1.0 graph](https://huggingface.co/datasets/fernandofernandes/fly-connectome-malecns-166k)**
+— 25,582,938 edges, 124,177,617 synaptic contacts, raw signed weights. Both verify standalone
+with nothing but NumPy, and the subset carries the frozen-buffer digests that prove which
+graph these weights were trained on.
 
 ## Reproduce it
 
@@ -233,6 +231,15 @@ python scripts/evaluate_compression_curve.py --model <reference-dir> \
 Configuration JSON files are **specifications, not runnable config files** — trainers take
 explicit flags. Generated data and checkpoints stay outside Git; `results/` is ignored.
 
+The browser demo's source is in [`space/`](space/README.md); its forward pass
+([`space/src/engine.js`](space/src/engine.js)) is held to a golden trace exported from
+PyTorch by [`space/test/parity.mjs`](space/test/parity.mjs):
+
+```bash
+cd space && npm install
+node test/parity.mjs ../results/web-model/G32rank64fixed ../../fly-connectome-49k
+```
+
 ## The research trail
 
 Every stage keeps its negative results, its stop receipts and its unedited generated text.
@@ -259,12 +266,3 @@ from [ngxson/fly-llm-hf](https://huggingface.co/ngxson/fly-llm-hf) (CC BY 4.0). 
 which we do not redistribute. Our code is MIT.
 
 Full terms in [NOTICE.md](NOTICE.md).
-
-The browser demo's source is in [`space/`](space/README.md); its forward pass
-([`space/src/engine.js`](space/src/engine.js)) is held to a golden trace exported from
-PyTorch by [`space/test/parity.mjs`](space/test/parity.mjs):
-
-```bash
-cd space && npm install
-node test/parity.mjs ../results/web-model/G32rank64fixed ../../fly-connectome-49k
-```
