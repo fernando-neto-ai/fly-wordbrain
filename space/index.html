@@ -120,6 +120,14 @@
             illustrative animation, not a motor output of the language model.
           </p>
           <p>
+            The <b>wiring</b> is frozen: all 9,050,172 synaptic weights are byte-identical to
+            the reference model's. The <b>neurons</b> are not — each of the 49,393 has a
+            learned input gain, recurrent gain and bias (148,179 parameters), and training
+            moves the effective per-neuron scaling by about 51% in relative L2. That rescales
+            each neuron's incoming sum by one factor; it cannot change the relative strengths
+            or signs of individual synapses.
+          </p>
+          <p>
             Connectome: MaleCNS v1.0 (CC BY 4.0) — FlyEM / HHMI Janelia, University of Cambridge,
             MRC LMB, Google Research. Architecture and tokenizer after
             <a href="https://huggingface.co/ngxson/fly-llm-hf" target="_blank" rel="noopener">ngxson/fly-llm-hf</a>.
