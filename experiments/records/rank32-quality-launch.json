@@ -1,0 +1,31 @@
+{
+  "status": "launched",
+  "training_run": false,
+  "training_host": "macm3",
+  "created_at_utc": "2026-09-16T02:35:29.196217+00:00",
+  "worker_pid": 75776,
+  "process_birth": "Tue Sep 15 23:35:29 2026",
+  "command": [
+    "/Users/fernando/fly_wordbrain_connectorch/.venv-connectorch/bin/python",
+    "-u",
+    "/Users/fernando/fly_wordbrain_connectorch/scripts/evaluate_connectorch_rank32_quality.py",
+    "--arm-g",
+    "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-rank64-v1/arms/G32rank64fixed",
+    "--arm-h",
+    "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-rank32-v1/arms/H32rank32fixed",
+    "--output",
+    "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-post-h-quality-v1",
+    "--threads",
+    "4"
+  ],
+  "environment": {
+    "PYTORCH_ENABLE_MPS_FALLBACK": "0",
+    "OMP_NUM_THREADS": "4",
+    "VECLIB_MAXIMUM_THREADS": "4"
+  },
+  "cwd": "/Users/fernando/fly_wordbrain_connectorch",
+  "output": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-post-h-quality-v1",
+  "log": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-post-h-quality-v1.log",
+  "source_sha256": "b5a428ecbe3262653465c1920a819bb200c36cb71d3bf3d105cca4c1c70715b8",
+  "source_commit": "e6029ca2948060975cadd17cdf1672f57119b3a5"
+}

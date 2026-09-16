@@ -14,7 +14,7 @@ run manifests and stop/completion receipts are authoritative for execution.
 | E32rank128fixed | `exp/encoder32-readout128-fixed` | [E](configs/E32rank128fixed.json) | 7,183,157 |
 | F32rank128bounded | `exp/encoder32-readout128-bounded` | [F](configs/F32rank128bounded.json) | 7,201,479 |
 | G32rank64fixed (accepted early stop) | `exp/encoder32-readout64-fixed` | [G](configs/G32rank64fixed.json) | 3,956,469 |
-| H32rank32fixed (running) | `exp/encoder32-readout32-fixed` | [H](configs/H32rank32fixed.json) | 2,343,125 |
+| H32rank32fixed (accepted early stop) | `exp/encoder32-readout32-fixed` | [H](configs/H32rank32fixed.json) | 2,343,125 |
 
 ## Protocol and status
 
@@ -155,7 +155,7 @@ subsequently selected H32rank32fixed as the next experiment.
 
 ## Rank32 decoder comparison
 
-H32rank32fixed trains from scratch with the same G recipe and fixed canonical
+H32rank32fixed trained from scratch with the same G recipe and fixed canonical
 edges. The encoder remains 482,816 parameters; the rank32 decoder has 1,613,344,
 bringing the total to 2,343,125. The original 148,179 neuron gains and biases
 remain trainable. G's accepted stop supplies the primary comparison baseline;
@@ -171,7 +171,24 @@ is drawn from this initial measurement. See the
 [launch receipt](runs/rank32-v1-launch.json) and
 [numerical preflight](records/rank32-preflight.json).
 
-Refresh H and preserved G with `scripts/refresh_connectorch_rank32_progress.py`;
-its output is `results/connectorch-rank32-v1/progress.md`. Preserve both validation
-selectors and compare common update and training-target budgets alongside the
-actual stopped/run budgets. No successor is selected automatically.
+H stopped under the established plateau rule at **02:26:35 UTC on 2026-09-16**:
+**14 completed epochs, 17,409 observed / 17,400 durable updates**. Both selectors
+retain **16,600: CE 3.137654, accuracy 35.4713%**. See the
+[accepted-stop report](reports/H32rank32fixed-accepted-early-stop.md) and
+[native receipt](records/H32rank32fixed-accepted-early-stop.json). Native failed/−15
+records preserve intentional SIGTERM history; accepted-stop status is authoritative.
+
+The idle-macm3 numerical quality audit completed at **02:36:21 UTC**. All four
+G/H full-validation checkpoint replays passed, with no backward passes and no
+parameter or graph changes; the reserved test remains untouched. H halves G's
+decoder and reduces total trainable parameters by **40.7774%**. Compare the
+retained winners and common update/target budgets in the
+[post-H assessment](reports/rank32-post-H-assessment.md),
+[matched generated texts](reports/rank32-generated-texts.md),
+[structured assessment](records/rank32-post-H-assessment.json), and
+[full validation curves](reports/figures/rank32-vs-rank64-validation.png).
+Actual durable budgets differ: G 16,800 versus H 17,400. No successor is selected
+automatically; numerical replay alone does not establish text quality.
+
+`scripts/refresh_connectorch_rank32_progress.py` renders the preserved H/G
+receipts under `results/connectorch-rank32-v1/`.

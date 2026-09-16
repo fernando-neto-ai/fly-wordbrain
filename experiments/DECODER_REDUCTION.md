@@ -6,17 +6,21 @@ launched after F cessation and its own numerical preflight. F
 completion or quality assessment was not a prerequisite. Earlier E/F sequencing
 below describes the historical plan only.
 
-**Current state:** G is accepted as an early stop after 14 completed epochs,
+**Preserved rank64 baseline:** G is accepted as an early stop after 14 completed epochs,
 16,808 observed / 16,800 durable updates. Its separate winners are validation
 CE 3.093705 at 16,600 and accuracy 36.8885% at 15,552. The
 [post-G assessment](reports/rank64-post-G-assessment.md),
 [matched texts](reports/rank64-generated-texts.md) and
 [text review](reports/rank64-text-review.md) report the completed E/G evaluation.
-The user selected H32rank32fixed next. Its full macm3 run launched at
-00:57:20 UTC on 2026-09-16 after separate rank32 parity and optimizer-smoke gates
-passed. G is the preserved primary baseline. H's first full validation at 100
-updates measured CE 5.827075 and accuracy 8.4484%; quality assessment remains pending.
-See the [H launch report](reports/H32rank32fixed-launch.md).
+**Current state:** H32rank32fixed is accepted as an early stop after 14 completed
+epochs, 17,409 observed / 17,400 durable updates. Both selectors retain update
+16,600 with CE 3.137654 and accuracy 35.4713%. Its 2,343,125 trainable parameters
+are 40.7774% fewer than G's. The subsequent idle-macm3 numerical quality audit
+completed; all four G/H full-validation checkpoint replays passed. See the
+[H stop report](reports/H32rank32fixed-accepted-early-stop.md),
+[post-H assessment](reports/rank32-post-H-assessment.md),
+[matched texts](reports/rank32-generated-texts.md), and
+[validation curves](reports/figures/rank32-vs-rank64-validation.png).
 
 The user authorized this pair on 2026-09-15: reduce the decoder as proposed,
 retain the reduced encoder, and test whether modest brain adaptation recovers
@@ -131,10 +135,10 @@ and between E/G. It preserves the reserved test and verifies graph/parameter
 immutability during inference. The earlier encoder-only A/B evaluator remains
 unchanged and is not the E/G entry point.
 
-## Selected rank32 comparison
+## Accepted rank32 comparison
 
 H32rank32fixed compares a rank32 readout against the accepted, stopped
-G32rank64fixed baseline. It starts from scratch with the same seed42 recipe,
+G32rank64fixed baseline. It trained from scratch with the same seed42 recipe,
 width32 encoder, eight explicit delays, tokenizer, dataset and optimizer schedule.
 The bias-free linear factors are 49,393→32→1,024, with no intermediate activation.
 Every neuron still contributes to the decoder.
@@ -147,7 +151,8 @@ Every neuron still contributes to the decoder.
 | Layer normalization | 98,786 | 98,786 |
 | Total trainable | 3,956,469 | 2,343,125 |
 
-This halves the decoder and removes 1,613,344 total parameters. H retains all
+This halves the decoder and removes 1,613,344 total parameters, a 40.7774%
+reduction in total trainable size. H retains all
 49,393 neuron identities, 9,050,172 canonical edge endpoints and stored base
 weights. Existing neuron gain, recurrent-gain and bias values remain trainable;
 no additional edge gains, unfreezing or rewiring are selected. Changing rank
@@ -166,9 +171,16 @@ The [configuration](configs/H32rank32fixed.json) is tracked on
 and [launch receipt](runs/rank32-v1-launch.json) identify the actual run.
 Refresh H against preserved G with `scripts/refresh_connectorch_rank32_progress.py`.
 
-Retain separate minimum-CE and maximum-accuracy weights. Compare both independent
-winners and common update/non-padding-target budgets on the unchanged 100-story,
-21,874-target validation population. Apply the same plateau review and quality-loss
-flags above, then inspect identical text prompts and training overlap after stopping.
-The reserved test remains unused. No further experiment is queued by this rank32
-selection, and a single seed cannot establish an anatomical language advantage.
+H's minimum-CE and maximum-accuracy weights are preserved separately, even though
+both select update 16,600. The accepted stop at 17,400 followed trailing
+2,000-update gains of 0.024124 CE and 0.251440 accuracy percentage points,
+meeting both plateau thresholds. G stopped at 16,800; shared-budget comparisons
+remain separate from actual retained-winner results.
+
+The completed quality audit replayed both selectors for both G and H on the
+unchanged 100-story / 21,874-target validation population. All four passed,
+with zero backward kernel calls and unchanged parameters and graph. Matching
+generated texts and training-overlap measurements accompany the numerical audit;
+their existence is not a text-quality conclusion. The reserved test remains
+unused. No further experiment is queued automatically, and a single seed cannot
+establish an anatomical language advantage.

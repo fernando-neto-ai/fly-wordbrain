@@ -47,14 +47,20 @@ The [post-G assessment](experiments/reports/rank64-post-G-assessment.md),
 [text review](experiments/reports/rank64-text-review.md) document the comparison.
 F remains stopped; see the [experiment registry](experiments/INDEX.md) for receipts.
 
-The user selected **H32rank32fixed** next. Its rank32 decoder has **1,613,344
-parameters**, bringing the model to **2,343,125**; the encoder remains 482,816.
-H trains from scratch against the preserved G baseline, retaining the canonical
-edges and the same trainable neuron gains and biases. Full training launched on
-macm3 at **00:57:20 UTC on 2026-09-16**, after rank32 numerical parity and an
-eight-update optimizer smoke passed. Its first full validation at 100 updates
-measured CE 5.827075 and accuracy 8.4484%; this is an initial learning measurement,
-not a quality comparison. See the [H launch report](experiments/reports/H32rank32fixed-launch.md).
+The subsequent **H32rank32fixed** experiment is also accepted as an early stop:
+**14 completed epochs, 17,409 observed / 17,400 durable updates**. Both selectors
+retain update **16,600: CE 3.137654, accuracy 35.4713%**. Its 1,613,344-parameter
+decoder halves G's readout; **2,343,125 total parameters** is **40.7774% fewer**
+than G, with the same encoder and canonical graph. All four G/H checkpoint
+validation replays passed on macm3 without backward passes or parameter/graph
+changes; the reserved test was not evaluated. See the
+[H stop report](experiments/reports/H32rank32fixed-accepted-early-stop.md),
+[post-H assessment](experiments/reports/rank32-post-H-assessment.md),
+[matched texts](experiments/reports/rank32-generated-texts.md), and
+[validation curves](experiments/reports/figures/rank32-vs-rank64-validation.png).
+G remains the recommended quality baseline; H preserves a smaller option with
+a 1.4172-point retained-best accuracy cost. No subsequent training experiment
+is selected automatically.
 
 ## Start here
 

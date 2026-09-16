@@ -1,0 +1,780 @@
+{
+  "format_version": 1,
+  "status": "assessment_complete",
+  "completed_at_utc": "2026-09-16T02:36:21.277698+00:00",
+  "training_host": "macm3",
+  "training_run": false,
+  "reserved_test_evaluated": false,
+  "training_stops": {
+    "G32rank64fixed": {
+      "observed_updates": 16808,
+      "durable_updates": 16800,
+      "completed_epochs": 14,
+      "accepted_at_utc": "2026-09-15T23:37:28.176774+00:00",
+      "full_schedule_completed": false
+    },
+    "H32rank32fixed": {
+      "observed_updates": 17409,
+      "durable_updates": 17400,
+      "completed_epochs": 14,
+      "accepted_at_utc": "2026-09-16T02:26:35.014448+00:00",
+      "full_schedule_completed": false
+    }
+  },
+  "parameter_counts": {
+    "G32rank64fixed": {
+      "embedding": 32768,
+      "input_projection": 450048,
+      "neurons": 148179,
+      "edge_gains": 0,
+      "layernorm": 98786,
+      "readout": 3226688,
+      "other": 0,
+      "total": 3956469
+    },
+    "H32rank32fixed": {
+      "embedding": 32768,
+      "input_projection": 450048,
+      "neurons": 148179,
+      "edge_gains": 0,
+      "layernorm": 98786,
+      "readout": 1613344,
+      "other": 0,
+      "total": 2343125
+    }
+  },
+  "compression": {
+    "decoder_reduction_percent": 50.0,
+    "total_trainable_reduction_percent": 40.77736992252435
+  },
+  "validation": {
+    "G32rank64fixed": {
+      "minimum_validation_ce": {
+        "cursor": {
+          "epoch": 13,
+          "batch": 108,
+          "offset": 224,
+          "updates": 16600,
+          "phase": 0,
+          "epoch_loss_sum": 498774.0762152001,
+          "epoch_tokens": 204938,
+          "epoch_correct": 94762
+        },
+        "training_tokens": 3257286,
+        "checkpoint_sha256": "a552be53892d43d461e65e2c93488779ce0e7f12d93860d9968d90035df23b75",
+        "readout_shapes": {
+          "lm_head.0.weight": [
+            64,
+            49393
+          ],
+          "lm_head.1.weight": [
+            1024,
+            64
+          ]
+        },
+        "replay": {
+          "passed": true,
+          "cross_entropy_delta": 5.967462080036512e-10,
+          "ce_tolerance": 0.0001,
+          "counts_match_exactly": true
+        },
+        "neuron_delta_from_initialization": {
+          "brain.gain": {
+            "values": 49393,
+            "different_values": 49393,
+            "changed_fraction": 1.0,
+            "mean_delta": -0.11751108416342676,
+            "mean_absolute_delta": 0.4557652088926768,
+            "rms_delta": 0.6028209487270203,
+            "maximum_absolute_delta": 3.5372400283813477,
+            "base_rms": 1.0,
+            "other_rms": 1.0622480538449064,
+            "relative_l2_delta": 0.6028209487270297
+          },
+          "brain.rec_gain": {
+            "values": 49393,
+            "different_values": 49393,
+            "changed_fraction": 1.0,
+            "mean_delta": -16.74264156895063,
+            "mean_absolute_delta": 16.742739405503446,
+            "rms_delta": 86.35201141418136,
+            "maximum_absolute_delta": 2487.01953125,
+            "base_rms": 662.3313560329566,
+            "other_rms": 575.9799060239774,
+            "relative_l2_delta": 0.13037584681387882
+          },
+          "brain.bias": {
+            "values": 49393,
+            "different_values": 49393,
+            "changed_fraction": 1.0,
+            "mean_delta": 0.006286014500754831,
+            "mean_absolute_delta": 0.058177193220419476,
+            "rms_delta": 0.09229797972241091,
+            "maximum_absolute_delta": 0.9169002175331116,
+            "base_rms": 0.0,
+            "other_rms": 0.09229797972241091,
+            "relative_l2_delta": null
+          },
+          "gain_times_rec_gain": {
+            "values": 49393,
+            "different_values": 49393,
+            "changed_fraction": 1.0,
+            "mean_delta": 22.696282361112544,
+            "mean_absolute_delta": 61.71610000354427,
+            "rms_delta": 354.68420398974337,
+            "maximum_absolute_delta": 30121.9140625,
+            "base_rms": 662.3313560329566,
+            "other_rms": 922.5819871802871,
+            "relative_l2_delta": 0.5355087008323594
+          }
+        },
+        "validation": {
+          "stories": 100,
+          "tokens": 21874,
+          "nll_sum": 67671.70489543657,
+          "correct": 7955,
+          "cross_entropy": 3.0937050788807063,
+          "perplexity": 22.058655816075323,
+          "top1_accuracy": 0.36367376794367745
+        },
+        "overlap_words": [
+          12,
+          6,
+          7,
+          8,
+          7,
+          6
+        ],
+        "normalized_training_prefix_matches": 0
+      },
+      "maximum_validation_accuracy": {
+        "cursor": {
+          "epoch": 13,
+          "batch": 0,
+          "offset": 0,
+          "updates": 15552,
+          "phase": 0,
+          "epoch_loss_sum": 0.0,
+          "epoch_tokens": 0,
+          "epoch_correct": 0
+        },
+        "training_tokens": 3052348,
+        "checkpoint_sha256": "d25b495e1bb9f9096331af393eefcd55564d5394849a095f78b4daf6d5dbcbb8",
+        "readout_shapes": {
+          "lm_head.0.weight": [
+            64,
+            49393
+          ],
+          "lm_head.1.weight": [
+            1024,
+            64
+          ]
+        },
+        "replay": {
+          "passed": true,
+          "cross_entropy_delta": 5.669879676872824e-09,
+          "ce_tolerance": 0.0001,
+          "counts_match_exactly": true
+        },
+        "neuron_delta_from_initialization": {
+          "brain.gain": {
+            "values": 49393,
+            "different_values": 49393,
+            "changed_fraction": 1.0,
+            "mean_delta": -0.12974722828955765,
+            "mean_absolute_delta": 0.44722517252020383,
+            "rms_delta": 0.5866392937904262,
+            "maximum_absolute_delta": 3.400580406188965,
+            "base_rms": 1.0,
+            "other_rms": 1.0414658921154425,
+            "relative_l2_delta": 0.5866392937904376
+          },
+          "brain.rec_gain": {
+            "values": 49393,
+            "different_values": 49393,
+            "changed_fraction": 1.0,
+            "mean_delta": -16.075517547665804,
+            "mean_absolute_delta": 16.075604988436318,
+            "rms_delta": 82.83560084824165,
+            "maximum_absolute_delta": 2385.693359375,
+            "base_rms": 662.3313560329566,
+            "other_rms": 579.4963377295602,
+            "relative_l2_delta": 0.12506670580174042
+          },
+          "brain.bias": {
+            "values": 49393,
+            "different_values": 49393,
+            "changed_fraction": 1.0,
+            "mean_delta": 0.005927173502908401,
+            "mean_absolute_delta": 0.05760300583307315,
+            "rms_delta": 0.09124007178930554,
+            "maximum_absolute_delta": 0.9020149111747742,
+            "base_rms": 0.0,
+            "other_rms": 0.09124007178930554,
+            "relative_l2_delta": null
+          },
+          "gain_times_rec_gain": {
+            "values": 49393,
+            "different_values": 49393,
+            "changed_fraction": 1.0,
+            "mean_delta": 19.936866060433026,
+            "mean_absolute_delta": 59.116560564644274,
+            "rms_delta": 335.1905741009281,
+            "maximum_absolute_delta": 29362.1953125,
+            "base_rms": 662.3313560329566,
+            "other_rms": 901.2692413871204,
+            "relative_l2_delta": 0.5060768617517324
+          }
+        },
+        "validation": {
+          "stories": 100,
+          "tokens": 21874,
+          "nll_sum": 67884.8734102702,
+          "correct": 8069,
+          "cross_entropy": 3.103450370772159,
+          "perplexity": 22.274674729800388,
+          "top1_accuracy": 0.368885434762732
+        },
+        "overlap_words": [
+          20,
+          7,
+          6,
+          7,
+          9,
+          7
+        ],
+        "normalized_training_prefix_matches": 0
+      }
+    },
+    "H32rank32fixed": {
+      "minimum_validation_ce": {
+        "cursor": {
+          "epoch": 13,
+          "batch": 108,
+          "offset": 224,
+          "updates": 16600,
+          "phase": 0,
+          "epoch_loss_sum": 571659.106412977,
+          "epoch_tokens": 204938,
+          "epoch_correct": 82644
+        },
+        "training_tokens": 3257286,
+        "checkpoint_sha256": "6b9badc7fb43d883b50ff3538601b333690317cab572a7c90619c83633cf0515",
+        "readout_shapes": {
+          "lm_head.0.weight": [
+            32,
+            49393
+          ],
+          "lm_head.1.weight": [
+            1024,
+            32
+          ]
+        },
+        "replay": {
+          "passed": true,
+          "cross_entropy_delta": 1.6214381393098165e-08,
+          "ce_tolerance": 0.0001,
+          "counts_match_exactly": true
+        },
+        "neuron_delta_from_initialization": {
+          "brain.gain": {
+            "values": 49393,
+            "different_values": 49393,
+            "changed_fraction": 1.0,
+            "mean_delta": -0.1680736508063805,
+            "mean_absolute_delta": 0.4602170217946171,
+            "rms_delta": 0.6056958728296694,
+            "maximum_absolute_delta": 3.503129005432129,
+            "base_rms": 1.0,
+            "other_rms": 1.015243906039398,
+            "relative_l2_delta": 0.6056958728296804
+          },
+          "brain.rec_gain": {
+            "values": 49393,
+            "different_values": 49393,
+            "changed_fraction": 1.0,
+            "mean_delta": -16.754048874901486,
+            "mean_absolute_delta": 16.754126873465665,
+            "rms_delta": 86.35360869833454,
+            "maximum_absolute_delta": 2487.01953125,
+            "base_rms": 662.3313560329566,
+            "other_rms": 575.9782662175551,
+            "relative_l2_delta": 0.13037825842271875
+          },
+          "brain.bias": {
+            "values": 49393,
+            "different_values": 49393,
+            "changed_fraction": 1.0,
+            "mean_delta": 0.0014439364152045153,
+            "mean_absolute_delta": 0.05449059664726797,
+            "rms_delta": 0.09158479769252785,
+            "maximum_absolute_delta": 1.249077558517456,
+            "base_rms": 0.0,
+            "other_rms": 0.09158479769252785,
+            "relative_l2_delta": null
+          },
+          "gain_times_rec_gain": {
+            "values": 49393,
+            "different_values": 49393,
+            "changed_fraction": 1.0,
+            "mean_delta": 10.960264909361737,
+            "mean_absolute_delta": 62.42941748675059,
+            "rms_delta": 372.08363347336416,
+            "maximum_absolute_delta": 34601.4453125,
+            "base_rms": 662.3313560329566,
+            "other_rms": 891.4969242111516,
+            "relative_l2_delta": 0.5617786778236871
+          }
+        },
+        "validation": {
+          "stories": 100,
+          "tokens": 21874,
+          "nll_sum": 68633.04354491424,
+          "correct": 7759,
+          "cross_entropy": 3.137653997664544,
+          "perplexity": 23.049728662111555,
+          "top1_accuracy": 0.354713358324952
+        },
+        "overlap_words": [
+          12,
+          8,
+          5,
+          6,
+          7,
+          9
+        ],
+        "normalized_training_prefix_matches": 0
+      },
+      "maximum_validation_accuracy": {
+        "cursor": {
+          "epoch": 13,
+          "batch": 108,
+          "offset": 224,
+          "updates": 16600,
+          "phase": 0,
+          "epoch_loss_sum": 571659.106412977,
+          "epoch_tokens": 204938,
+          "epoch_correct": 82644
+        },
+        "training_tokens": 3257286,
+        "checkpoint_sha256": "6ed28abd44ec3d7049573b6ebdc3b81723991da20def653b23b3e15af001b2c8",
+        "readout_shapes": {
+          "lm_head.0.weight": [
+            32,
+            49393
+          ],
+          "lm_head.1.weight": [
+            1024,
+            32
+          ]
+        },
+        "replay": {
+          "passed": true,
+          "cross_entropy_delta": 1.6214381393098165e-08,
+          "ce_tolerance": 0.0001,
+          "counts_match_exactly": true
+        },
+        "neuron_delta_from_initialization": {
+          "brain.gain": {
+            "values": 49393,
+            "different_values": 49393,
+            "changed_fraction": 1.0,
+            "mean_delta": -0.1680736508063805,
+            "mean_absolute_delta": 0.4602170217946171,
+            "rms_delta": 0.6056958728296694,
+            "maximum_absolute_delta": 3.503129005432129,
+            "base_rms": 1.0,
+            "other_rms": 1.015243906039398,
+            "relative_l2_delta": 0.6056958728296804
+          },
+          "brain.rec_gain": {
+            "values": 49393,
+            "different_values": 49393,
+            "changed_fraction": 1.0,
+            "mean_delta": -16.754048874901486,
+            "mean_absolute_delta": 16.754126873465665,
+            "rms_delta": 86.35360869833454,
+            "maximum_absolute_delta": 2487.01953125,
+            "base_rms": 662.3313560329566,
+            "other_rms": 575.9782662175551,
+            "relative_l2_delta": 0.13037825842271875
+          },
+          "brain.bias": {
+            "values": 49393,
+            "different_values": 49393,
+            "changed_fraction": 1.0,
+            "mean_delta": 0.0014439364152045153,
+            "mean_absolute_delta": 0.05449059664726797,
+            "rms_delta": 0.09158479769252785,
+            "maximum_absolute_delta": 1.249077558517456,
+            "base_rms": 0.0,
+            "other_rms": 0.09158479769252785,
+            "relative_l2_delta": null
+          },
+          "gain_times_rec_gain": {
+            "values": 49393,
+            "different_values": 49393,
+            "changed_fraction": 1.0,
+            "mean_delta": 10.960264909361737,
+            "mean_absolute_delta": 62.42941748675059,
+            "rms_delta": 372.08363347336416,
+            "maximum_absolute_delta": 34601.4453125,
+            "base_rms": 662.3313560329566,
+            "other_rms": 891.4969242111516,
+            "relative_l2_delta": 0.5617786778236871
+          }
+        },
+        "validation": {
+          "stories": 100,
+          "tokens": 21874,
+          "nll_sum": 68633.04354491424,
+          "correct": 7759,
+          "cross_entropy": 3.137653997664544,
+          "perplexity": 23.049728662111555,
+          "top1_accuracy": 0.354713358324952
+        },
+        "overlap_words": [
+          12,
+          8,
+          5,
+          6,
+          7,
+          9
+        ],
+        "normalized_training_prefix_matches": 0
+      }
+    }
+  },
+  "comparisons": {
+    "minimum_validation_ce": {
+      "direction": "H minus G",
+      "delta_cross_entropy": 0.043948918783837776,
+      "delta_accuracy": -0.008960409618725462,
+      "ce_loss_over_0_10": false,
+      "accuracy_loss_over_1pp": false,
+      "review_flag": false,
+      "qualification": "Descriptive review flags on checkpoint-selection validation; not statistical significance or test equivalence."
+    },
+    "maximum_validation_accuracy": {
+      "direction": "H minus G",
+      "delta_cross_entropy": 0.03420362689238532,
+      "delta_accuracy": -0.014172076437780012,
+      "ce_loss_over_0_10": false,
+      "accuracy_loss_over_1pp": true,
+      "review_flag": true,
+      "qualification": "Descriptive review flags on checkpoint-selection validation; not statistical significance or test equivalence."
+    }
+  },
+  "common_budget": {
+    "common_budget_updates": 16800,
+    "common_budget_training_tokens": 3295559,
+    "best_through_common_budget": {
+      "G": {
+        "minimum_validation_ce": {
+          "updates": 16600,
+          "training_tokens": 3257286,
+          "validation": {
+            "cross_entropy": 3.09370507828396,
+            "top1_accuracy": 0.36367376794367745,
+            "correct": 7955,
+            "tokens": 21874,
+            "stories": 100
+          }
+        },
+        "maximum_validation_accuracy": {
+          "updates": 15552,
+          "training_tokens": 3052348,
+          "validation": {
+            "cross_entropy": 3.103450365102279,
+            "top1_accuracy": 0.368885434762732,
+            "correct": 8069,
+            "tokens": 21874,
+            "stories": 100
+          }
+        }
+      },
+      "H": {
+        "minimum_validation_ce": {
+          "updates": 16600,
+          "training_tokens": 3257286,
+          "validation": {
+            "cross_entropy": 3.1376539814501627,
+            "top1_accuracy": 0.354713358324952,
+            "correct": 7759,
+            "tokens": 21874,
+            "stories": 100
+          }
+        },
+        "maximum_validation_accuracy": {
+          "updates": 16600,
+          "training_tokens": 3257286,
+          "validation": {
+            "cross_entropy": 3.1376539814501627,
+            "top1_accuracy": 0.354713358324952,
+            "correct": 7759,
+            "tokens": 21874,
+            "stories": 100
+          }
+        }
+      }
+    },
+    "qualification": "Historical scores, not regenerated historical checkpoint texts. Retained winners can use unequal budgets."
+  },
+  "last_shared_validation": {
+    "updates": 16800,
+    "training_tokens": 3295559,
+    "G": {
+      "cross_entropy": 3.1085497419479027,
+      "top1_accuracy": 0.36577672122154153,
+      "correct": 8001,
+      "tokens": 21874,
+      "stories": 100
+    },
+    "H": {
+      "cross_entropy": 3.1507737281020125,
+      "top1_accuracy": 0.3533418670567797,
+      "correct": 7729,
+      "tokens": 21874,
+      "stories": 100
+    },
+    "comparison": {
+      "direction": "H minus G",
+      "delta_cross_entropy": 0.04222398615410983,
+      "delta_accuracy": -0.01243485416476181,
+      "ce_loss_over_0_10": false,
+      "accuracy_loss_over_1pp": true,
+      "review_flag": true,
+      "qualification": "Descriptive review flags on checkpoint-selection validation; not statistical significance or test equivalence."
+    }
+  },
+  "neuron_comparison": {
+    "H_minus_G": {
+      "minimum_validation_ce": {
+        "brain.gain": {
+          "values": 49393,
+          "different_values": 49393,
+          "changed_fraction": 1.0,
+          "mean_delta": -0.05056256664295373,
+          "mean_absolute_delta": 0.19596470125511417,
+          "rms_delta": 0.2898911416586119,
+          "maximum_absolute_delta": 2.3247988522052765,
+          "base_rms": 1.0622480538449064,
+          "other_rms": 1.015243906039398,
+          "relative_l2_delta": 0.2729034340042551
+        },
+        "brain.rec_gain": {
+          "values": 49393,
+          "different_values": 49171,
+          "changed_fraction": 0.9955054359929545,
+          "mean_delta": -0.011407305950851104,
+          "mean_absolute_delta": 0.12397504422019542,
+          "rms_delta": 0.1719805438314442,
+          "maximum_absolute_delta": 1.7485504150390625,
+          "base_rms": 575.9799060239774,
+          "other_rms": 575.9782662175551,
+          "relative_l2_delta": 0.0002985877493863198
+        },
+        "brain.bias": {
+          "values": 49393,
+          "different_values": 49393,
+          "changed_fraction": 1.0,
+          "mean_delta": -0.004842078085550316,
+          "mean_absolute_delta": 0.07304370838722875,
+          "rms_delta": 0.12141709150472083,
+          "maximum_absolute_delta": 1.489421010017395,
+          "base_rms": 0.09229797972241091,
+          "other_rms": 0.09158479769252785,
+          "relative_l2_delta": 1.3154902400885256
+        },
+        "gain_times_rec_gain": {
+          "values": 49393,
+          "different_values": 49393,
+          "changed_fraction": 1.0,
+          "mean_delta": -11.73601745175081,
+          "mean_absolute_delta": 33.4314038071501,
+          "rms_delta": 215.1051441942268,
+          "maximum_absolute_delta": 17840.7529296875,
+          "base_rms": 922.5819871802871,
+          "other_rms": 891.4969242111516,
+          "relative_l2_delta": 0.23315558636870728
+        }
+      },
+      "maximum_validation_accuracy": {
+        "brain.gain": {
+          "values": 49393,
+          "different_values": 49393,
+          "changed_fraction": 1.0,
+          "mean_delta": -0.038326422516822854,
+          "mean_absolute_delta": 0.19138687017807005,
+          "rms_delta": 0.2823729086626724,
+          "maximum_absolute_delta": 2.25517275929451,
+          "base_rms": 1.0414658921154425,
+          "other_rms": 1.015243906039398,
+          "relative_l2_delta": 0.27113025092843934
+        },
+        "brain.rec_gain": {
+          "values": 49393,
+          "different_values": 49393,
+          "changed_fraction": 1.0,
+          "mean_delta": -0.6785313272356789,
+          "mean_absolute_delta": 0.704068567641311,
+          "rms_delta": 3.522105585922743,
+          "maximum_absolute_delta": 101.326171875,
+          "base_rms": 579.4963377295602,
+          "other_rms": 575.9782662175551,
+          "relative_l2_delta": 0.006077873761415256
+        },
+        "brain.bias": {
+          "values": 49393,
+          "different_values": 49393,
+          "changed_fraction": 1.0,
+          "mean_delta": -0.004483237087703886,
+          "mean_absolute_delta": 0.07258724699022968,
+          "rms_delta": 0.12063238714433021,
+          "maximum_absolute_delta": 1.470891296863556,
+          "base_rms": 0.09124007178930554,
+          "other_rms": 0.09158479769252785,
+          "relative_l2_delta": 1.3221426153948923
+        },
+        "gain_times_rec_gain": {
+          "values": 49393,
+          "different_values": 49393,
+          "changed_fraction": 1.0,
+          "mean_delta": -8.976601151071291,
+          "mean_absolute_delta": 32.69300285582696,
+          "rms_delta": 210.4169510075339,
+          "maximum_absolute_delta": 17358.7490234375,
+          "base_rms": 901.2692413871204,
+          "other_rms": 891.4969242111516,
+          "relative_l2_delta": 0.23346736063430568
+        }
+      }
+    },
+    "initial_H_minus_G": {
+      "brain.gain": {
+        "values": 49393,
+        "different_values": 0,
+        "changed_fraction": 0.0,
+        "mean_delta": 0.0,
+        "mean_absolute_delta": 0.0,
+        "rms_delta": 0.0,
+        "maximum_absolute_delta": 0.0,
+        "base_rms": 1.0,
+        "other_rms": 1.0,
+        "relative_l2_delta": 0.0
+      },
+      "brain.rec_gain": {
+        "values": 49393,
+        "different_values": 0,
+        "changed_fraction": 0.0,
+        "mean_delta": 0.0,
+        "mean_absolute_delta": 0.0,
+        "rms_delta": 0.0,
+        "maximum_absolute_delta": 0.0,
+        "base_rms": 662.3313560329566,
+        "other_rms": 662.3313560329566,
+        "relative_l2_delta": 0.0
+      },
+      "brain.bias": {
+        "values": 49393,
+        "different_values": 0,
+        "changed_fraction": 0.0,
+        "mean_delta": 0.0,
+        "mean_absolute_delta": 0.0,
+        "rms_delta": 0.0,
+        "maximum_absolute_delta": 0.0,
+        "base_rms": 0.0,
+        "other_rms": 0.0,
+        "relative_l2_delta": null
+      },
+      "gain_times_rec_gain": {
+        "values": 49393,
+        "different_values": 0,
+        "changed_fraction": 0.0,
+        "mean_delta": 0.0,
+        "mean_absolute_delta": 0.0,
+        "rms_delta": 0.0,
+        "maximum_absolute_delta": 0.0,
+        "base_rms": 662.3313560329566,
+        "other_rms": 662.3313560329566,
+        "relative_l2_delta": 0.0
+      }
+    },
+    "canonical_edges_exactly_fixed": true,
+    "canonical_graph_hashes": {
+      "brain.w_offsets": "53b216d7bc2503c539c2d2b03ce56f66eb8a2e9b902f0a20deda0ec4be37ade0",
+      "brain.w_indices": "0f17b9563457fbf84404c54227db86b5adcf04a689cdff5e33d32ec5d5e0b771",
+      "brain.w_values": "e6408887d3312783c65d3f10bb69b28fe50bb06699f0a8a9341d444e6eb0549a",
+      "brain.in_index": "ee440072f6c94b59c552cb09812af5894066ae28f686cda2cd2e35a3626beda6",
+      "brain.out_index": "5ac16e2c38cf0a1b4b4aea74eadeb2d487e153113d046895a813e09d010f0a18",
+      "brain.edge_group_index": "4b9af4b1e2313aba5a9a139ae3ecfc8fcae09a440c65802207a26775700f6eca",
+      "brain.node_type_index": "9ea440846c4bfde95c8c007320ad3bc3b79cfb3b69c2ff6a136c39fd41f658be"
+    },
+    "qualification": "Gain*rec_gain describes pre-tanh recurrent scaling, not anatomical rewiring or measured workload transfer. Trainable neuron parameters, not rewiring. Retained checkpoints may have unequal budgets; no causal anatomical advantage established."
+  },
+  "verification": {
+    "all_four_selector_replays_passed": true,
+    "maximum_replay_ce_error": 1.6214381393098165e-08,
+    "exact_accuracy_counts": true,
+    "optimizer_steps": 0,
+    "backward_calls": 0,
+    "bindings_unchanged": true,
+    "canonical_edges_exactly_fixed": true,
+    "worker_exited": true
+  },
+  "text_review": {
+    "continuation_records": 24,
+    "distinct_continuations": 18,
+    "H_selectors_identical_weights_and_samples": true,
+    "finding": "Rank32 adds fluency and repetition weaknesses in several prompts; comparisons are mixed, with persistent coherence failures in both models.",
+    "report": "experiments/reports/rank32-text-review.md",
+    "all_texts": "experiments/reports/rank32-generated-texts.md"
+  },
+  "recommendation": {
+    "quality_baseline": "G32rank64fixed",
+    "compact_tradeoff": "H32rank32fixed",
+    "next_experiment_selected": false,
+    "possible_recovery_experiment": "If selected, retain rank32/encoder32 and test18322 factorized anatomical type-gain parameters with effective edge scales bounded to +/-10%; same node/edge topology.",
+    "proposed_recovery_total_trainable": 2361447
+  },
+  "qualification": [
+    "One seed and checkpoint-selection validation; not an independent test or anatomical-advantage claim.",
+    "Rank changes decoder shapes and initial output variance. Encoder/neuron initial parameters were identical.",
+    "Neuron changes are not measured transfer of computational burden.",
+    "Later training or the unvisited schedule phase could still improve results; both runs stopped under the same operational policy."
+  ],
+  "artifacts": {
+    "results/connectorch-post-h-quality-v1/protocol.json": {
+      "bytes": 57872,
+      "sha256": "931052cf6387d30bba25d229f41ffbd66195e81e7fdd7dcdad006a92e07db93e",
+      "native_path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-post-h-quality-v1/protocol.json"
+    },
+    "results/connectorch-post-h-quality-v1/results.json": {
+      "bytes": 465843,
+      "sha256": "db535a12c6e76d72633ce8b0af76db37047b00029a85821865af94063eba2beb",
+      "native_path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-post-h-quality-v1/results.json"
+    },
+    "results/connectorch-post-h-quality-v1/report.md": {
+      "bytes": 13769,
+      "sha256": "11dbea97d957d496e78f2858bcdf30e85ac0a016a75b067a4dd2d83acdfa7dcf",
+      "native_path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-post-h-quality-v1/report.md"
+    },
+    "results/connectorch-post-h-quality-v1/status.json": {
+      "bytes": 864,
+      "sha256": "d0cb272e1d14096961fd645f52fc3071c2508a1d7fbb56feaf7d54491616127a",
+      "native_path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-post-h-quality-v1/status.json"
+    },
+    "results/connectorch-post-h-quality-v1/G32rank64fixed.json": {
+      "bytes": 100199,
+      "sha256": "0e020fb491039cb2fec47bf348df93b05a7a79429981351ab91067b754980a09",
+      "native_path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-post-h-quality-v1/G32rank64fixed.json"
+    },
+    "results/connectorch-post-h-quality-v1/H32rank32fixed.json": {
+      "bytes": 94545,
+      "sha256": "b215e5a133d926d214d372e135410ff57ce1447549d1b6891ff68f48197d4a31",
+      "native_path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-post-h-quality-v1/H32rank32fixed.json"
+    }
+  },
+  "experiment_branch": "exp/encoder32-readout32-fixed",
+  "evaluator_source_commit": "e6029ca2948060975cadd17cdf1672f57119b3a5"
+}
