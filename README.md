@@ -121,10 +121,32 @@ recipe, multiple seeds, and a declared final-test protocol. We have not run them
 someone does, the honest reading of this work is a result about **readouts**, not about
 flies.
 
-**We did not modify the connectome.** G and H share byte-identical frozen graph buffers
-with the reference — `w_values` SHA256 `e6408887…` in both. Not one edge changed. What
-training changed is per-neuron dynamics (gain, recurrent gain, bias) and the interfaces.
-Arms that *would* have adapted synaptic strengths (±10%, still no rewiring) were deferred.
+**We did not modify the connectome — but the brain is not inert either.** These are two
+different statements and both matter.
+
+The *wiring* is untouched. Every endpoint, sign and stored synaptic weight in G and H is
+byte-identical to the reference (`w_values` SHA256 `e6408887…`, plus six other graph
+buffers). Not one edge was changed, and none was rewired.
+
+The *neurons* are trained. Each of the 49,393 carries a learned input gain, recurrent gain
+and bias — 148,179 parameters, **part of the reference architecture rather than something
+we added** — and training moves them a long way. Rebuilding the initialization from the
+recorded seed and diffing against the trained weights:
+
+| Relative L2 change from initialization | G rank64 | H rank32 |
+|---|---:|---:|
+| `gain` (per-neuron input gain) | 58.66% | 60.57% |
+| `rec_gain` (per-neuron recurrent gain) | 12.51% | 13.04% |
+| **`gain × rec_gain`** (effective per-neuron scaling) | **50.61%** | **56.18%** |
+
+`rec_gain` multiplies a neuron's *entire* incoming sum, so it rescales all of that neuron's
+synapses by a single factor. It cannot change their relative strengths or their signs. The
+connectome's structure is preserved; its per-neuron scale is learned. Measured by
+[`scripts/measure_brain_displacement.py`](scripts/measure_brain_displacement.py), recorded in
+[`experiments/records/`](experiments/records/G32rank64fixed-brain-displacement.json).
+
+Arms that *would* have adapted individual synaptic strengths (±10%, still no rewiring) were
+deferred and never run.
 
 **We did not beat the reference at writing.** The numbers improved; the prose did not.
 Across 24 generation records from G and H there are only 18 distinct texts, neither model

@@ -2,9 +2,10 @@
 """Verify a packaged connectome using only its own files and manifest.
 
 No model, no checkpoint and no framework beyond NumPy: this is the check a third
-party can run after downloading the dataset. It confirms every file's SHA-256,
-rebuilds the CSR structure, re-derives the frozen-buffer digests that the trained
-checkpoints record, and measures the quantised encoding against the canonical one.
+party can run after downloading the dataset. It confirms every file's SHA-256 and
+rebuilds the CSR structure, then runs whichever extra checks the manifest earns —
+frozen-buffer digests and the quantised encoding for the central-brain subset,
+population and label-table consistency for the full connectome.
 """
 import argparse
 import hashlib
@@ -15,6 +16,9 @@ import numpy as np
 
 DTYPES = {"i16": np.int16, "i32": np.int32, "i64": np.int64, "u8": np.uint8,
           "u16": np.uint16, "f32": np.float32}
+# The two packages name their weight and source arrays differently; the invariants
+# they must satisfy are the same.
+WEIGHT_KEYS = ("edges_weight_f32", "edges_weight")
 
 
 def load(root, entry):
@@ -46,8 +50,7 @@ def main():
 
     offsets = load(root, files["edges_offsets"])
     source = load(root, files["edges_source"])
-    weight = load(root, files["edges_weight_f32"])
-    packed = load(root, files["edges_weight_i16"])
+    weight = load(root, next(files[k] for k in WEIGHT_KEYS if k in files))
     checks.append(("every file SHA-256", True))
 
     n, e = manifest["neurons"], manifest["edges"]
@@ -58,6 +61,37 @@ def main():
     checks.append(("weights finite", bool(np.isfinite(weight).all())))
     checks.append(("signed weight counts", int((weight < 0).sum()) == manifest["weights"]["negative_edges"]
                    and int((weight > 0).sum()) == manifest["weights"]["positive_edges"]))
+
+    if "frozen_buffers_sha256" not in manifest:
+        # Full-connectome package: no model buffers to reproduce, but the label tables,
+        # named populations and derived hop counts still have to line up.
+        for name in ("superclass", "cell_type"):
+            labels = load(root, files[f"{name}_labels"])
+            index = load(root, files[f"{name}_index"])
+            checks.append((f"{name} index covers its labels",
+                           index.size == n and int(index.max()) < len(labels) and int(index.min()) >= 0))
+        body = load(root, files["body_id"])
+        checks.append(("body IDs unique", len(np.unique(body)) == n))
+        for name, count in manifest["populations"].items():
+            members = load(root, files[f"population_{name}"])
+            checks.append((f"population {name} in range",
+                           members.size == count and int(members.max()) < n and int(members.min()) >= 0))
+        for name in ("hops_from_retina", "hops_to_descending"):
+            hops = load(root, files[name])
+            checks.append((f"{name} covers every neuron", hops.size == n and int(hops.min()) >= -1))
+        checks.append(("weights are raw and unnormalised",
+                       manifest["weights"]["raw"] and not manifest["weights"]["normalization_applied"]))
+        width = max(len(name) for name, _ in checks)
+        for name, ok in checks:
+            print(f"  {'PASS' if ok else 'FAIL'}  {name:{width}}")
+        failed = [name for name, ok in checks if not ok]
+        if failed:
+            print(f"\n{len(failed)} check(s) failed.")
+            return 1
+        print(f"\nAll {len(checks)} checks passed: {n:,} neurons, {e:,} edges, "
+              f"{manifest['neurons_detail']['cell_types']:,} cell types, "
+              f"{len(manifest['populations'])} named populations.")
+        return 0
 
     # The trainers hash these buffers in their original dtypes, which the manifest records,
     # so a third party reproduces the checkpoint digests without guessing an encoding.
@@ -71,6 +105,7 @@ def main():
         checks.append((f"frozen buffer {name}",
                        frozen[name] == digest_array(array.astype(np.dtype(dtypes[name])))))
 
+    packed = load(root, files["edges_weight_i16"])
     q = manifest["weights"]["quantised"]
     error = float(np.abs(packed.astype(np.float32) * q["scale"] - weight).max())
     checks.append(("quantised round-trip within manifest", error <= q["max_absolute_error"] * 1.000001))

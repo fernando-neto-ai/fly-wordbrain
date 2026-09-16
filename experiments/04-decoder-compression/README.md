@@ -23,6 +23,14 @@ parameters and the canonical 9,050,172-edge graph. **G and H share byte-identica
 graph buffers** — `w_values` SHA256 `e6408887…`, identical in both — so no edge was
 modified in either.
 
+Those 148,179 neuron parameters *are* trained, and substantially: measured against the
+seed-rebuilt initialization, `gain` moves 58.66% (G) / 60.57% (H) in relative L2 and the
+effective per-neuron scaling `gain × rec_gain` moves 50.61% / 56.18%. Since `rec_gain`
+multiplies a neuron's whole incoming sum, it rescales that neuron's synapses uniformly and
+cannot touch their relative strengths or signs. See
+[`G`](../records/G32rank64fixed-brain-displacement.json) and
+[`H`](../records/H32rank32fixed-brain-displacement.json).
+
 ## Result
 
 Shrinking the readout did not cost quality. It **recovered** it.

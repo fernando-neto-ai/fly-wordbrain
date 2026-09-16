@@ -1,0 +1,72 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-09-16T23:33:36.621910+00:00",
+  "experiment": "G32rank64fixed",
+  "checkpoint": "results/web-export-src/G32rank64fixed-best-accuracy.pt",
+  "checkpoint_sha256": "d25b495e1bb9f9096331af393eefcd55564d5394849a095f78b4daf6d5dbcbb8",
+  "updates": 15552,
+  "seed": 42,
+  "initialization": "rebuilt from the recorded seed by scripts/train_connectorch.build_model",
+  "unchanged_buffers_sha256": {
+    "brain.w_offsets": "53b216d7bc2503c539c2d2b03ce56f66eb8a2e9b902f0a20deda0ec4be37ade0",
+    "brain.w_indices": "0f17b9563457fbf84404c54227db86b5adcf04a689cdff5e33d32ec5d5e0b771",
+    "brain.w_values": "e6408887d3312783c65d3f10bb69b28fe50bb06699f0a8a9341d444e6eb0549a",
+    "brain.in_index": "ee440072f6c94b59c552cb09812af5894066ae28f686cda2cd2e35a3626beda6",
+    "brain.out_index": "5ac16e2c38cf0a1b4b4aea74eadeb2d487e153113d046895a813e09d010f0a18",
+    "brain.edge_group_index": "4b9af4b1e2313aba5a9a139ae3ecfc8fcae09a440c65802207a26775700f6eca",
+    "brain.node_type_index": "9ea440846c4bfde95c8c007320ad3bc3b79cfb3b69c2ff6a136c39fd41f658be"
+  },
+  "brain_parameter_displacement": {
+    "brain.gain": {
+      "values": 49393,
+      "relative_l2_change": 0.5866392850875854,
+      "absolute_rms_change": 0.5866392850875854,
+      "mean_absolute_change": 0.4472251832485199,
+      "initial_mean": 1.0,
+      "trained_mean": 0.870252788066864,
+      "initialized_at_zero": false
+    },
+    "brain.rec_gain": {
+      "values": 49393,
+      "relative_l2_change": 0.12506669759750366,
+      "absolute_rms_change": 82.83560180664062,
+      "mean_absolute_change": 16.075605392456055,
+      "initial_mean": 127.22307586669922,
+      "trained_mean": 111.14756774902344,
+      "initialized_at_zero": false
+    },
+    "brain.bias": {
+      "values": 49393,
+      "relative_l2_change": null,
+      "absolute_rms_change": 0.09124007076025009,
+      "mean_absolute_change": 0.057603005319833755,
+      "initial_mean": 0.0,
+      "trained_mean": 0.00592717295512557,
+      "initialized_at_zero": true
+    },
+    "gain_times_rec_gain": {
+      "values": 49393,
+      "relative_l2_change": 0.5060768723487854,
+      "absolute_rms_change": 335.1905822753906,
+      "mean_absolute_change": 59.11656188964844,
+      "initial_mean": 127.22307586669922,
+      "trained_mean": 147.15994262695312,
+      "initialized_at_zero": false,
+      "meaning": "Effective per-neuron scaling applied to that neuron's entire incoming synaptic sum. A uniform rescale per neuron; it cannot change relative weights or signs."
+    }
+  },
+  "parameter_budget": {
+    "neuron_dynamics": 148179,
+    "encoder": 482816,
+    "output_layernorm": 98786,
+    "readout": 3226688,
+    "total": 3956469,
+    "frozen_synapses": 9050172
+  },
+  "interpretation": [
+    "The wiring is unchanged: every endpoint, sign and stored weight is byte-identical to the reference graph.",
+    "The neurons are not inert: 148,179 per-neuron parameters are trained, and they move substantially.",
+    "Per-neuron recurrent gain rescales a neuron's whole incoming sum uniformly. It cannot alter the relative strengths or signs of individual synapses.",
+    "Trainable per-neuron dynamics are part of the reference architecture, not an addition made by this project."
+  ]
+}
