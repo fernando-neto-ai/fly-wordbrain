@@ -13,7 +13,7 @@ run manifests and stop/completion receipts are authoritative for execution.
 | D32bounded | `exp/encoder32-bounded` | [D](configs/D32bounded.json) | 51,326,535 |
 | E32rank128fixed | `exp/encoder32-readout128-fixed` | [E](configs/E32rank128fixed.json) | 7,183,157 |
 | F32rank128bounded | `exp/encoder32-readout128-bounded` | [F](configs/F32rank128bounded.json) | 7,201,479 |
-| G32rank64fixed (current selection) | `exp/encoder32-readout64-fixed` | [G](configs/G32rank64fixed.json) | 3,956,469 |
+| G32rank64fixed (accepted early stop) | `exp/encoder32-readout64-fixed` | [G](configs/G32rank64fixed.json) | 3,956,469 |
 
 ## Protocol and status
 
@@ -124,8 +124,8 @@ continuation was the wrong next experiment. It stopped at22:04:28UTC on2026-09-1
 after2,630 observed /2,600 durable updates and2completedepochs. Both winners and
 latest are preserved, with exact process cessation and source/checkpoint audits.
 This is an explicit correction of ordering, not a plateau or full completion.
-G32rank64fixed is selected immediately after its own parity and smoke gates;
-F completion or generated-text evaluation is not a prerequisite. E is the
+G32rank64fixed launched after its own parity and smoke gates;
+F completion or generated-text evaluation was not a prerequisite. E is the
 preserved rank128 comparator. No automatic F restart is selected.
 
 Refresh G and E comparison with `scripts/refresh_connectorch_rank64_progress.py`;
@@ -136,7 +136,18 @@ smoke passed; more than100full updates were verified. See the
 [rank64 launch report](reports/G32rank64fixed-launch.md) and
 [launch receipt](runs/rank64-v1-launch.json).
 
-The [latest partial comparison](reports/G32rank64fixed-progress.md) records the
-13,000-update snapshot. An immediate recheck found renewed accuracy gains, so
-the earlier plateau observation was superseded and G continues. No stop signal
-or concurrent GPU quality evaluation was issued.
+The [13,000-update comparison](reports/G32rank64fixed-progress.md) is historical:
+renewed accuracy gains correctly deferred stopping at that point. G later met
+both plateau thresholds and stopped at **23:37:28 UTC on 2026-09-15**, after
+**14 completed epochs, 16,808 observed / 16,800 durable updates**. Its preserved
+winners are **CE 3.093705 at 16,600** and **accuracy 36.8885% at 15,552**.
+The [accepted-stop report](reports/G32rank64fixed-accepted-early-stop.md) and
+[native receipt](records/G32rank64fixed-accepted-early-stop.json) govern its
+terminal status; native failed/−15 records describe intentional SIGTERM cleanup.
+
+The subsequent idle-macm3 evaluation completed. See the
+[post-G assessment](reports/rank64-post-G-assessment.md),
+[matched generated texts](reports/rank64-generated-texts.md), and
+[text review](reports/rank64-text-review.md). E/G total training budgets differ;
+both selectors and common-budget comparisons remain explicit. No further
+training experiment has been selected.

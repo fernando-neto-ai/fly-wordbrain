@@ -1,10 +1,17 @@
 # Decoder reduction after the width-32 encoder assessment
 
 **Order corrected 2026-09-15:** the user intended rank64 to train after E.
-The automatic F continuation was an ordering error and is superseded. G is
-selected immediately after F cessation and its own numerical preflight. F
-completion or quality assessment is not a prerequisite. Earlier E/F sequencing
+The automatic F continuation was an ordering error and is superseded. G
+launched after F cessation and its own numerical preflight. F
+completion or quality assessment was not a prerequisite. Earlier E/F sequencing
 below describes the historical plan only.
+
+**Current state:** G is accepted as an early stop after 14 completed epochs,
+16,808 observed / 16,800 durable updates. Its separate winners are validation
+CE 3.093705 at 16,600 and accuracy 36.8885% at 15,552. The
+[post-G assessment](reports/rank64-post-G-assessment.md),
+[matched texts](reports/rank64-generated-texts.md) and
+[text review](reports/rank64-text-review.md) report the completed E/G evaluation.
 
 The user authorized this pair on 2026-09-15: reduce the decoder as proposed,
 retain the reduced encoder, and test whether modest brain adaptation recovers
@@ -68,9 +75,9 @@ Only consider finer or less restricted brain adaptation after verifying the
 existing gain path changes predictions and measuring its remaining deficit.
 One seed and this small dataset cannot establish anatomical superiority.
 
-## Current selected comparison: rank64
+## Accepted rank64 comparison
 
-The user clarified that G32rank64fixed should be training now. It follows the
+The user clarified that G32rank64fixed should train after E. It followed the
 preserved E32rank128fixed baseline directly; the incorrectly launched F run
 is stopped under that explicit correction, with its partial history retained.
 It retains encoder width32, eight explicit delays, fixed canonical edges and the
@@ -81,26 +88,28 @@ The bias-free decoder becomes49,393→64→1,024:3,226,688 decoder parameters an
 Compare G primarily against E at matched update/token budgets, retaining both
 validation selectors and matching generation prompts. The existing initialization
 policy changes initial logit variance with rank; disclose this when interpreting
-early learning curves. Run a separate rank64 M3 CPU/MPS parity check and an
-eight-update optimizer smoke before full training. Existing rank128 evidence is
-not a rank64 preflight. Existing model/trainer sources remain unchanged; the
+early learning curves. A separate rank64 M3 CPU/MPS parity check and an
+eight-update optimizer smoke passed before full training. Existing rank128 evidence
+was not reused as a rank64 preflight. Model/trainer sources remain unchanged; the
 obsolete F queue must not resume.
 
 The configuration is experiments/configs/G32rank64fixed.json and its branch is
 exp/encoder32-readout64-fixed. All actual training remains serial on macm3.
 Additional rank64 edge adaptation or further rank reductions remain unselected.
 
-The current launch has a dedicated review helper,
-`scripts/stop_connectorch_rank64_plateau.py`. Run it from the staged macm3
-checkout to inspect; `--execute` additionally permits the standing-authorized
-stop, after fresh plateau, process-identity and coherent-checkpoint checks.
-It is bound to this launch and never starts a successor. A `not_ready_no_signal`
-result leaves training running; recompute the metrics before considering another
-attempt. Renewed accuracy gains superseded the first plateau observation at
-13,000 updates; see the [partial report](reports/G32rank64fixed-progress.md).
+The launch-specific `scripts/stop_connectorch_rank64_plateau.py` performed the
+accepted stop after fresh plateau, process-identity and coherent-checkpoint checks;
+it never starts a successor and must not be rerun against the stopped arm.
+Renewed accuracy gains had superseded the first plateau observation at
+13,000 updates; that [partial report](reports/G32rank64fixed-progress.md) is
+preserved as historical evidence. At 16,800, trailing 2,000-update global-best
+gains were 0.014504 CE and 0.233154 accuracy percentage points, meeting both
+thresholds. The [accepted-stop report](reports/G32rank64fixed-accepted-early-stop.md)
+records preservation and the incomplete schedule.
 
-After G has an accepted stop and all its processes have exited, use the new
-rank-aware evaluator on idle macm3:
+After G's accepted stop and confirmed process cessation, the rank-aware
+evaluator completed on idle macm3 with the following command. The output now
+exists; any separately authorized repeat must use a fresh output directory.
 
 ```bash
 PYTORCH_ENABLE_MPS_FALLBACK=0 .venv-connectorch/bin/python \
@@ -110,8 +119,7 @@ PYTORCH_ENABLE_MPS_FALLBACK=0 .venv-connectorch/bin/python \
   --output results/connectorch-post-g-quality-v1 --threads 4
 ```
 
-This preparation has passed CPU contract tests; full MPS evaluation remains
-pending. It compares both retained selectors, identical text prompts, training
+The completed MPS evaluation compares both retained selectors, identical text prompts, training
 overlap, exact training-target budgets, and neuron changes from initialization
 and between E/G. It preserves the reserved test and verifies graph/parameter
 immutability during inference. The earlier encoder-only A/B evaluator remains

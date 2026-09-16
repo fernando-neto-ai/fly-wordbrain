@@ -1,6 +1,14 @@
 # Rank64 partial progress — 2026-09-15 23:17 UTC
 
-G32rank64fixed remains running on macm3. The snapshot at23:17:46UTC observes
+**Historical snapshot, superseded by the accepted stop at 23:37:28 UTC.**
+G stopped after 14 completed epochs, 16,808 observed / 16,800 durable updates;
+its final retained winners are CE 3.093705 at 16,600 and accuracy 36.8885% at
+15,552. See the [accepted-stop report](G32rank64fixed-accepted-early-stop.md),
+[post-G assessment](rank64-post-G-assessment.md),
+[matched texts](rank64-generated-texts.md) and [text review](rank64-text-review.md).
+The earlier measurements and continue decision below are retained as history.
+
+G32rank64fixed was running on macm3. The snapshot at23:17:46UTC observed
 13,029updates and10completed epochs, with complete validation through13,000.
 No stop signal was sent. F remains stopped; no quality-inference worker was
 launched alongside training.
@@ -13,8 +21,8 @@ launched alongside training.
 | Total trainable parameters | 3,956,469 | 7,183,157 |
 
 These independently selected metrics come from different checkpoint updates.
-G currently has0.024991lower CE and0.3292percentagepoints lower accuracy than
-E's retained best scores, using half the decoder parameters. G has not finished.
+At this snapshot G had0.024991lower CE and0.3292percentagepoints lower accuracy than
+E's retained best scores, using half the decoder parameters. Training had not yet stopped.
 
 At exactly13,000updates, E has CE3.164297/accuracy36.2577%; G has
 CE3.130633/accuracy36.0885%. G's CE is0.033664lower and its accuracy is
@@ -23,7 +31,7 @@ E3.151513/36.4954% versus G3.124713/36.2531%. All evaluations cover the same
 100stories/21,874next-BPE targets. This snapshot compares logged update budgets;
 exact token-exposure and regenerated-text audits remain pending the accepted stop.
 
-## Fresh plateau decision: continue
+## Historical plateau decision: continue
 
 The earlier9,400→11,400 window met both operational plateau thresholds.
 A stop-helper attempt while validation12,900 was active returned
