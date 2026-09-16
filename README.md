@@ -47,6 +47,15 @@ The [post-G assessment](experiments/reports/rank64-post-G-assessment.md),
 [text review](experiments/reports/rank64-text-review.md) document the comparison.
 F remains stopped; see the [experiment registry](experiments/INDEX.md) for receipts.
 
+The user selected **H32rank32fixed** next. Its rank32 decoder has **1,613,344
+parameters**, bringing the model to **2,343,125**; the encoder remains 482,816.
+H trains from scratch against the preserved G baseline, retaining the canonical
+edges and the same trainable neuron gains and biases. Full training launched on
+macm3 at **00:57:20 UTC on 2026-09-16**, after rank32 numerical parity and an
+eight-update optimizer smoke passed. Its first full validation at 100 updates
+measured CE 5.827075 and accuracy 8.4484%; this is an initial learning measurement,
+not a quality comparison. See the [H launch report](experiments/reports/H32rank32fixed-launch.md).
+
 ## Start here
 
 - [Fly Stories demo](docs/RANK128_DEMO.md): an articulated fly, recorded rank128

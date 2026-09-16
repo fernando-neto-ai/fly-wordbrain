@@ -14,6 +14,7 @@ run manifests and stop/completion receipts are authoritative for execution.
 | E32rank128fixed | `exp/encoder32-readout128-fixed` | [E](configs/E32rank128fixed.json) | 7,183,157 |
 | F32rank128bounded | `exp/encoder32-readout128-bounded` | [F](configs/F32rank128bounded.json) | 7,201,479 |
 | G32rank64fixed (accepted early stop) | `exp/encoder32-readout64-fixed` | [G](configs/G32rank64fixed.json) | 3,956,469 |
+| H32rank32fixed (running) | `exp/encoder32-readout32-fixed` | [H](configs/H32rank32fixed.json) | 2,343,125 |
 
 ## Protocol and status
 
@@ -149,5 +150,28 @@ The subsequent idle-macm3 evaluation completed. See the
 [post-G assessment](reports/rank64-post-G-assessment.md),
 [matched generated texts](reports/rank64-generated-texts.md), and
 [text review](reports/rank64-text-review.md). E/G total training budgets differ;
-both selectors and common-budget comparisons remain explicit. No further
-training experiment has been selected.
+both selectors and common-budget comparisons remain explicit. The user
+subsequently selected H32rank32fixed as the next experiment.
+
+## Rank32 decoder comparison
+
+H32rank32fixed trains from scratch with the same G recipe and fixed canonical
+edges. The encoder remains 482,816 parameters; the rank32 decoder has 1,613,344,
+bringing the total to 2,343,125. The original 148,179 neuron gains and biases
+remain trainable. G's accepted stop supplies the primary comparison baseline;
+rank32 changes head shapes and initial logit variance, not just parameter count.
+No additional brain plasticity or reserved-test evaluation is selected.
+
+Native rank32 CPU/MPS parity and a separate eight-update optimizer smoke passed.
+Full training launched on macm3 at **00:57:20 UTC on 2026-09-16**, with MPS fallback
+disabled. Its first full validation at 100 updates measured CE 5.827075 and
+accuracy 8.4484% (1,848/21,874 targets across 100 stories); no quality conclusion
+is drawn from this initial measurement. See the
+[rank32 launch report](reports/H32rank32fixed-launch.md),
+[launch receipt](runs/rank32-v1-launch.json) and
+[numerical preflight](records/rank32-preflight.json).
+
+Refresh H and preserved G with `scripts/refresh_connectorch_rank32_progress.py`;
+its output is `results/connectorch-rank32-v1/progress.md`. Preserve both validation
+selectors and compare common update and training-target budgets alongside the
+actual stopped/run budgets. No successor is selected automatically.

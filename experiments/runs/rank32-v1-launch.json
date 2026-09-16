@@ -1,0 +1,97 @@
+{
+  "format_version": 1,
+  "experiment_id": "H32rank32fixed",
+  "status": "running",
+  "training_host": "macm3",
+  "remote_output": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-rank32-v1",
+  "baseline": "G32rank64fixed",
+  "launch": {
+    "command": [
+      "/Users/fernando/fly_wordbrain_connectorch/.venv-connectorch/bin/python",
+      "-u",
+      "/Users/fernando/fly_wordbrain_connectorch/scripts/run_connectorch_rank32_campaign.py",
+      "--root",
+      "/Users/fernando/fly_wordbrain_connectorch",
+      "--parent",
+      "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-rank64-v1",
+      "--accepted-g-receipt",
+      "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-rank64-v1/arms/G32rank64fixed/accepted-early-stop.json",
+      "--preflight-receipt",
+      "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-rank32-preparation-v1/parity.json",
+      "--experiment-branches",
+      "/Users/fernando/fly_wordbrain_connectorch/experiments/records/rank32-branch-mapping.json",
+      "--output",
+      "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-rank32-v1",
+      "--python",
+      "/Users/fernando/fly_wordbrain_connectorch/.venv-connectorch/bin/python",
+      "--worker",
+      "--launch-id",
+      "2556b84a-d9f9-49c4-83ee-bc6cd7434258"
+    ],
+    "cwd": "/Users/fernando/fly_wordbrain_connectorch",
+    "environment": {
+      "PYTORCH_ENABLE_MPS_FALLBACK": "0",
+      "OMP_NUM_THREADS": "4",
+      "VECLIB_MAXIMUM_THREADS": "4"
+    },
+    "created_at_utc": "2026-09-16T00:57:06.840292+00:00",
+    "launch_id": "2556b84a-d9f9-49c4-83ee-bc6cd7434258",
+    "manifest_sha256": "880b2e9cf957c7b16607a118f7cd058caebab15d7de509d131de5fb20eaadaac",
+    "worker_pid": 85176,
+    "process_birth": "Tue Sep 15 21:57:06 2026"
+  },
+  "trainer": {
+    "pid": 85584,
+    "birth": "Tue Sep 15 21:57:20 2026"
+  },
+  "source_commit": "3754f6578fa7a8827026e434c1287e2043ec99f0",
+  "branch": "exp/encoder32-readout32-fixed",
+  "parameter_counts": {
+    "embedding": 32768,
+    "input_projection": 450048,
+    "neurons": 148179,
+    "edge_gains": 0,
+    "layernorm": 98786,
+    "readout": 1613344,
+    "other": 0,
+    "total": 2343125
+  },
+  "encoder_parameters": 482816,
+  "parity_passed": true,
+  "parity_receipt": "experiments/records/rank32-preflight.json",
+  "smoke_passed": true,
+  "smoke_updates": 8,
+  "smoke_parameter_updates": {
+    "lm_head.0.weight": {
+      "gradient_nonzero_values": 1580576,
+      "changed": true
+    },
+    "lm_head.1.weight": {
+      "gradient_nonzero_values": 32768,
+      "changed": true
+    }
+  },
+  "smoke_receipt_sha256": "199d45de055777ae319bd5dd3b433c462da439dd9605482076744e041703cbd4",
+  "final_test_deferred": true,
+  "stop_helper": {
+    "path": "scripts/stop_connectorch_rank32_plateau.py",
+    "sha256": "76119228ea739e56d1be537465a79a0d4d73bfcfea6697dc231ef9b02e3ba324"
+  },
+  "first_100_update_validation": {
+    "updates": 100,
+    "epoch": 0,
+    "validation": {
+      "cross_entropy": 5.827075091491313,
+      "top1_accuracy": 0.08448386211941117,
+      "correct": 1848,
+      "tokens": 21874,
+      "stories": 100
+    },
+    "elapsed_seconds_this_invocation": 40.08790483395569
+  },
+  "automation": {
+    "id": "watch-next-two-fly-validation-points",
+    "status": "ACTIVE",
+    "prompt_sha256": "46c5354a337417ac1e9fce84c022f72e2a1cac138964e2316e062bac49219bc1"
+  }
+}

@@ -12,6 +12,11 @@ CE 3.093705 at 16,600 and accuracy 36.8885% at 15,552. The
 [post-G assessment](reports/rank64-post-G-assessment.md),
 [matched texts](reports/rank64-generated-texts.md) and
 [text review](reports/rank64-text-review.md) report the completed E/G evaluation.
+The user selected H32rank32fixed next. Its full macm3 run launched at
+00:57:20 UTC on 2026-09-16 after separate rank32 parity and optimizer-smoke gates
+passed. G is the preserved primary baseline. H's first full validation at 100
+updates measured CE 5.827075 and accuracy 8.4484%; quality assessment remains pending.
+See the [H launch report](reports/H32rank32fixed-launch.md).
 
 The user authorized this pair on 2026-09-15: reduce the decoder as proposed,
 retain the reduced encoder, and test whether modest brain adaptation recovers
@@ -95,7 +100,8 @@ obsolete F queue must not resume.
 
 The configuration is experiments/configs/G32rank64fixed.json and its branch is
 exp/encoder32-readout64-fixed. All actual training remains serial on macm3.
-Additional rank64 edge adaptation or further rank reductions remain unselected.
+Additional edge adaptation remains unselected. Rank32 was subsequently selected
+as the next decoder comparison, described below.
 
 The launch-specific `scripts/stop_connectorch_rank64_plateau.py` performed the
 accepted stop after fresh plateau, process-identity and coherent-checkpoint checks;
@@ -124,3 +130,45 @@ overlap, exact training-target budgets, and neuron changes from initialization
 and between E/G. It preserves the reserved test and verifies graph/parameter
 immutability during inference. The earlier encoder-only A/B evaluator remains
 unchanged and is not the E/G entry point.
+
+## Selected rank32 comparison
+
+H32rank32fixed compares a rank32 readout against the accepted, stopped
+G32rank64fixed baseline. It starts from scratch with the same seed42 recipe,
+width32 encoder, eight explicit delays, tokenizer, dataset and optimizer schedule.
+The bias-free linear factors are 49,393→32→1,024, with no intermediate activation.
+Every neuron still contributes to the decoder.
+
+| Component | G rank64 | H rank32 |
+|---|---:|---:|
+| Encoder | 482,816 | 482,816 |
+| Decoder | 3,226,688 | 1,613,344 |
+| Neuron gains and biases | 148,179 | 148,179 |
+| Layer normalization | 98,786 | 98,786 |
+| Total trainable | 3,956,469 | 2,343,125 |
+
+This halves the decoder and removes 1,613,344 total parameters. H retains all
+49,393 neuron identities, 9,050,172 canonical edge endpoints and stored base
+weights. Existing neuron gain, recurrent-gain and bias values remain trainable;
+no additional edge gains, unfreezing or rewiring are selected. Changing rank
+also changes random head shapes and initial logit variance, so this is not a
+strictly initialization-matched intervention or a warm start from G.
+
+Rank32 native CPU/MPS parity passed on macm3: zero CE difference and maximum
+gradient relative-L2 difference 3.052×10⁻⁵, with exact graph identity. The separate
+eight-update optimizer smoke passed, verifying nonzero gradients and changes to
+both decoder factors. Full training then launched at 00:57:20 UTC on 2026-09-16,
+with MPS fallback disabled. These gates verify the execution path, not text quality.
+
+The [configuration](configs/H32rank32fixed.json) is tracked on
+`exp/encoder32-readout32-fixed`; outputs are under
+`results/connectorch-rank32-v1`. The [launch report](reports/H32rank32fixed-launch.md)
+and [launch receipt](runs/rank32-v1-launch.json) identify the actual run.
+Refresh H against preserved G with `scripts/refresh_connectorch_rank32_progress.py`.
+
+Retain separate minimum-CE and maximum-accuracy weights. Compare both independent
+winners and common update/non-padding-target budgets on the unchanged 100-story,
+21,874-target validation population. Apply the same plateau review and quality-loss
+flags above, then inspect identical text prompts and training overlap after stopping.
+The reserved test remains unused. No further experiment is queued by this rank32
+selection, and a single seed cannot establish an anatomical language advantage.
