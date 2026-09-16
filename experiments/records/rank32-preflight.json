@@ -1,0 +1,104 @@
+{
+  "passed": true,
+  "training_run": false,
+  "optimizer_steps": 0,
+  "reserved_test_evaluated": false,
+  "host_guard": {
+    "hostname": "Fernandos-MacBook-Pro-2.local",
+    "chip": "Apple M3 Max",
+    "passed": true,
+    "held_dispatchers": [],
+    "ancestor_dispatchers": [],
+    "checked_at_utc": "2026-09-16T00:49:48.761251+00:00"
+  },
+  "comparisons": {
+    "H32rank32fixed_cpu_vs_mps": {
+      "passed": true,
+      "loss_abs_difference": 0.0,
+      "max_gradient_relative_l2": 3.0516064848386647e-05,
+      "gradient_comparison": {
+        "brain.in_proj": {
+          "max_abs": 9.865034371614456e-07,
+          "relative_l2": 1.62013417721137e-05,
+          "reference_norm": 0.42025086283683777,
+          "observed_norm": 0.4202515482902527
+        },
+        "brain.gain": {
+          "max_abs": 3.4831464290618896e-07,
+          "relative_l2": 1.9885678067629446e-05,
+          "reference_norm": 0.043617479503154755,
+          "observed_norm": 0.04361770302057266
+        },
+        "brain.rec_gain": {
+          "max_abs": 2.2863969206809998e-07,
+          "relative_l2": 2.319961908942766e-05,
+          "reference_norm": 0.010844511911273003,
+          "observed_norm": 0.010844566859304905
+        },
+        "brain.bias": {
+          "max_abs": 2.3245811462402344e-05,
+          "relative_l2": 3.0516064848386647e-05,
+          "reference_norm": 3.2839198112487793,
+          "observed_norm": 3.2840120792388916
+        },
+        "brain.wte.weight": {
+          "max_abs": 4.76837158203125e-07,
+          "relative_l2": 1.641502730303656e-05,
+          "reference_norm": 0.07757291942834854,
+          "observed_norm": 0.0775727853178978
+        },
+        "ln.weight": {
+          "max_abs": 7.821654435247183e-10,
+          "relative_l2": 3.216444702275725e-07,
+          "reference_norm": 0.018997306004166603,
+          "observed_norm": 0.018997307866811752
+        },
+        "ln.bias": {
+          "max_abs": 8.731149137020111e-11,
+          "relative_l2": 1.3751342226310658e-07,
+          "reference_norm": 0.024090100079774857,
+          "observed_norm": 0.024090100079774857
+        },
+        "lm_head.0.weight": {
+          "max_abs": 6.51925802230835e-08,
+          "relative_l2": 3.4111798657796803e-07,
+          "reference_norm": 4.1892900466918945,
+          "observed_norm": 4.189289569854736
+        },
+        "lm_head.1.weight": {
+          "max_abs": 5.662441253662109e-07,
+          "relative_l2": 3.2618137135703995e-06,
+          "reference_norm": 0.9197947978973389,
+          "observed_norm": 0.9197946190834045
+        }
+      },
+      "logits_max_abs": 2.8908252716064453e-06,
+      "state_max_abs": 4.542618989944458e-05,
+      "cache_ids_and_length_equal": true
+    }
+  },
+  "exact_ir": {
+    "passed": true,
+    "nodes": 49393,
+    "edges": 9050172,
+    "all_node_ids_endpoints_and_weights_exact": true,
+    "normalization": "none; released checkpoint values"
+  },
+  "sources_unchanged": true,
+  "inputs_unchanged": true,
+  "connectorch_unchanged": true,
+  "finished_at": "2026-09-16T00:50:08.132105+00:00",
+  "artifact_path": "/Users/fernando/fly_wordbrain_connectorch/results/connectorch-rank32-preparation-v1/parity.json",
+  "artifact_sha256": "e0853e026409398007cdc7d0d05e6682ffacac7682e71d4163f01dc61ada4959",
+  "configuration_sha256": "c646c901841de98477bef0b4e1ef70637e2e9c45baf3890754b96fddab896579",
+  "parameter_counts": {
+    "embedding": 32768,
+    "input_projection": 450048,
+    "neurons": 148179,
+    "edge_gains": 0,
+    "layernorm": 98786,
+    "readout": 1613344,
+    "other": 0,
+    "total": 2343125
+  }
+}
