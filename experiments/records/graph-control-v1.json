@@ -1,0 +1,308 @@
+{
+  "experiment": "Stage 7 \u2014 randomised-graph control",
+  "question": "Does the fly's specific wiring contribute anything beyond its degree structure?",
+  "arms": {
+    "control": "K32rank64shuffled10k",
+    "measured": "I32rank64fixed10k",
+    "matched_on": [
+      "readout rank 64",
+      "10,000-story corpus",
+      "16,800 updates",
+      "seed 42",
+      "optimizer, schedule, batch and chunk size",
+      "input and readout interfaces"
+    ],
+    "differing_in": [
+      "which neuron connects to which"
+    ]
+  },
+  "graph_control": {
+    "mode": "shuffle",
+    "seed": 1729,
+    "neurons": 49393,
+    "edges": 9050172,
+    "preserved": {
+      "in_degree_identical": true,
+      "out_degree_identical": true,
+      "weight_multiset_identical": true,
+      "row_offsets_untouched": true
+    },
+    "changed": {
+      "repaired_slots": 59116,
+      "edges_landing_on_their_original_source": 325,
+      "fraction_rewired": 0.9999640890802959,
+      "self_loops_created": 0,
+      "duplicate_edges_created": 0
+    },
+    "original_graph_sha256": {
+      "w_indices": "0f17b9563457fbf84404c54227db86b5adcf04a689cdff5e33d32ec5d5e0b771",
+      "w_values": "e6408887d3312783c65d3f10bb69b28fe50bb06699f0a8a9341d444e6eb0549a"
+    },
+    "control_graph_sha256": {
+      "w_indices": "18972cbea1c8c838fa9b4f368aeed946e4b1e069808968dfa2e0ceb6ad10306f",
+      "w_values": "e6408887d3312783c65d3f10bb69b28fe50bb06699f0a8a9341d444e6eb0549a"
+    }
+  },
+  "training": {
+    "updates": 16800,
+    "status": "debug_stopped",
+    "best_validation": {
+      "cross_entropy": 2.736696433081448,
+      "top1_accuracy": 0.4042699094815763,
+      "updates": 16800,
+      "epoch": 1
+    },
+    "best_validation_accuracy": {
+      "cross_entropy": 2.736696433081448,
+      "top1_accuracy": 0.4042699094815763,
+      "updates": 16800,
+      "epoch": 1
+    }
+  },
+  "audit_population": {
+    "stories": 200,
+    "next_token_targets": 45059,
+    "note": "identical rows to Stages 5 and 6; selected no checkpoint for any arm"
+  },
+  "scores": {
+    "released-reference": {
+      "parameters": 52756661,
+      "audit": {
+        "stories": 200,
+        "tokens": 45059,
+        "nll_sum": 179705.70758149194,
+        "correct": 14141,
+        "cross_entropy": 3.9882311542975195,
+        "perplexity": 53.959359118617655,
+        "top1_accuracy": 0.3138329745444861
+      },
+      "validation": {
+        "stories": 100,
+        "tokens": 21874,
+        "nll_sum": 80516.69813330428,
+        "correct": 7709,
+        "cross_entropy": 3.6809316143962825,
+        "perplexity": 39.68334643405466,
+        "top1_accuracy": 0.3524275395446649
+      }
+    },
+    "K32rank64-10k-shuffled": {
+      "parameters": 3956469,
+      "audit": {
+        "stories": 200,
+        "tokens": 45059,
+        "nll_sum": 133344.85449976195,
+        "correct": 16454,
+        "cross_entropy": 2.9593389666828367,
+        "perplexity": 19.28521936855938,
+        "top1_accuracy": 0.3651656716749151
+      },
+      "validation": {
+        "stories": 100,
+        "tokens": 21874,
+        "nll_sum": 59862.4976326832,
+        "correct": 8843,
+        "cross_entropy": 2.736696426473585,
+        "perplexity": 15.435907118752656,
+        "top1_accuracy": 0.4042699094815763
+      }
+    },
+    "I32rank64-10k": {
+      "parameters": 3956469,
+      "audit": {
+        "stories": 200,
+        "tokens": 45059,
+        "nll_sum": 132894.1640409532,
+        "correct": 16865,
+        "cross_entropy": 2.9493367371879806,
+        "perplexity": 19.09328566122883,
+        "top1_accuracy": 0.3742870458731885
+      },
+      "validation": {
+        "stories": 100,
+        "tokens": 21874,
+        "nll_sum": 59329.791923946876,
+        "correct": 9125,
+        "cross_entropy": 2.7123430522056724,
+        "perplexity": 15.064531178821623,
+        "top1_accuracy": 0.41716192740239555
+      }
+    }
+  },
+  "versus_released_reference": {
+    "K32rank64-10k-shuffled": {
+      "validation": {
+        "direction": "ours minus released",
+        "delta_cross_entropy": -0.9442351879226973,
+        "delta_accuracy": 0.0518423699369114,
+        "perplexity_ratio": 0.38897695143739636,
+        "ce_95_ci": [
+          -1.004036284223641,
+          -0.8850329184434109
+        ],
+        "accuracy_95_ci": [
+          0.045027473514441314,
+          0.05860689682159445
+        ],
+        "point_estimates_within_margins": false,
+        "ce_noninferiority_supported": true,
+        "accuracy_noninferiority_supported": true,
+        "noninferiority_supported": true,
+        "two_sided_equivalence_supported": false,
+        "bootstrap": {
+          "unit": "paired whole story",
+          "resamples": 10000,
+          "seed": 1729,
+          "estimator": "token-weighted ratio of resampled story totals"
+        }
+      },
+      "audit": {
+        "direction": "ours minus released",
+        "delta_cross_entropy": -1.0288921876146828,
+        "delta_accuracy": 0.05133269713042899,
+        "perplexity_ratio": 0.3574026764507175,
+        "ce_95_ci": [
+          -1.0683331672509206,
+          -0.9897523660934747
+        ],
+        "accuracy_95_ci": [
+          0.04664389766415963,
+          0.05604712398409291
+        ],
+        "point_estimates_within_margins": false,
+        "ce_noninferiority_supported": true,
+        "accuracy_noninferiority_supported": true,
+        "noninferiority_supported": true,
+        "two_sided_equivalence_supported": false,
+        "bootstrap": {
+          "unit": "paired whole story",
+          "resamples": 10000,
+          "seed": 1729,
+          "estimator": "token-weighted ratio of resampled story totals"
+        }
+      }
+    },
+    "I32rank64-10k": {
+      "validation": {
+        "direction": "ours minus released",
+        "delta_cross_entropy": -0.96858856219061,
+        "delta_accuracy": 0.06473438785773064,
+        "perplexity_ratio": 0.37961846801039556,
+        "ce_95_ci": [
+          -1.0264885682280942,
+          -0.9096666662186373
+        ],
+        "accuracy_95_ci": [
+          0.05789859858539126,
+          0.0713204317788374
+        ],
+        "point_estimates_within_margins": false,
+        "ce_noninferiority_supported": true,
+        "accuracy_noninferiority_supported": true,
+        "noninferiority_supported": true,
+        "two_sided_equivalence_supported": false,
+        "bootstrap": {
+          "unit": "paired whole story",
+          "resamples": 10000,
+          "seed": 1729,
+          "estimator": "token-weighted ratio of resampled story totals"
+        }
+      },
+      "audit": {
+        "direction": "ours minus released",
+        "delta_cross_entropy": -1.038894417109539,
+        "delta_accuracy": 0.06045407132870237,
+        "perplexity_ratio": 0.35384567150355667,
+        "ce_95_ci": [
+          -1.0775106605949862,
+          -1.0007515695558162
+        ],
+        "accuracy_95_ci": [
+          0.05610002061895439,
+          0.06478376738072038
+        ],
+        "point_estimates_within_margins": false,
+        "ce_noninferiority_supported": true,
+        "accuracy_noninferiority_supported": true,
+        "noninferiority_supported": true,
+        "two_sided_equivalence_supported": false,
+        "bootstrap": {
+          "unit": "paired whole story",
+          "resamples": 10000,
+          "seed": 1729,
+          "estimator": "token-weighted ratio of resampled story totals"
+        }
+      }
+    }
+  },
+  "graph_contrast": {
+    "direction": "K32rank64-10k-shuffled minus I32rank64-10k; positive means the shuffled graph is worse",
+    "validation": {
+      "direction": "K32rank64-10k-shuffled minus I32rank64-10k; positive means the shuffled graph is worse",
+      "delta_cross_entropy": 0.024353374267912634,
+      "delta_accuracy": -0.012892017920819237,
+      "perplexity_ratio": 1.0246523396926634,
+      "ce_95_ci": [
+        0.014538879173936797,
+        0.03412891925761928
+      ],
+      "accuracy_95_ci": [
+        -0.017097618199915024,
+        -0.008615621819814524
+      ],
+      "point_estimates_within_margins": true,
+      "ce_noninferiority_supported": true,
+      "accuracy_noninferiority_supported": true,
+      "noninferiority_supported": true,
+      "two_sided_equivalence_supported": true,
+      "bootstrap": {
+        "unit": "paired whole story",
+        "resamples": 10000,
+        "seed": 1729,
+        "estimator": "token-weighted ratio of resampled story totals"
+      }
+    },
+    "audit": {
+      "direction": "K32rank64-10k-shuffled minus I32rank64-10k; positive means the shuffled graph is worse",
+      "delta_cross_entropy": 0.010002229494856078,
+      "delta_accuracy": -0.009121374198273375,
+      "perplexity_ratio": 1.0100524189883302,
+      "ce_95_ci": [
+        0.002559850733125783,
+        0.017480788252128072
+      ],
+      "accuracy_95_ci": [
+        -0.011967445482318135,
+        -0.006298455529487127
+      ],
+      "point_estimates_within_margins": true,
+      "ce_noninferiority_supported": true,
+      "accuracy_noninferiority_supported": true,
+      "noninferiority_supported": true,
+      "two_sided_equivalence_supported": true,
+      "bootstrap": {
+        "unit": "paired whole story",
+        "resamples": 10000,
+        "seed": 1729,
+        "estimator": "token-weighted ratio of resampled story totals"
+      }
+    },
+    "equivalence_margins": {
+      "cross_entropy_nats": 0.1,
+      "accuracy": 0.02,
+      "provenance": "declared in the original protocol for the released-reference comparison, reused here"
+    }
+  },
+  "reading": "On the held-out audit population the shuffled graph is +0.0100 nats [+0.0026, +0.0175] and -0.91 accuracy points against the measured connectome. The interval excludes zero, so the specific wiring is carrying signal.",
+  "replay_gate": {
+    "arm": "I32rank64fixed10k",
+    "published_audit_ce": 2.9493,
+    "reproduced": 2.9493367371879806,
+    "note": "Arm I was re-scored in the same invocation, after K, and had to reproduce its published number before K's was read. It did."
+  },
+  "limits": [
+    "one seed and one shuffle",
+    "both arms budget-capped at 1.83 passes over the corpus",
+    "a degree-preserving shuffle is one randomisation among several; no zero-edge arm bounds how much the recurrence itself contributes"
+  ]
+}

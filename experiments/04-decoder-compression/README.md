@@ -72,7 +72,8 @@ contiguous training-phrase overlap reached 12 words for H and 20 for G's accurac
 Six greedy prompts do not establish generalization.
 
 Lower cross-entropy with a smaller head is a statement about **this architecture's
-readout**, not about the fly. Establishing that the connectome contributes anything needs
-trained randomized-graph and zero-edge controls under this same recipe — they have not been
-run. F was stopped at 2,600 updates to correct experiment ordering and **must not be
+readout**, not about the fly. [Stage 7](../07-graph-control/README.md) later ran the
+randomized-graph control and confirmed it: rewiring the connectome at random, degrees held
+fixed, costs only 0.0100 nats of the 1.039 this architecture gains. A zero-edge control,
+which would bound what the recurrence itself contributes, still has not been run. F was stopped at 2,600 updates to correct experiment ordering and **must not be
 resumed automatically**; C and D remain deferred.

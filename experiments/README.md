@@ -17,6 +17,7 @@ paths are cited by hash in run receipts, tests and external notes.
 | [`04-decoder-compression/`](04-decoder-compression/README.md) | E/F/G/H — replacing the 50.6M-parameter readout |
 | [`05-shared-population/`](05-shared-population/README.md) | Every model scored on one population, with paired confidence intervals |
 | [`06-corpus-size/`](06-corpus-size/README.md) | I/J — 2×2 over readout and corpus size; tests whether Stage 4 was a small-data artifact |
+| [`07-graph-control/`](07-graph-control/README.md) | K — the same model on a randomly rewired graph; tests whether the fly's wiring matters at all |
 | `configs/` | Declarative experiment specifications. **Specifications, not runnable config files** — see [pipeline commands](../docs/PIPELINE.md) |
 | `records/` | Selector hashes, parity, source ancestry, stop receipts, quality results |
 | `runs/` | Launch receipts |
@@ -36,6 +37,7 @@ paths are cited by hash in run receipts, tests and external notes.
 | H32rank32fixed | `exp/encoder32-readout32-fixed` | [H](configs/H32rank32fixed.json) | 2,343,125 | accepted early stop |
 | **I32rank64fixed10k** | `exp/corpus10k-rank64` | [I](configs/I32rank64fixed10k.json) | **3,956,469** | budget-capped at 16,800 updates — **best audit score** |
 | J32fullfixed10k | `exp/corpus10k-fullreadout` | [J](configs/J32fullfixed10k.json) | 51,308,213 | budget-capped at 16,800 updates; Stage 6 control |
+| K32rank64shuffled10k | `exp/graph-control-shuffle` | [K](configs/K32rank64shuffled10k.json) | 3,956,469 | randomised graph, degrees preserved; Stage 7 control for I |
 
 The two 10k arms are **budget-capped**, not plateau-stopped: they were given exactly 16,800
 updates to match G's compute, so the trainer records them as `debug_stopped` with
@@ -77,7 +79,9 @@ Do not choose a checkpoint or an architecture from the reserved test set; it rem
 unopened. Report the shared-budget comparison alongside retained-best scores — actual
 budgets differ between arms. Numerical replay alone does not establish text quality, and
 compression alone does not establish an anatomical prior: that requires trained randomized-
-graph and zero-edge controls, multiple seeds and a declared final-test protocol.
+graph and zero-edge controls, multiple seeds and a declared final-test protocol. The
+randomised-graph control is [Stage 7](07-graph-control/README.md) and it came back near
+zero — 0.0100 nats — so an anatomical claim now has to clear that bar, not merely exist.
 
 New questions get new `exp/<question>-<condition>` branches and new configurations. They
 must not be folded silently into an existing matched set.

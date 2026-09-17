@@ -58,6 +58,8 @@ a model **13.33× its size**; H does it at **22.52×** smaller.
   is no longer untouched.
 - **None of this is evidence of an anatomical prior.** Every arm here uses the same frozen
   connectome, so nothing in this table separates "the fly's wiring helps" from "this
-  recurrent shape plus a rank-constrained readout suits 1,000 short stories". That needs
-  trained randomized-graph and zero-edge controls, multiple seeds, and a declared final-test
-  protocol — none of which have been run.
+  recurrent shape plus a rank-constrained readout suits 1,000 short stories".
+  [Stage 7](../07-graph-control/README.md) settled it separately with a randomised-graph
+  arm: the wiring is worth **0.0100 nats [+0.0026, +0.0175]**, about 1% of the margin in
+  this table. A zero-edge control, multiple seeds and a declared final-test protocol remain
+  outstanding.

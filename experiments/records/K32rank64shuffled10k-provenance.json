@@ -1,0 +1,22 @@
+{
+  "arm": "K32rank64shuffled10k",
+  "record_type": "provenance incident and its resolution",
+  "what_happened": "scripts/train_connectorch_control.py was overwritten on macm3 while arm K was training from it. The standing rule is that a running worker's bound source is never edited, and the rule was broken.",
+  "why_the_edit_was_made": "The scoring harness needs to rebuild the control graph from its seed. Rather than let the evaluator carry a second, drifting copy of the shuffle, the shuffle was extracted into one shared function, control_indices(offsets, source, mode, seed), used by both the trainer and the evaluator.",
+  "effect_on_the_running_job": "None. CPython reads a module once at import; process 29993 had already imported the wrapper and never re-reads it. The job continued without interruption and its update counter advanced across the edit.",
+  "effect_on_the_pinned_trainer": "None. The wrapper never edits the trainer. The nine source files the run recorded in manifest.json:trainer_sources_sha256 were re-hashed on disk after the edit and all nine still match.",
+  "equivalence_proof": {
+    "claim": "The refactor could not have changed the graph arm K trains on.",
+    "method": "The wrapper's only computation is the control graph. The post-refactor control_indices was re-run from the seed alone, on an independent machine, and the resulting index array was hashed with the same digest function the run used.",
+    "brain_w_indices_dtype": "int32",
+    "arm_K_recorded_original_sha256": "0f17b9563457fbf84404c54227db86b5adcf04a689cdff5e33d32ec5d5e0b771",
+    "arm_K_recorded_control_sha256": "18972cbea1c8c838fa9b4f368aeed946e4b1e069808968dfa2e0ceb6ad10306f",
+    "rebuilt_control_sha256": "18972cbea1c8c838fa9b4f368aeed946e4b1e069808968dfa2e0ceb6ad10306f",
+    "identical": true,
+    "repaired_slots": 59116
+  },
+  "residual_gap": "Arm K's own receipt does not pin the wrapper's source hash, because the pinned trainer writes trainer_sources_sha256 and does not know the wrapper exists. The equivalence proof above stands in for that hash for this run only.",
+  "fix_applied": "graph-control.json now records control_source_sha256, the wrapper hashing itself, so every future control run pins the code that built its graph. The fix is deliberately NOT deployed to macm3 while arm K is running; it ships after K exits.",
+  "what_would_have_prevented_it": "Treating the wrapper as bound source the moment the job launched. The rule's phrase 'a running worker's bound source' covers the wrapper as much as the trainer, and the wrapper being new code in flight is what made it feel editable.",
+  "recorded_at_utc": "2026-09-17"
+}

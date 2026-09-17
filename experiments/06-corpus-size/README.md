@@ -86,9 +86,11 @@ Both 10k arms are budget-capped, so the trainer records them as `debug_stopped` 
 
 ## Unchanged
 
-Still no randomized-graph or zero-edge control, so none of this speaks to whether the
-connectome contributes anything. The reserved 100-story test remains unopened; the audit
-population was revealed by an earlier audit and is no longer untouched.
+Nothing here speaks to whether the connectome contributes anything — every arm runs the same
+graph. [Stage 7](../07-graph-control/README.md) answers that question directly by rewiring
+arm I's graph at random: worth 0.0100 nats, roughly 1% of the margin. No zero-edge control
+has been run. The reserved 100-story test remains unopened; the audit population was
+revealed by an earlier audit and is no longer untouched.
 
 Receipts: [`records/corpus10k-v1.json`](../records/corpus10k-v1.json), arm configurations
 [`I`](../configs/I32rank64fixed10k.json) and [`J`](../configs/J32fullfixed10k.json).

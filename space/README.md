@@ -54,8 +54,9 @@ It is 13.3× smaller than the [ngxson Fly LLM](https://huggingface.co/ngxson/fly
 it derives from, and on a held-out population that selected neither model it scores
 **1.039 nats better** in cross-entropy. That result is about **readouts**, not anatomy:
 the reference spends 95.9% of its parameters on one output matrix that overfits 1,000 short
-stories, and constraining its rank regularizes it. Nothing here shows the fly's wiring is
-a good prior for language — that needs randomized-graph controls nobody has run yet.
+stories, and constraining its rank regularizes it. The fly's wiring is worth surprisingly
+little of it: rewire the connectome at random, keeping every degree and weight, and the
+model loses **0.0100 nats** — about 1% of its margin over the reference.
 
 It was trained on 10,000 TinyStories and only knows how to ramble about Lily and Tom. It
 loses story premises and sometimes recites training phrases back at you. Enjoy it for what

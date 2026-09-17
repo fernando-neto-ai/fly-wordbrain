@@ -17,8 +17,14 @@ training text, the full-size readout recovers most of its disadvantage — the g
 two shrinks from 1.632 nats to 0.313, so roughly **four fifths of the original effect was
 simply too little data**. A small advantage survives, and the tiny model stays the best of
 the four, but the honest headline is about **data and output layers, not about fly brains**.
-We set out to ask whether the connectome was pulling its weight. We still cannot say;
-[What this is not](#what-this-is-not) says exactly what would settle it.
+
+**And then we asked the question this whole project exists to ask: does the fly's wiring
+matter at all?** We retrained the best model on the same connectome with every edge rewired
+at random — same neurons, same in-degrees, same out-degrees, same synaptic weights, only the
+pairing destroyed. It lost **0.010 nats**. That is **1% of the model's advantage** over the
+original. The anatomy is doing almost nothing here; the *degree structure* of a large sparse
+recurrent layer is doing nearly all of it. [Stage 7](#does-the-flys-wiring-matter) has the
+intervals.
 
 ### 🪰 [Hear it: **Fly Recital**](https://huggingface.co/spaces/fernandofernandes/fly-recital)
 
@@ -30,7 +36,8 @@ state raster and the confidence waveform are measurements from the pass that jus
 | | |
 |---|---|
 | **Demo** | [fly-recital](https://huggingface.co/spaces/fernandofernandes/fly-recital) |
-| **Models** | [rank64](https://huggingface.co/fernandofernandes/fly-wordbrain-rank64) (recommended — see its `corpus-10k/`) · [rank32](https://huggingface.co/fernandofernandes/fly-wordbrain-rank32) · [full-readout control](https://huggingface.co/fernandofernandes/fly-wordbrain-fullreadout-10k) |
+| **Models** | [rank64](https://huggingface.co/fernandofernandes/fly-wordbrain-rank64) (recommended — see its `corpus-10k/`) · [rank32](https://huggingface.co/fernandofernandes/fly-wordbrain-rank32) |
+| **Controls** | [full readout](https://huggingface.co/fernandofernandes/fly-wordbrain-fullreadout-10k) · [randomly rewired graph](https://huggingface.co/fernandofernandes/fly-wordbrain-shuffled-10k) |
 | **Connectome** | [49k central-brain subset](https://huggingface.co/datasets/fernandofernandes/fly-connectome-49k) · [complete 166k MaleCNS](https://huggingface.co/datasets/fernandofernandes/fly-connectome-malecns-166k) |
 
 ---
@@ -225,14 +232,44 @@ now **1.039 nats** below the released reference. But 16,800 updates is 18.3 pass
 residual could equally be the smaller model reaching its plateau sooner. Separating those
 needs both trained to convergence, which we have not done.
 
-## What this is not
+## Does the fly's wiring matter?
 
-**It is not evidence that the connectome helps.** Every arm above runs the same frozen
-graph, so nothing here separates *"this wiring is a good prior for language"* from *"this
-recurrent shape with a rank-constrained readout suits 1,000 short stories"*. Settling that
-needs trained **randomized-graph and zero-edge controls** under the identical recipe,
-multiple seeds, and a declared final-test protocol. None has been run. That is why the
-headline above is about output layers.
+Barely. That is the honest answer, and it took a control to get it.
+
+Every result above runs the same measured graph, so none of them could separate *"this
+wiring is a good prior for language"* from *"a sparse recurrent layer of this shape suits
+short stories"*. So we built the arm that can: **the same model, same corpus, same 16,800
+updates, same seed — on a randomly rewired connectome.**
+
+The rewiring is a global permutation of the presynaptic index array, repaired so the graph
+stays simple. It preserves **every neuron's in-degree, every neuron's out-degree, every
+synaptic weight, each neuron's incoming weight multiset, and both interfaces**. It destroys
+only *which particular neuron connects to which* — 99.9964% of edges land somewhere new.
+
+| audit, 200 held-out stories | Parameters | CE | Top-1 |
+|---|---:|---:|---:|
+| released reference | 52,756,661 | 3.9882 | 31.38% |
+| **randomly rewired graph** | 3,956,469 | 2.9593 | 36.52% |
+| **measured connectome** | 3,956,469 | **2.9493** | **37.43%** |
+
+Paired over the same stories, the rewired model is **+0.0100 nats [+0.0026, +0.0175]** and
+**−0.91 accuracy points [−1.20, −0.63]**.
+
+**The intervals exclude zero, so the wiring is carrying real signal — and it is 1% of the
+story.** Of the 1.039 nats this model gains over the released reference, the fly's actual
+anatomy accounts for **0.0100**. A brain rewired at random still beats the reference by
+1.029 nats. The contrast also clears the ±0.10 nat equivalence margin declared long before
+this experiment: statistically, a scrambled fruit fly is equivalent to a real one.
+
+One asymmetry is worth keeping: the anatomy buys **15.1% of the accuracy gain** but **0.96%
+of the cross-entropy gain**. It sharpens the top-1 pick more than it improves the
+distribution.
+
+What this does *not* settle is what the recurrence contributes. Both arms keep all 9,050,172
+edges; a zero-edge control would bound that, and has not been run. It is also one seed and
+one shuffle. Full write-up: **[Stage 7](experiments/07-graph-control/README.md)**.
+
+## What this is not
 
 **The surviving rank advantage is unresolved.** After 10× data the gap is 0.313 nats, but
 neither large-corpus arm completed even two passes over its training set. That residual is
@@ -391,6 +428,7 @@ Every stage keeps its negative results, its stop receipts and its unedited gener
 | [4 — Decoder](experiments/04-decoder-compression/README.md) | What happens without the 50.6M readout? | Quality improves. |
 | [5 — Shared population](experiments/05-shared-population/README.md) | Are any of these numbers comparable? | They are now. |
 | [6 — Corpus size](experiments/06-corpus-size/README.md) | Was the readout result just a small corpus? | 80.8% of it, yes. |
+| [7 — Graph control](experiments/07-graph-control/README.md) | Does the fly's wiring matter at all? | Detectably, by 1%. |
 | [Demo — `space/`](space/README.md) | Can it run, live, in a browser tab? | Yes, token-for-token exact. |
 
 The [experiment registry](experiments/README.md) holds the arm table, recording rules and

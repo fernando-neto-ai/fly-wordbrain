@@ -13,6 +13,7 @@ exact checkpoints and their hashes stay in the receipt.
 """
 import argparse
 from datetime import datetime, timezone
+import copy
 import gc
 import json
 from pathlib import Path
@@ -54,6 +55,12 @@ def load_arms(path):
         if arm["kind"] == "connectorch":
             require((ROOT / "experiments/configs" / (arm["config"] + ".json")).is_file(),
                     "Missing configuration: " + arm["label"])
+        control = arm.get("graph_control")
+        if control is not None:
+            require(arm["kind"] == "connectorch", "Only connectorch arms can carry a graph control")
+            require(control.get("mode") in ("shuffle", "zero"),
+                    "Unknown graph control mode: " + arm["label"])
+            require(isinstance(control.get("seed"), int), "A graph control must pin its seed: " + arm["label"])
     return arms
 
 
@@ -108,13 +115,41 @@ def score(model, rows, label, output, device, batch_size=8, chunk_size=32):
     return {"summary": aggregate(records), "per_story": records, "seconds": time.monotonic() - started}
 
 
+def controlled_reference(reference_cpu, control):
+    """A private copy of the reference whose graph is a control arm's randomised one.
+
+    The connectorch model snapshots its graph at construction and refuses every later
+    edit, which is the right behaviour: a model is bound to one graph. So the graph has to
+    be replaced on the *reference*, before the arm's model is built from it — which is
+    exactly where the trainer does it too. The copy is private because every other arm in
+    the run is built from this same reference.
+
+    The graph is rebuilt from the declared seed rather than read out of the checkpoint, so
+    the frozen-buffer comparison in build_arm is a real verification: it passes only if
+    this process independently reproduced, bit for bit, the graph the arm trained on.
+    """
+    import train_connectorch_control as ctl
+    private = copy.deepcopy(reference_cpu)
+    receipt = ctl.rewire(private.brain, control["mode"], control["seed"])
+    require(not receipt["changed"]["duplicate_edges_created"]
+            and not receipt["changed"]["self_loops_created"],
+            "Rebuilt control graph is not simple")
+    require(all(receipt["preserved"].values()),
+            "Rebuilt control graph did not preserve the degree structure")
+    return private, receipt
+
+
 def build_arm(arm, model_dir, reference_cpu, groups, device):
     """Return (model, checkpoint_metadata). Never mutates the shared CPU reference."""
     from transformers import AutoModelForCausalLM
     if arm["kind"] == "connectorch":
         args, spec = connectorch_training_args(arm["config"])
+        control, rebuilt = arm.get("graph_control"), None
+        if control is not None:
+            reference_cpu, rebuilt = controlled_reference(reference_cpu, control)
         model = build_model(reference_cpu, args, groups)
-        meta = {"architecture": "connectorch", "declared_training": spec}
+        meta = {"architecture": "connectorch", "declared_training": spec,
+                "graph_control": control, "graph_control_rebuild": rebuilt}
     else:
         model = AutoModelForCausalLM.from_pretrained(str(model_dir), trust_remote_code=True,
                                                      local_files_only=True, torch_dtype=torch.float32)
