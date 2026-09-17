@@ -41,14 +41,14 @@
     "primary": "minimum token-weighted validation cross-entropy",
     "secondary": "maximum validation top-1 accuracy; retain actual weights and selection receipt"
   },
-  "claim_scope": "All three tasks jointly through one encoder, one decoder and one 2,994-output space, on a shared brain with frozen synapses. The capacity question at N=3.",
+  "claim_scope": "All three tasks jointly through one encoder, one decoder and one 2,994-output space, on a shared brain with frozen synapses, with sentiment pooled over the sequence. The capacity question at N=3.",
   "environment": {
     "PYTORCH_ENABLE_MPS_FALLBACK": "0",
     "OMP_NUM_THREADS": "4",
     "VECLIB_MAXIMUM_THREADS": "4"
   },
-  "experiment_id": "T32threetasks",
-  "branch": "exp/t32threetasks",
+  "experiment_id": "T32threetaskspooled",
+  "branch": "exp/t32threetaskspooled",
   "trainer": "scripts/train_unified.py",
   "connectorch_revision": "4bbfb645099aeb85bdbf850e1a87cc094769af87",
   "groups_path": "data/connectorch-groups-v1/groups.npz",
@@ -76,7 +76,7 @@
   ],
   "neuron_gains": "original unconstrained gain and rec_gain",
   "test_policy": "deferred until comparison and final protocol are fixed",
-  "output_relative": "results/unified-v1/arms/T32threetasks",
+  "output_relative": "results/unified-v1/arms/T32threetaskspooled",
   "readout_parameters": null,
   "encoder_parameters": null,
   "comparison_baseline": "I32rank64fixed10k for language; chess-baselines-v1.json for chess; sentiment-baselines-v1.json for sentiment",
@@ -88,7 +88,7 @@
     "intermediate_activation": null
   },
   "initialization_note": "Same from-scratch trainer initialization and seed42; preserve encoder and neuron initialization. Rank64 changes readout shapes and initial logit variance relative to rank128; verify rank64-specific gradients and optimizer updates before training.",
-  "execution_status": "stopped at 1,781 updates; superseded by T32threetaskspooled",
+  "execution_status": "prepared",
   "prerequisites": [
     "Confirm no competing GPU worker on macm3",
     "Training corpus is a strict superset of the 1,000-story set; validation, test and audit rows are byte-identical"
@@ -120,7 +120,7 @@
       "sentiment": 1.0,
       "router": 0.1
     },
-    "note": "Language recipe, schedule, corpus, seed and 16,800-update budget identical to I32rank64fixed10k. Carries the learned per-task cue and a three-lane router; a scorer must rebuild it in that form. Read sentiment at the final token only. With leak 0.9 the state retains 1e-4 of itself after four steps, so this judges a 26-token sentence on roughly its last few tokens.",
+    "note": "Language recipe, schedule, corpus, seed and 16,800-update budget identical to I32rank64fixed10k. Carries the learned per-task cue and a three-lane router. Sentiment is read as a masked mean of the settled state over the sequence's real positions, so the classifier sees the whole sentence rather than what a leak-0.9 recurrence still remembers at its final token.",
     "task_cue": true,
     "tasks": [
       "language",
@@ -129,6 +129,6 @@
     ],
     "sentiment_corpus": "data/sentiment-sst2-v1",
     "sentiment_batch": 32,
-    "sentiment_pooling": "last"
+    "sentiment_pooling": "mean"
   }
 }

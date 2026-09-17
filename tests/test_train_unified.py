@@ -104,7 +104,8 @@ class UnifiedTrainerTests(unittest.TestCase):
         corpus = tiny_corpus(self.directory.name)
         self.args = Namespace(chess_corpus=corpus, chess_batch=4, settle_steps=2,
                               language_weight=1.0, chess_weight=1.0, router_weight=0.1,
-                              sentiment_corpus=None, sentiment_batch=4, sentiment_weight=1.0)
+                              sentiment_corpus=None, sentiment_batch=4, sentiment_weight=1.0,
+                              sentiment_pooling="mean")
         train_unified.install(self.args)
         train_unified.STATE["weights"] = {"language": 1.0, "chess": 1.0, "router": 0.1,
                                           "sentiment": 0.0}
@@ -259,7 +260,7 @@ class ThreeTaskTrainerTests(unittest.TestCase):
         self.args = Namespace(chess_corpus=chess, chess_batch=4, settle_steps=2,
                               language_weight=1.0, chess_weight=1.0, router_weight=0.1,
                               sentiment_corpus=sentiment, sentiment_batch=4,
-                              sentiment_weight=1.0)
+                              sentiment_weight=1.0, sentiment_pooling="mean")
         train_unified.install(self.args)
         train_unified.STATE["weights"] = {"language": 1.0, "chess": 1.0, "router": 0.1,
                                           "sentiment": 1.0}
@@ -314,6 +315,9 @@ class ThreeTaskTrainerTests(unittest.TestCase):
             self.assertIn(key, record)
         self.assertGreaterEqual(record["sentiment_accuracy"], 0.0)
         self.assertLessEqual(record["sentiment_accuracy"], 1.0)
+
+    def test_the_trainer_built_the_pooled_readout(self):
+        self.assertEqual(train_unified.STATE["unified"].sentiment_pooling, "mean")
 
     def test_sentiment_is_scored_inside_its_own_range(self):
         report = train_unified.evaluate_sentiment(

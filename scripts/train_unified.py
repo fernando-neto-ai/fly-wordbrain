@@ -224,7 +224,7 @@ def install(args):
         unified = UnifiedFly(model.brain, settle_steps=args.settle_steps,
                              readout_rank=training_args.readout_rank, features=FEATURES,
                              classes=2 if third else 0, tasks=3 if third else 2,
-                             task_cue=third)
+                             task_cue=third, sentiment_pooling=args.sentiment_pooling)
         # The pinned model's own readout is unused here. Freeze it rather than leave it to
         # collect weight decay and inflate the reported trainable count.
         model.lm_head.requires_grad_(False)
@@ -294,6 +294,9 @@ def main():
                         help="Enables the third task; omit for a two-task arm")
     parser.add_argument("--sentiment-batch", type=int, default=32)
     parser.add_argument("--sentiment-weight", type=float, default=1.0)
+    parser.add_argument("--sentiment-pooling", choices=("mean", "last"), default="mean",
+                        help="'mean' reads the whole sequence; 'last' only its final "
+                             "position, which a leak-0.9 recurrence has mostly forgotten")
     parser.add_argument("--settle-steps", type=int, default=5)
     parser.add_argument("--chess-eval-limit", type=int, default=10000)
     known, rest = parser.parse_known_args()
@@ -319,6 +322,7 @@ def main():
         "sentiment_train_rows": len(STATE["sentiment"]) if STATE["sentiment"] else 0,
         "sentiment_batch": known.sentiment_batch if known.sentiment_corpus else 0,
         "tasks": 3 if known.sentiment_corpus else 2,
+        "sentiment_pooling": known.sentiment_pooling if known.sentiment_corpus else None,
         "weights": STATE["weights"], "settle_steps": known.settle_steps}}), flush=True)
     original_run(training_args)
 

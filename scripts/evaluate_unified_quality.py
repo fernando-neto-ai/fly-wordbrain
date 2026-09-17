@@ -111,7 +111,8 @@ def main():
                          moves=space.get("chess_moves", 1968),
                          classes=space.get("sentiment_classes", 0),
                          tasks=len(form.get("tasks", ["language", "chess"])),
-                         task_cue=form.get("task_cue", False))
+                         task_cue=form.get("task_cue", False),
+                         sentiment_pooling=form.get("sentiment_pooling", "mean"))
     model.unified = unified
     saved = torch.load(args.run / args.checkpoint, map_location="cpu", weights_only=False)
     trainer.restore_parameters(model, saved["parameters"])

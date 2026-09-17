@@ -52,13 +52,60 @@ class UnifiedModelTests(unittest.TestCase):
         self.assertTrue(torch.equal(sentiment_targets(torch.tensor([0, 1]), tokens=11, moves=7),
                                     torch.tensor([18, 19])))
 
+    def test_pooling_excludes_padding_from_both_sum_and_divisor(self):
+        """A short row must be judged on its own tokens, not diluted by the batch width."""
+        pooled = UnifiedFly(self.brain, settle_steps=3, readout_rank=3, value_bins=8,
+                            features=5, tokens=11, moves=7, classes=2,
+                            sentiment_pooling="mean")
+        short, mask = torch.tensor([[1, 3, 2]]), torch.ones(1, 3)
+        padded = torch.tensor([[1, 3, 2, 0, 0]])
+        padded_mask = torch.tensor([[1., 1., 1., 0., 0.]])
+        alone, _ = pooled.sentiment(short, mask)
+        with_padding, _ = pooled.sentiment(padded, padded_mask)
+        self.assertTrue(torch.allclose(alone, with_padding, atol=1e-6),
+                        "padding leaked into the pooled summary")
+
+    def test_pooling_uses_the_whole_sequence_not_just_the_end(self):
+        """Changing an early token must move a pooled judgement. With leak 0.9 the last
+        position barely remembers it, which is the reason pooling exists."""
+        pooled = UnifiedFly(self.brain, settle_steps=3, readout_rank=3, value_bins=8,
+                            features=5, tokens=11, moves=7, classes=2,
+                            sentiment_pooling="mean")
+        mask = torch.ones(1, 6)
+        a = torch.tensor([[1, 3, 4, 5, 6, 2]])
+        b = torch.tensor([[1, 9, 4, 5, 6, 2]])   # differs only at position 1
+        first, _ = pooled.sentiment(a, mask)
+        second, _ = pooled.sentiment(b, mask)
+        self.assertFalse(torch.allclose(first, second, atol=1e-6),
+                         "an early token had no effect on the pooled judgement")
+
+    def test_last_token_pooling_is_still_available(self):
+        last = UnifiedFly(self.brain, settle_steps=3, readout_rank=3, value_bins=8,
+                          features=5, tokens=11, moves=7, classes=2,
+                          sentiment_pooling="last")
+        mean = UnifiedFly(self.brain, settle_steps=3, readout_rank=3, value_bins=8,
+                          features=5, tokens=11, moves=7, classes=2,
+                          sentiment_pooling="mean")
+        mean.load_state_dict(last.state_dict())
+        ids, mask = torch.tensor([[1, 3, 4, 5, 2]]), torch.ones(1, 5)
+        self.assertFalse(torch.allclose(last.sentiment(ids, mask)[0],
+                                        mean.sentiment(ids, mask)[0], atol=1e-6),
+                         "the two poolings produced identical output")
+
+    def test_an_unknown_pooling_is_refused(self):
+        with self.assertRaises(ValueError):
+            UnifiedFly(self.brain, readout_rank=3, features=5, tokens=11, moves=7,
+                       classes=2, sentiment_pooling="first")
+
     def test_sentiment_reads_the_last_real_token_not_the_padding(self):
         """A short sequence in a padded batch must be judged where its text ends."""
         short = torch.tensor([[1, 3, 2]])
         padded = torch.tensor([[1, 3, 2, 0, 0]])
-        alone, _ = self.fly.sentiment(short, torch.ones(1, 3))
-        with_padding, _ = self.fly.sentiment(
-            padded, torch.tensor([[1., 1., 1., 0., 0.]]))
+        last = UnifiedFly(self.brain, settle_steps=3, readout_rank=3, value_bins=8,
+                          features=5, tokens=11, moves=7, classes=2,
+                          sentiment_pooling="last")
+        alone, _ = last.sentiment(short, torch.ones(1, 3))
+        with_padding, _ = last.sentiment(padded, torch.tensor([[1., 1., 1., 0., 0.]]))
         self.assertTrue(torch.allclose(alone, with_padding, atol=1e-6),
                         "padding moved the read position")
 

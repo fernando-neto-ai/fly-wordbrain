@@ -42,13 +42,16 @@ OUTPUTS = TOKENS + MOVES + CLASSES
 class UnifiedFly(nn.Module):
     def __init__(self, brain, settle_steps=5, readout_rank=64, value_bins=64,
                  features=FEATURES, tokens=TOKENS, moves=MOVES, classes=CLASSES,
-                 tasks=TASKS, task_cue=True):
+                 tasks=TASKS, task_cue=True, sentiment_pooling="mean"):
         super().__init__()
         # A plain attribute: the brain is shared, and registering it here would list its
         # parameters twice and duplicate every edge value into the checkpoint.
         object.__setattr__(self, "brain", brain)
         self.settle_steps, self.tokens, self.moves = settle_steps, tokens, moves
         self.classes, self.value_bins = classes, value_bins
+        if sentiment_pooling not in ("mean", "last"):
+            raise ValueError("sentiment_pooling must be 'mean' or 'last'")
+        self.sentiment_pooling = sentiment_pooling
         # Sentiment arrives through the same tokenizer, embedding and injection as
         # language, so nothing in the input says which question is being asked. A learned
         # vector per task is added in embedding space, which is the smallest cue the brain
@@ -106,18 +109,34 @@ class UnifiedFly(nn.Module):
         return logits, router, out.cache_params
 
     def sentiment(self, input_ids, attention_mask):
-        """One judgement per sequence, read at its last real token.
+        """One judgement per sequence, from the whole sequence rather than its last token.
 
-        The whole sequence is settled exactly as language is -- same embedding, same
-        injection, same recurrence -- and differs only in the task cue and in reading once
-        at the end instead of at every step. Padding is excluded by index rather than
-        masked afterwards, so a short sequence is never read at a padded position.
+        The sequence is settled exactly as language is -- same embedding, same injection,
+        same recurrence -- and differs only in the task cue and in being read once instead
+        of at every step.
+
+        **Why the mean and not the last token.** The recurrence has leak 0.9, so each step
+        replaces ninety per cent of the state: a state retains 1e-4 of itself after four
+        steps and 1e-26 after twenty-six. Reading only the final position therefore judges
+        a twenty-six-token sentence on roughly its last handful of tokens plus whatever the
+        eight delay slots carry, while the bag-of-tokens floor it has to beat sees every
+        word. Averaging the settled state over the real positions gives the classifier the
+        whole sentence. Padding is excluded from both the sum and the divisor, so a short
+        sequence is not diluted by the batch's longest row.
+
+        `sentiment_pooling="last"` keeps the original behaviour so the arms trained that
+        way stay reproducible.
         """
         out = self.brain(input_ids=input_ids, inputs_embeds=self.embed(input_ids, SENTIMENT),
                          attention_mask=attention_mask, use_cache=False, return_dict=True)
-        last = attention_mask.to(torch.long).sum(dim=1) - 1
-        final = out.last_hidden_state[torch.arange(input_ids.shape[0], device=last.device), last]
-        logits, _, router = self.read(final)
+        hidden = out.last_hidden_state
+        if self.sentiment_pooling == "last":
+            last = attention_mask.to(torch.long).sum(dim=1) - 1
+            summary = hidden[torch.arange(input_ids.shape[0], device=last.device), last]
+        else:
+            mask = attention_mask.to(hidden.dtype).unsqueeze(-1)
+            summary = (hidden * mask).sum(1) / mask.sum(1).clamp_min(1.0)
+        logits, _, router = self.read(summary)
         return logits, router
 
     def board_drive(self, features):
