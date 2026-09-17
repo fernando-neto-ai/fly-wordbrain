@@ -89,8 +89,17 @@ class UnifiedFly(nn.Module):
         return self.brain.wte(input_ids) + self.cue(task, input_ids.device)
 
     def language(self, input_ids, attention_mask=None, cache_params=None):
-        """Uses the pinned brain's own forward pass; only the readout is ours."""
-        out = self.brain(inputs_embeds=self.embed(input_ids, LANGUAGE),
+        """Uses the pinned brain's own forward pass; only the readout is ours.
+
+        `input_ids` is passed alongside `inputs_embeds` even though the embeddings already
+        carry the drive. The brain builds its next cache as
+        `cat([previous, input_ids])[-delay_k:] if input_ids is not None else previous`, so
+        handing it embeddings alone silently freezes the eight-token delay history at the
+        padding value: every chunk after the first would be driven by tokens that were
+        never read. The embeddings decide the drive, the ids decide the history, and both
+        are needed.
+        """
+        out = self.brain(input_ids=input_ids, inputs_embeds=self.embed(input_ids, LANGUAGE),
                          attention_mask=attention_mask, cache_params=cache_params,
                          use_cache=True, return_dict=True)
         logits, value, router = self.read(out.last_hidden_state)
@@ -104,7 +113,7 @@ class UnifiedFly(nn.Module):
         at the end instead of at every step. Padding is excluded by index rather than
         masked afterwards, so a short sequence is never read at a padded position.
         """
-        out = self.brain(inputs_embeds=self.embed(input_ids, SENTIMENT),
+        out = self.brain(input_ids=input_ids, inputs_embeds=self.embed(input_ids, SENTIMENT),
                          attention_mask=attention_mask, use_cache=False, return_dict=True)
         last = attention_mask.to(torch.long).sum(dim=1) - 1
         final = out.last_hidden_state[torch.arange(input_ids.shape[0], device=last.device), last]

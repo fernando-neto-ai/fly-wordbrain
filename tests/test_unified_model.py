@@ -62,6 +62,33 @@ class UnifiedModelTests(unittest.TestCase):
         self.assertTrue(torch.allclose(alone, with_padding, atol=1e-6),
                         "padding moved the read position")
 
+    def test_the_delay_history_advances_across_chunks(self):
+        """The cue must not cost the brain its eight-token memory.
+
+        The brain builds its next cache from input_ids, not from the embeddings, so a
+        readout that hands it embeddings alone freezes the delay history at padding and
+        every chunk after the first is driven by tokens that were never read. Nothing
+        downstream notices: the loss stays finite and the model still trains.
+        """
+        first, second = torch.tensor([[1, 3, 4, 2]]), torch.tensor([[5, 6, 7, 8]])
+        _, _, cache = self.fly.language(first)
+        self.assertFalse(bool((cache.last_tokens == 0).all()),
+                         "the delay history never advanced past padding")
+        expected = self.brain(first, use_cache=True, return_dict=True).cache_params
+        self.assertTrue(torch.equal(cache.last_tokens, expected.last_tokens))
+        # And it keeps advancing on the next chunk.
+        _, _, after = self.fly.language(second, cache_params=cache)
+        self.assertFalse(torch.equal(after.last_tokens, cache.last_tokens))
+
+    def test_language_matches_the_pinned_path_when_no_cue_is_used(self):
+        """With the cue off, the readout must see exactly the pinned model's hidden state."""
+        plain = UnifiedFly(self.brain, settle_steps=3, readout_rank=3, value_bins=8,
+                           features=5, tokens=11, moves=7, classes=0, tasks=2, task_cue=False)
+        ids = torch.tensor([[1, 3, 4, 2]])
+        expected = self.brain(ids, use_cache=True, return_dict=True)
+        _, _, cache = plain.language(ids)
+        self.assertTrue(torch.equal(cache.last_tokens, expected.cache_params.last_tokens))
+
     def test_the_task_cue_changes_what_the_brain_receives(self):
         ids = torch.tensor([[1, 3, 2]])
         self.assertFalse(torch.allclose(self.fly.embed(ids, LANGUAGE),
