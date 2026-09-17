@@ -122,7 +122,16 @@ def main():
                            readout_rank=training["readout_rank"],
                            history_length=training["history_length"], seed=training["seed"])
     model = trainer.build_model(reference, build_args, groups)
-    unified = UnifiedFly(model.brain, settle_steps=5, readout_rank=training["readout_rank"])
+    # Rebuild the arm in the form it was trained in. Defaults describe the two-task arms,
+    # which predate both the sentiment range and the task cue.
+    form = json.loads((ROOT / "experiments/configs" / (args.config + ".json")).read_text()) \
+        .get("unified", {})
+    space = form.get("output_space", {})
+    unified = UnifiedFly(model.brain, settle_steps=5, readout_rank=training["readout_rank"],
+                         tokens=space.get("language_tokens", 1024),
+                         moves=space.get("chess_moves", 1968),
+                         classes=space.get("sentiment_classes", 0),
+                         task_cue=form.get("task_cue", False))
     model.unified = unified
 
     saved = torch.load(args.run / args.checkpoint, map_location="cpu", weights_only=False)

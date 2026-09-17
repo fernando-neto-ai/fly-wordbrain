@@ -17,7 +17,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from fly_wordbrain.connectorch_model import build_connectorch_model
 from fly_wordbrain.metal_sparse_trainable import TrainableCSR
-from fly_wordbrain.unified_model import CHESS, LANGUAGE, UnifiedFly, move_targets
+from fly_wordbrain.unified_model import (CHESS, LANGUAGE, SENTIMENT, UnifiedFly,
+                                        move_targets, sentiment_targets)
 from test_connectorch_model import reference_fixture
 
 
@@ -27,17 +28,52 @@ class UnifiedModelTests(unittest.TestCase):
         self.brain = build_connectorch_model(reference_fixture(), csr_factory=TrainableCSR,
                                              d_embed=4).brain
         self.fly = UnifiedFly(self.brain, settle_steps=3, readout_rank=3, value_bins=8,
-                              features=5, tokens=11, moves=7)
+                              features=5, tokens=11, moves=7, classes=2)
 
-    def test_both_tasks_share_one_output_space(self):
+    def test_every_task_shares_one_output_space(self):
+        width = 11 + 7 + 2
         tokens, _, _ = self.fly.language(torch.tensor([[1, 3, 2]]))
         moves, _, _ = self.fly.chess(torch.randn(4, 5))
-        self.assertEqual(tokens.shape[-1], 18)
-        self.assertEqual(moves.shape[-1], 18)
+        judgement, _ = self.fly.sentiment(torch.tensor([[1, 3, 2]]), torch.ones(1, 3))
+        for logits in (tokens, moves, judgement):
+            self.assertEqual(logits.shape[-1], width)
 
-    def test_chess_targets_sit_above_the_language_range(self):
+    def test_each_task_owns_a_disjoint_range_that_covers_the_space(self):
+        ranges = self.fly.ranges()
+        self.assertEqual(ranges[LANGUAGE], (0, 11))
+        self.assertEqual(ranges[CHESS], (11, 18))
+        self.assertEqual(ranges[SENTIMENT], (18, 20))
+        covered = sorted(i for start, stop in ranges.values() for i in range(start, stop))
+        self.assertEqual(covered, list(range(20)), "ranges must tile the output space exactly")
+
+    def test_targets_land_in_their_own_range(self):
         self.assertTrue(torch.equal(move_targets(torch.tensor([0, 6]), tokens=11),
                                     torch.tensor([11, 17])))
+        self.assertTrue(torch.equal(sentiment_targets(torch.tensor([0, 1]), tokens=11, moves=7),
+                                    torch.tensor([18, 19])))
+
+    def test_sentiment_reads_the_last_real_token_not_the_padding(self):
+        """A short sequence in a padded batch must be judged where its text ends."""
+        short = torch.tensor([[1, 3, 2]])
+        padded = torch.tensor([[1, 3, 2, 0, 0]])
+        alone, _ = self.fly.sentiment(short, torch.ones(1, 3))
+        with_padding, _ = self.fly.sentiment(
+            padded, torch.tensor([[1., 1., 1., 0., 0.]]))
+        self.assertTrue(torch.allclose(alone, with_padding, atol=1e-6),
+                        "padding moved the read position")
+
+    def test_the_task_cue_changes_what_the_brain_receives(self):
+        ids = torch.tensor([[1, 3, 2]])
+        self.assertFalse(torch.allclose(self.fly.embed(ids, LANGUAGE),
+                                        self.fly.embed(ids, SENTIMENT)),
+                         "language and sentiment reach the brain identically; nothing "
+                         "distinguishes the two questions")
+
+    def test_the_same_text_can_be_answered_two_ways(self):
+        ids, mask = torch.tensor([[1, 3, 4, 2]]), torch.ones(1, 4)
+        continued, _, _ = self.fly.language(ids, attention_mask=mask)
+        judged, _ = self.fly.sentiment(ids, mask)
+        self.assertFalse(torch.allclose(continued[:, -1], judged, atol=1e-6))
 
     def test_both_tasks_inject_through_the_same_projection(self):
         shared = self.brain.in_proj
@@ -65,21 +101,26 @@ class UnifiedModelTests(unittest.TestCase):
             after, _, _ = self.fly.chess(features)
         self.assertTrue(torch.equal(before, after))
 
-    def test_leakage_is_the_mass_in_the_other_tasks_range(self):
-        # A head that is certain about one language token leaks nothing.
-        certain = torch.full((1, 18), -30.0)
+    def test_leakage_is_the_mass_outside_the_tasks_own_range(self):
+        # A head certain about one language token leaks nothing as language, everything
+        # as either other task.
+        certain = torch.full((1, 20), -30.0)
         certain[0, 2] = 30.0
         self.assertLess(self.fly.leakage(certain, LANGUAGE), 1e-6)
-        self.assertGreater(self.fly.leakage(certain, CHESS), 1 - 1e-6)
-        # A uniform head leaks in proportion to how much of the space is the other task.
-        uniform = torch.zeros(1, 18)
-        self.assertAlmostEqual(self.fly.leakage(uniform, LANGUAGE), 7 / 18, places=5)
+        for task in (CHESS, SENTIMENT):
+            self.assertGreater(self.fly.leakage(certain, task), 1 - 1e-6)
+        # A uniform head leaks whatever share of the space is not its own.
+        uniform = torch.zeros(1, 20)
+        self.assertAlmostEqual(self.fly.leakage(uniform, LANGUAGE), 9 / 20, places=5)
+        self.assertAlmostEqual(self.fly.leakage(uniform, CHESS), 13 / 20, places=5)
+        self.assertAlmostEqual(self.fly.leakage(uniform, SENTIMENT), 18 / 20, places=5)
 
     def test_own_parameters_excludes_the_shared_brain(self):
         own = {id(p) for p in self.fly.own_parameters()}
         for name in ("gain", "rec_gain", "bias", "in_proj"):
             self.assertNotIn(id(getattr(self.brain, name)), own)
         self.assertIn(id(self.fly.head.weight), own)
+        self.assertIn(id(self.fly.task_vector.weight), own)
 
     def test_the_brain_is_not_registered_twice(self):
         holder = torch.nn.Module()

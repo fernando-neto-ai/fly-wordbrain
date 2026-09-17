@@ -97,7 +97,8 @@
     "output_space": {
       "total": 2992,
       "language_tokens": 1024,
-      "chess_moves": 1968
+      "chess_moves": 1968,
+      "sentiment_classes": 0
     },
     "shared": [
       "the frozen graph",
@@ -118,6 +119,11 @@
       "chess": 1.0,
       "router": 0.1
     },
-    "note": "The language recipe, schedule, corpus, seed and 16,800-update budget are identical to I32rank64fixed10k, so the language scores stay comparable. The pinned model's own readout is unused and frozen."
+    "note": "The language recipe, schedule, corpus, seed and 16,800-update budget are identical to I32rank64fixed10k, so the language scores stay comparable. The pinned model's own readout is unused and frozen. Trained before the learned per-task cue existed, so it carries no task_vector; a scorer must rebuild it in that form or the parameter names will not match.",
+    "task_cue": false,
+    "tasks": [
+      "language",
+      "chess"
+    ]
   }
 }
