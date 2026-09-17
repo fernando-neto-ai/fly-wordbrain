@@ -1,5 +1,17 @@
 # Reproducing and extending the pipeline
 
+> **Just want to train it?** [`scripts/run_pipeline.py`](../scripts/run_pipeline.py) does
+> everything below in one command on Apple Silicon:
+>
+> ```bash
+> python scripts/run_pipeline.py --quick     # prepare, smoke, train, score, sample
+> ```
+>
+> It orchestrates the same scripts documented here, skipping stages whose output already
+> exists, and downloads the verified cell-type grouping instead of rebuilding it from the
+> upstream MaleCNS files. This document is the long-hand version: what each step does, what
+> it verifies, and how to re-derive the pieces the runner downloads.
+
 Run real training only on **macm3**. This includes eight-update training smoke
 runs. Use one GPU worker at a time. A fresh checkout and output directory give
 each experiment its own source identity; never edit bound source files or change

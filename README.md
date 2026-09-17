@@ -32,6 +32,89 @@ state raster and the confidence waveform are measurements from the pass that jus
 
 ---
 
+## Train the whole thing on your Mac, in one command
+
+```bash
+python scripts/run_pipeline.py --quick     # 12 min on an M3 Max, end to end
+python scripts/run_pipeline.py             # the full published recipe
+```
+
+That downloads the pinned model and connectome, builds the data splits, runs an optimizer
+smoke test, trains, scores against a held-out population, and prints stories the model you
+just trained wrote. No cluster, no GPU rental, no `sbatch`. **An Apple laptop is the whole
+compute budget.**
+
+### Three modules, one optimization
+
+The interesting part is not that it is small — it is that three separate learned modules are
+fitted **jointly, end to end, through a brain nobody is allowed to rewire**:
+
+```
+                token ids
+                    │
+                    ▼
+        ┌───────────────────────┐
+        │  ENCODER              │   482,816 learned
+        │  8 delay slots        │   writes into 14,064 of the neurons
+        └───────────┬───────────┘
+                    │  injected current
+                    ▼
+   ┌─────────────────────────────────────────────┐
+   │  THE FLY                                    │   148,179 learned
+   │  49,393 neurons                             │   (per-neuron gain,
+   │  9,050,172 synapses — FROZEN, 0 parameters  │    rec_gain, bias)
+   │  x = 0.1·x + 0.9·tanh(g·(r·Wx + in) + b)    │
+   └───────────┬─────────────────────────────────┘
+               │  all 49,393 states
+               ▼
+        ┌───────────────────────┐
+        │  READOUT              │   3,226,688 learned
+        │  49,393 → 64 → 1,024  │   low-rank, no activation between
+        └───────────┬───────────┘
+                    ▼
+            next-token logits
+```
+
+**One AdamW. One backward pass per step.** Two learning-rate groups (`1e-3` for the encoder
+and neurons, `1e-4` for the readout), but a single optimization — not three stages, not a
+frozen feature extractor with a head bolted on.
+
+The part that makes it end-to-end rather than a pipeline of stages: **gradients reach the
+encoder by flowing backwards through all 9,050,172 synapses.** The sparse transpose is a
+real Metal kernel, not a stop-gradient. So the encoder learns how to speak to the brain it
+is wired into, while the brain learns how to listen — over 32-step truncated
+backpropagation through time.
+
+The smoke test prints exactly this, and fails loudly if any of the three stops learning:
+
+```
+[preflight] all three modules are learning — encoder 482,816 · neurons 148,179 ·
+            readout 3,226,688 (+98,786 output norm, 3,956,469 total)
+```
+
+### What a run costs
+
+All measured on an M3 Max — `--quick` end to end, the full runs from their committed launch
+and stop receipts:
+
+| | Wall clock | Epochs | Updates | Audit CE |
+|---|---:|---:|---:|---:|
+| `--quick`, everything | **12m35s** | 2 | 2,389 | 4.614 |
+| └ of which, training | 11m27s | | | |
+| G32rank64fixed, the published run | **88 min** | 14 | 16,800 | **3.280** |
+| H32rank32fixed | 89 min | 14 | 17,400 | 3.309 |
+
+**`--quick` proves the machinery, not the result.** Two epochs gets you a model that loops
+— *"She was a big to play with her. She was so happy…"* — and scores 4.614 against the
+reference's 3.988. The 88-minute run is the one that lands at 3.280. The quick path exists
+so you can watch all three modules train and see real generated text inside a coffee break;
+the pipeline prints your score next to the reference's so the gap is never ambiguous.
+
+Both full runs stopped on a plateau rule rather than finishing the planned 44-epoch
+schedule. Training needs no connectome rebuild: the verified cell-type grouping ships inside
+the [published dataset](https://huggingface.co/datasets/fernandofernandes/fly-connectome-49k),
+so you skip the ~1 GB of upstream MaleCNS files and the second Python environment they need.
+
 ## Where this came from
 
 In 2026 Google Research and HHMI Janelia released the
@@ -174,11 +257,13 @@ initialization rebuilt from the recorded seed, and committed as
 *would* have adapted individual synaptic strengths (±10%, still no rewiring) were specified
 but never run.
 
-### Training
+### The Metal backend that makes it fit on a laptop
 
-On an Apple M3 Max, through custom Metal sparse kernels — dynamic-value CSR forward,
-transposed state backward, and batch-reduced edge gradients — which avoid both a dense
-49,393² adjacency and an edges × batch message tensor. Those kernels were packaged and
+Three custom kernels — dynamic-value CSR forward, **transposed state backward**, and
+batch-reduced edge gradients — avoid both a dense 49,393² adjacency and an edges × batch
+message tensor. A 49,393² dense matrix would be 9.8 GB per copy; the CSR form is 72 MB.
+The transposed backward is the kernel that carries gradients back to the encoder, which is
+what makes the training end-to-end rather than staged. All three were packaged and
 contributed upstream to [ConnecTorch](https://github.com/us/connectorch):
 
 ```python
@@ -205,17 +290,29 @@ these models run on, with MaleCNS body IDs, cell types and soma positions; and t
 with nothing but NumPy, and the subset carries the frozen-buffer digests that prove which
 graph these weights were trained on.
 
-## Reproduce it
-
-[`docs/PIPELINE.md`](docs/PIPELINE.md) is the full path: pinned downloads, verified
-anatomical groups, numerical preflight, training, checkpoint selection and evaluation.
+## Setup, and the pieces underneath
 
 ```bash
 python3.13 -m venv .venv-connectorch
 .venv-connectorch/bin/python -m pip install -r requirements-connectorch.txt
-.venv-connectorch/bin/python scripts/prepare_ngxson.py
-.venv-connectorch/bin/python scripts/prepare_ngxson_data.py
+.venv-connectorch/bin/python scripts/run_pipeline.py --quick
 ```
+
+`run_pipeline.py` is a thin orchestrator over the scripts that produced the published
+results — it never reimplements them. Each stage is skipped when its output already exists,
+and `--stage prepare|preflight|train|evaluate|sample` runs one at a time:
+
+| Stage | What it does | Underlying script |
+|---|---|---|
+| `prepare` | pinned model, data splits, audit split, cell-type grouping | `prepare_ngxson*.py` |
+| `preflight` | 8-update optimizer smoke across all three modules | `train_connectorch.py` |
+| `train` | the joint end-to-end run | `train_connectorch.py` |
+| `evaluate` | score against the held-out audit population | `evaluate_compression_curve.py` |
+| `sample` | generate text from what you just trained | `export_web_model.py` |
+
+[`docs/PIPELINE.md`](docs/PIPELINE.md) is the long-hand version, including how the cell-type
+grouping is re-derived from the upstream MaleCNS files if you want to rebuild rather than
+download it.
 
 The shared-population comparison in this README regenerates with:
 
