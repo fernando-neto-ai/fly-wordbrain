@@ -52,14 +52,20 @@ movement is stagecraft — the language model does not control it.
 
 It is 13.3× smaller than the [ngxson Fly LLM](https://huggingface.co/ngxson/fly-llm-hf)
 it derives from, and on a held-out population that selected neither model it scores
-**0.708 nats better** in cross-entropy. That result is about **readouts**, not anatomy:
+**1.039 nats better** in cross-entropy. That result is about **readouts**, not anatomy:
 the reference spends 95.9% of its parameters on one output matrix that overfits 1,000 short
 stories, and constraining its rank regularizes it. Nothing here shows the fly's wiring is
 a good prior for language — that needs randomized-graph controls nobody has run yet.
 
-It was trained on 1,000 TinyStories and only knows how to ramble about Lily and Tom. It
+It was trained on 10,000 TinyStories and only knows how to ramble about Lily and Tom. It
 loses story premises and sometimes recites training phrases back at you. Enjoy it for what
 it is.
+
+We also tested whether the low-rank advantage was real or just an artifact of a small
+corpus: at 10× the data the gap between a full and a low-rank readout collapses from 1.632
+nats to 0.313, so about four fifths of it was scarcity. This demo runs the 10,000-story
+weights, which score **2.9493** against the reference's 3.9882 — though at 1.83 passes they
+are not converged.
 
 Model: [fly-wordbrain-rank64](https://huggingface.co/fernandofernandes/fly-wordbrain-rank64) ·
 Connectome: [fly-connectome-49k](https://huggingface.co/datasets/fernandofernandes/fly-connectome-49k) ·

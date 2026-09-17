@@ -77,7 +77,7 @@
 
           <div class="deck" id="deck-model">
             <div class="deck-head"><span class="deck-id">DECK A</span><span class="deck-state" id="model-state">CUED</span></div>
-            <div class="deck-title">G32rank64fixed</div>
+            <div class="deck-title">I32rank64fixed10k</div>
             <div class="deck-row"><span id="model-updates">15,552 updates</span><span>3,956,469 PARAMS</span></div>
             <canvas class="wave" id="wave-prob"></canvas>
             <div class="fader">
@@ -128,11 +128,16 @@
             or signs of individual synapses.
           </p>
           <p>
+            Trained on 10,000 TinyStories at a 16,800-update budget — 1.83 passes, so it is
+            not converged. It scores 2.9493 cross-entropy on a held-out population, against
+            3.9882 for the 52,756,661-parameter model it derives from.
+          </p>
+          <p>
             Connectome: MaleCNS v1.0 (CC BY 4.0) — FlyEM / HHMI Janelia, University of Cambridge,
             MRC LMB, Google Research. Architecture and tokenizer after
             <a href="https://huggingface.co/ngxson/fly-llm-hf" target="_blank" rel="noopener">ngxson/fly-llm-hf</a>.
             Graph: <a href="https://huggingface.co/datasets/fernandofernandes/fly-connectome-49k" target="_blank" rel="noopener">fly-connectome-49k</a>.
-            Trained on TinyStories; it only knows how to ramble about Lily and Tom.
+            It only knows how to ramble about Lily and Tom.
           </p>
         </footer>
       </section>

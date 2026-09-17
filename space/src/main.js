@@ -6,7 +6,7 @@ import { NeuronCloud, StateRaster, ProbabilityWave, Knob } from './console.js';
 // Both the connectome and the weights are streamed from their own repositories, so this
 // Space carries no large files of its own and the artifacts have a single home each.
 const GRAPH_BASE = 'https://huggingface.co/datasets/fernandofernandes/fly-connectome-49k/resolve/main';
-const MODEL_BASE = 'https://huggingface.co/fernandofernandes/fly-wordbrain-rank64/resolve/main/web';
+const MODEL_BASE = 'https://huggingface.co/fernandofernandes/fly-wordbrain-rank64/resolve/main/corpus-10k/web';
 const EXPECTED_BYTES = 71_000_000;
 const CLOUD_POINTS = 2048;
 const RASTER_ROWS = 256;
@@ -141,6 +141,7 @@ async function start(ready) {
 
   $('cloud-meta').textContent = `${CLOUD_POINTS.toLocaleString()} of ${info.neurons.toLocaleString()} sampled`;
   $('model-updates').textContent = `${info.updates.toLocaleString()} UPDATES`;
+  document.querySelector('#deck-model .deck-title').textContent = info.experiment;
 
   buildKnobs();
   buildSuggestions();
