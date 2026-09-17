@@ -27,6 +27,31 @@ MOVES = 1968
 VALUE_BINS = 64
 
 
+def settle(brain, drive, steps, collect=False):
+    """Run the brain's recurrence from rest under `drive` of shape (n_in, batch).
+
+    A 3-D drive of shape (steps, n_in, batch) is applied one slice per step instead, which
+    is what the language model does and what the parity test exercises. This is the single
+    definition of the loop; both the chess head and the unified head call it.
+    """
+    config = brain.config
+    runtime, values = brain.sparse_runtime(), brain.effective_values()
+    gain, bias, rec_gain = brain.gain[:, None], brain.bias[:, None], brain.rec_gain[:, None]
+    sequenced = drive.dim() == 3
+    state = drive.new_zeros(config.n_neurons, drive.shape[-1])
+    collected = []
+    for step in range(steps):
+        current = drive[step] if sequenced else drive
+        recurrent = runtime.mm(state.t().contiguous(), values).t().contiguous()
+        pre = (rec_gain * recurrent).index_add(0, brain.in_index, current)
+        state = (1 - config.leak) * state + config.leak * torch.tanh(gain * pre + bias)
+        if collect:
+            collected.append(state[brain.out_index])
+    if collect:
+        return torch.stack(collected, dim=0).permute(2, 0, 1)
+    return state[brain.out_index].t()
+
+
 class ChessFly(nn.Module):
     def __init__(self, brain, settle_steps=5, encoder_rank=64, readout_rank=64,
                  moves=MOVES, value_bins=VALUE_BINS, features=FEATURES):
@@ -48,30 +73,8 @@ class ChessFly(nn.Module):
         self.register_buffer("bin_centres", (torch.arange(value_bins) + .5) / value_bins)
 
     def settle(self, drive, steps=None, collect=False):
-        """Run the brain's recurrence from rest under `drive` of shape (n_in, batch).
-
-        A 3-D drive of shape (steps, n_in, batch) is applied one slice per step instead,
-        which is what the language model does and what the parity test exercises.
-        """
-        brain = self.brain
-        config = brain.config
-        runtime, values = brain.sparse_runtime(), brain.effective_values()
-        gain, bias, rec_gain = brain.gain[:, None], brain.bias[:, None], brain.rec_gain[:, None]
-        sequenced = drive.dim() == 3
-        steps = steps or (drive.shape[0] if sequenced else self.settle_steps)
-        batch = drive.shape[-1]
-        state = drive.new_zeros(config.n_neurons, batch)
-        collected = []
-        for step in range(steps):
-            current = drive[step] if sequenced else drive
-            recurrent = runtime.mm(state.t().contiguous(), values).t().contiguous()
-            pre = (rec_gain * recurrent).index_add(0, brain.in_index, current)
-            state = (1 - config.leak) * state + config.leak * torch.tanh(gain * pre + bias)
-            if collect:
-                collected.append(state[brain.out_index])
-        if collect:
-            return torch.stack(collected, dim=0).permute(2, 0, 1)
-        return state[brain.out_index].t()
+        steps = steps or (drive.shape[0] if drive.dim() == 3 else self.settle_steps)
+        return settle(self.brain, drive, steps, collect)
 
     def chess_parameters(self):
         """The task-specific parameters: everything here except the shared brain."""
