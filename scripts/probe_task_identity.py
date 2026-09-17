@@ -132,7 +132,11 @@ def main():
     data = json.loads(args.data.read_text())
     arrays = np.load(args.chess_corpus / "corpus.npz")
     report = {"run": str(args.run), "checkpoint": args.checkpoint,
-              "updates": saved["cursor"]["updates"], "samples_per_task": args.samples,
+              "updates": saved["cursor"]["updates"],
+              # The cap asked for, not the count achieved. Language states come one per
+              # validation story, so the split size bounds it; each depth records what it
+              # actually used.
+              "samples_per_task_requested": args.samples,
               "note": "Language states are taken after exactly `steps` tokens so that both "
                       "tasks have run the recurrence the same number of times.",
               "by_settle_depth": {}}
@@ -163,7 +167,8 @@ def main():
         fake_train, fake_test = linear_probe(states, shuffled)
 
         report["by_settle_depth"][str(steps)] = {
-            "samples_per_task": count,
+            "samples_per_task_used": count,
+            "language_states_available": int(language.shape[0]),
             "trained_router_accuracy": router_accuracy,
             "linear_probe_train_accuracy": real_train,
             "linear_probe_heldout_accuracy": real_test,
