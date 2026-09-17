@@ -70,7 +70,9 @@ class UnifiedFly(nn.Module):
         self.trunk = nn.Linear(outputs, readout_rank, bias=False)
         self.head = nn.Linear(readout_rank, tokens + moves + classes, bias=False)
         self.value = nn.Linear(readout_rank, value_bins, bias=False)
-        self.router = nn.Linear(readout_rank, 2, bias=False)
+        # One output per task. A two-task arm's router is 2 wide and a three-task arm's is
+        # 3, so an arm's task count is part of the form a scorer has to rebuild.
+        self.router = nn.Linear(readout_rank, tasks, bias=False)
         self.register_buffer("bin_centres", (torch.arange(value_bins) + .5) / value_bins)
 
     def read(self, hidden):

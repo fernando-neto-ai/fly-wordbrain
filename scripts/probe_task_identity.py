@@ -131,6 +131,7 @@ def main():
                          tokens=space.get("language_tokens", 1024),
                          moves=space.get("chess_moves", 1968),
                          classes=space.get("sentiment_classes", 0),
+                         tasks=len(form.get("tasks", ["language", "chess"])),
                          task_cue=form.get("task_cue", False))
     model.unified = unified
 
