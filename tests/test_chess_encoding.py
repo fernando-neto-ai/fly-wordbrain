@@ -71,6 +71,13 @@ class EncodingTests(unittest.TestCase):
         # and one rank, so this pair belongs to no piece's geometry.
         self.assertNotIn("a1d2", vocabulary)
 
+    def test_a_corrupt_board_is_refused_rather_than_written_out_of_bounds(self):
+        # 15 is representable in a nibble but is not a piece; without the guard this
+        # lands in whatever block of the feature vector the arithmetic points at.
+        corrupt = np.full((1, PACKED_BOARD_BYTES), 0xFF, np.uint8)
+        with self.assertRaises(ValueError):
+            features_from_packed(corrupt, np.zeros((1, 2), np.uint8))
+
     def test_win_probability_is_centred_and_monotone(self):
         self.assertAlmostEqual(float(win_probability(0)), 0.5)
         values = win_probability([-1000, -100, 0, 100, 1000])

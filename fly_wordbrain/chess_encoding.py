@@ -71,6 +71,12 @@ def unpack_board(packed):
 def features_from_packed(packed, extras, out=None):
     """(N, 32) + (N, 2) -> (N, 780) float32 board features."""
     codes = unpack_board(packed)
+    # A corrupt corpus otherwise surfaces as an out-of-bounds write into the feature
+    # block, which reads as a shape bug anywhere but here. The check is over 32 bytes a
+    # row and is free next to the sparse matmul that follows.
+    if codes.size and codes.max() > PIECE_PLANES:
+        raise ValueError(f"Packed board holds piece code {int(codes.max())}; "
+                         f"valid codes are 0..{PIECE_PLANES}")
     count = codes.shape[0]
     features = np.zeros((count, FEATURES), dtype=np.float32) if out is None else out
     features[:] = 0.0
