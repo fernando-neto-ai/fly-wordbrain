@@ -1,0 +1,20 @@
+{
+  "corpus": "data/sentiment-sst2-v1",
+  "split": "audit",
+  "train_rows": 60000,
+  "held_out_rows": 872,
+  "majority_class": {
+    "label": 1,
+    "accuracy": 0.5091742873191833
+  },
+  "bag_of_tokens_binary": {
+    "held_out_accuracy": 0.7247706651687622,
+    "train_accuracy": 0.732866644859314
+  },
+  "bag_of_tokens_counts": {
+    "held_out_accuracy": 0.7224770784378052,
+    "train_accuracy": 0.7334166765213013
+  },
+  "floor_to_beat": 0.7247706651687622,
+  "note": "A bag of tokens has no word order, no composition and no recurrence. A recurrent model that does not clear this is not being measured on anything the recurrence provides."
+}
