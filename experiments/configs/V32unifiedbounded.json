@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "configuration_role": "declarative experiment specification; CLI flags are authoritative",
+  "training_host": "macm3",
+  "device": "mps",
+  "reference_repository": "ngxson/fly-llm-hf",
+  "reference_revision": "65c677b3d566a2e9793d5f72999cdb441c6c0a9f",
+  "reference_weights_sha256": "355f06c44d14e38af50e9c801f51839c37a0a56ac4ca016da2be9b3ae6f215ad",
+  "dataset_path": "data/ngxson-tinystories-10k/dataset.json",
+  "dataset_sha256": "2ce8531dea1a35bf73093883fda7e8060bb183074565c4818e5293543a42b665",
+  "split_stories": {
+    "train": 10000,
+    "validation": 100,
+    "test": 100
+  },
+  "initialization": "all learned values from scratch; retain released graph and interface",
+  "optimizer": {
+    "name": "AdamW",
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "epsilon": 1e-08,
+    "weight_decay": 0.01,
+    "gradient_clip_norm": 1.0,
+    "phases": [
+      {
+        "epochs": 4,
+        "input_neuron_lr": 0.001,
+        "readout_lr": 0.0001
+      },
+      {
+        "epochs": 2,
+        "input_neuron_lr": 0.0003,
+        "readout_lr": 3e-05
+      }
+    ],
+    "schedule": "cosine to zero separately per phase; preserve Adam moments across phases"
+  },
+  "checkpoint_selection": {
+    "primary": "minimum token-weighted validation cross-entropy",
+    "secondary": "maximum validation top-1 accuracy; retain actual weights and selection receipt"
+  },
+  "claim_scope": "The same unified arm with every synapse free to move within a bounded, sign-preserving +/-10% multiplier. Tests whether letting the connectome itself adapt relieves the two-task squeeze.",
+  "environment": {
+    "PYTORCH_ENABLE_MPS_FALLBACK": "0",
+    "OMP_NUM_THREADS": "4",
+    "VECLIB_MAXIMUM_THREADS": "4"
+  },
+  "experiment_id": "V32unifiedbounded",
+  "branch": "exp/unified-bounded",
+  "trainer": "scripts/train_unified.py",
+  "connectorch_revision": "4bbfb645099aeb85bdbf850e1a87cc094769af87",
+  "groups_path": "data/connectorch-groups-v1/groups.npz",
+  "groups_sha256": "a07d311cd04126b5e54ea9cb3e8945470af9049bcb8499fb406e3c38d185dd7f",
+  "trainable_parameters": null,
+  "training": {
+    "device": "mps",
+    "epochs": 4,
+    "second_epochs": 2,
+    "batch_size": 8,
+    "chunk_size": 32,
+    "seed": 42,
+    "eval_interval_updates": 100,
+    "d_embed": 32,
+    "plasticity": "bounded10",
+    "readout_rank": 64,
+    "history_length": 8,
+    "skip_final_test": true,
+    "max_updates": 16800
+  },
+  "edge_gain_parameters": 0,
+  "edge_multiplier_bounds": [
+    1.0,
+    1.0
+  ],
+  "neuron_gains": "original unconstrained gain and rec_gain",
+  "test_policy": "deferred until comparison and final protocol are fixed",
+  "output_relative": "results/unified-v1/arms/V32unifiedbounded",
+  "readout_parameters": null,
+  "encoder_parameters": null,
+  "comparison_baseline": "I32rank64fixed10k on the language side; the chess baselines in records/chess-baselines-v1.json",
+  "readout_architecture": {
+    "input_neurons": 49393,
+    "rank": 64,
+    "vocabulary": 1024,
+    "bias": false,
+    "intermediate_activation": null
+  },
+  "initialization_note": "Same from-scratch trainer initialization and seed42; preserve encoder and neuron initialization. Rank64 changes readout shapes and initial logit variance relative to rank128; verify rank64-specific gradients and optimizer updates before training.",
+  "execution_status": "launched",
+  "prerequisites": [
+    "Confirm no competing GPU worker on macm3",
+    "Training corpus is a strict superset of the 1,000-story set; validation, test and audit rows are byte-identical"
+  ],
+  "unified": {
+    "output_space": {
+      "total": 2992,
+      "language_tokens": 1024,
+      "chess_moves": 1968
+    },
+    "shared": [
+      "the frozen graph",
+      "the per-neuron gain, rec_gain and bias",
+      "brain.in_proj, the injection both tasks use",
+      "the LayerNorm, the rank-64 trunk and the output head"
+    ],
+    "task_specific": [
+      "the token embedding",
+      "the board projection, 780 -> 8 slots x 32"
+    ],
+    "router": "a two-way probe on the trunk; supervised, but never gates the output",
+    "chess_corpus": "data/chess-positions-v1",
+    "chess_batch": 32,
+    "settle_steps": 5,
+    "weights": {
+      "language": 1.0,
+      "chess": 1.0,
+      "router": 0.1
+    },
+    "note": "The language recipe, schedule, corpus, seed and 16,800-update budget are identical to I32rank64fixed10k, so the language scores stay comparable. The pinned model's own readout is unused and frozen."
+  }
+}
