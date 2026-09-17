@@ -6,16 +6,19 @@
 
 We took a published fly-connectome language model, held all 49,393 neurons and 9,050,172
 synapses fixed, and deleted **92.5% of everything it learns**. It did not degrade. It got
-**better** — **0.708 nats** of cross-entropy and **1.99 accuracy points** better than the
+**better** — **1.039 nats** of cross-entropy and **6.05 accuracy points** better than the
 52.7-million-parameter original, on held-out text that selected neither model.
 
 The reason is mundane and useful. That 92.5% was almost entirely a single output matrix,
-and the matrix was memorising the 1,000 stories it trained on. Replacing it with a low-rank
-one acts as a regularizer, and the model improves.
+and the matrix was memorising its training set. Constrain it and the model improves.
 
-So this is **a result about output layers, not about fly brains.** We set out to ask whether
-the connectome was pulling its weight; we could not answer that, and
-[What this is not](#what-this-is-not) says exactly what would be needed to.
+**We then tried to break that explanation, and it mostly held.** Given ten times the
+training text, the full-size readout recovers most of its disadvantage — the gap between the
+two shrinks from 1.632 nats to 0.313, so roughly **four fifths of the original effect was
+simply too little data**. A small advantage survives, and the tiny model stays the best of
+the four, but the honest headline is about **data and output layers, not about fly brains**.
+We set out to ask whether the connectome was pulling its weight. We still cannot say;
+[What this is not](#what-this-is-not) says exactly what would settle it.
 
 ### 🪰 [Hear it: **Fly Recital**](https://huggingface.co/spaces/fernandofernandes/fly-recital)
 
@@ -27,7 +30,7 @@ state raster and the confidence waveform are measurements from the pass that jus
 | | |
 |---|---|
 | **Demo** | [fly-recital](https://huggingface.co/spaces/fernandofernandes/fly-recital) |
-| **Models** | [rank64](https://huggingface.co/fernandofernandes/fly-wordbrain-rank64) (recommended) · [rank32](https://huggingface.co/fernandofernandes/fly-wordbrain-rank32) |
+| **Models** | [rank64](https://huggingface.co/fernandofernandes/fly-wordbrain-rank64) (recommended — see its `corpus-10k/`) · [rank32](https://huggingface.co/fernandofernandes/fly-wordbrain-rank32) · [full-readout control](https://huggingface.co/fernandofernandes/fly-wordbrain-fullreadout-10k) |
 | **Connectome** | [49k central-brain subset](https://huggingface.co/datasets/fernandofernandes/fly-connectome-49k) · [complete 166k MaleCNS](https://huggingface.co/datasets/fernandofernandes/fly-connectome-malecns-166k) |
 
 ---
@@ -196,6 +199,32 @@ The evaluator reproduces the previously published numbers bit-for-bit and replay
 arm's saved validation score to within 4.2e-08. The reserved 100-story test has never been
 opened.
 
+### Then we tried to break the explanation
+
+If the low-rank readout only wins because the full one memorises 1,000 stories, then more
+stories should erase its advantage. So we rebuilt the corpus **10× larger** — a strict
+superset, with validation, test and audit rows byte-identical — and reran both readouts at
+the **same 16,800-update budget** ([Stage 6](experiments/06-corpus-size/README.md)).
+
+![Readout rank against corpus size](experiments/06-corpus-size/figures/corpus-size.png)
+
+| audit CE | 1,000 stories | 10,000 stories | data effect |
+|---|---:|---:|---:|
+| full readout (51.3M) | 4.9125 | 3.2619 | **−1.6505** |
+| rank 64 (3.96M) | 3.2802 | **2.9493** | −0.3308 |
+| **readout gap** | **1.6323** | **0.3126** | |
+
+**The gap collapsed by 80.8%.** Ten times the text helps the big readout **5.0× more** than
+the small one — exactly what a memorising head looks like once it finally has enough to
+generalise from. The prediction held.
+
+What survives is smaller and less certain: 0.313 nats and 1.67 accuracy points at matched
+compute, with the 3,956,469-parameter model still best overall at **CE 2.9493 / 37.43%**,
+now **1.039 nats** below the released reference. But 16,800 updates is 18.3 passes over
+1,000 stories and only **1.83** over 10,000, so **neither large-corpus arm converged** — the
+residual could equally be the smaller model reaching its plateau sooner. Separating those
+needs both trained to convergence, which we have not done.
+
 ## What this is not
 
 **It is not evidence that the connectome helps.** Every arm above runs the same frozen
@@ -204,6 +233,11 @@ recurrent shape with a rank-constrained readout suits 1,000 short stories"*. Set
 needs trained **randomized-graph and zero-edge controls** under the identical recipe,
 multiple seeds, and a declared final-test protocol. None has been run. That is why the
 headline above is about output layers.
+
+**The surviving rank advantage is unresolved.** After 10× data the gap is 0.313 nats, but
+neither large-corpus arm completed even two passes over its training set. That residual is
+consistent with a real quality advantage *or* with the smaller model simply converging
+faster per update. Nothing measured here separates them.
 
 **The comparison against the released model is uncontrolled.** ngxson published neither the
 training story IDs nor the full trainer, so our arms learned from our own 1,000 stories
@@ -273,10 +307,18 @@ model = ct.nn.ConnectomeRNN(brain, weights="trainable", backend="metal_csr").to(
 
 ## The models
 
-- **G32rank64fixed** — 3,956,469 parameters (482,816 encoder, 3,226,688 decoder). The
-  recommended baseline, and what the demo runs.
+- **I32rank64fixed10k** — 3,956,469 parameters trained on 10,000 stories. **The best model
+  here**: audit CE 2.9493, 37.43% top-1, 1.039 nats below the released reference.
+- **G32rank64fixed** — the same architecture on 1,000 stories (CE 3.2802). What the demo
+  currently runs, and the baseline every earlier stage compares against.
 - **H32rank32fixed** — 2,343,125 parameters. 40.8% smaller than G, for 0.029 nats and 0.79
   accuracy points on the audit population.
+- **J32fullfixed10k** — 51,308,213 parameters, the full-readout control for Stage 6, published
+  as [fly-wordbrain-fullreadout-10k](https://huggingface.co/fernandofernandes/fly-wordbrain-fullreadout-10k).
+
+The 10k weights ship inside the rank-64 repo under `corpus-10k/`. They are **budget-capped at
+16,800 updates (1.83 passes), not trained to convergence** — the trainer marks them
+`debug_stopped`, which flags the cap rather than a failure.
 
 We keep the **lowest-validation-CE** and **highest-validation-accuracy** weights as separate
 artifacts and never merge them into a single fictional "best" checkpoint. Both selectors
@@ -348,6 +390,7 @@ Every stage keeps its negative results, its stop receipts and its unedited gener
 | [3 — Encoder](experiments/03-encoder-compression/README.md) | How wide must the input interface be? | 32 is as good as 128. |
 | [4 — Decoder](experiments/04-decoder-compression/README.md) | What happens without the 50.6M readout? | Quality improves. |
 | [5 — Shared population](experiments/05-shared-population/README.md) | Are any of these numbers comparable? | They are now. |
+| [6 — Corpus size](experiments/06-corpus-size/README.md) | Was the readout result just a small corpus? | 80.8% of it, yes. |
 | [Demo — `space/`](space/README.md) | Can it run, live, in a browser tab? | Yes, token-for-token exact. |
 
 The [experiment registry](experiments/README.md) holds the arm table, recording rules and

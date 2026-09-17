@@ -16,6 +16,7 @@ paths are cited by hash in run receipts, tests and external notes.
 | [`03-encoder-compression/`](03-encoder-compression/README.md) | A/B/C/D — how wide the input interface needs to be |
 | [`04-decoder-compression/`](04-decoder-compression/README.md) | E/F/G/H — replacing the 50.6M-parameter readout |
 | [`05-shared-population/`](05-shared-population/README.md) | Every model scored on one population, with paired confidence intervals |
+| [`06-corpus-size/`](06-corpus-size/README.md) | I/J — 2×2 over readout and corpus size; tests whether Stage 4 was a small-data artifact |
 | `configs/` | Declarative experiment specifications. **Specifications, not runnable config files** — see [pipeline commands](../docs/PIPELINE.md) |
 | `records/` | Selector hashes, parity, source ancestry, stop receipts, quality results |
 | `runs/` | Launch receipts |
@@ -33,6 +34,14 @@ paths are cited by hash in run receipts, tests and external notes.
 | F32rank128bounded | `exp/encoder32-readout128-bounded` | [F](configs/F32rank128bounded.json) | 7,201,479 | stopped for ordering; **do not resume** |
 | **G32rank64fixed** | `exp/encoder32-readout64-fixed` | [G](configs/G32rank64fixed.json) | **3,956,469** | accepted early stop — **recommended** |
 | H32rank32fixed | `exp/encoder32-readout32-fixed` | [H](configs/H32rank32fixed.json) | 2,343,125 | accepted early stop |
+| **I32rank64fixed10k** | `exp/corpus10k-rank64` | [I](configs/I32rank64fixed10k.json) | **3,956,469** | budget-capped at 16,800 updates — **best audit score** |
+| J32fullfixed10k | `exp/corpus10k-fullreadout` | [J](configs/J32fullfixed10k.json) | 51,308,213 | budget-capped at 16,800 updates; Stage 6 control |
+
+The two 10k arms are **budget-capped**, not plateau-stopped: they were given exactly 16,800
+updates to match G's compute, so the trainer records them as `debug_stopped` with
+`debug: true`. That flags the cap, not a failure. They completed 1.83 passes over their
+corpus and are **not converged**; read [Stage 6](06-corpus-size/README.md) before quoting
+their numbers.
 
 An accepted early stop is **not** a completed run. The planned schedule was 44 epochs
 (52,609 updates); no arm reached it. Operational plateau stopping required at least eight

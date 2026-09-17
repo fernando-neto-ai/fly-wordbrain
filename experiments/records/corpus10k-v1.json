@@ -1,0 +1,454 @@
+{
+  "schema_version": 1,
+  "experiment": "corpus10k-v1",
+  "question": "Is the low-rank readout advantage a small-data regularisation artifact?",
+  "design": {
+    "factorial": "2x2 over readout (full / rank 64) and training corpus (1,000 / 10,000 stories)",
+    "matched": "16,800 updates for every arm; planned cosine sized so the consumed fraction matches G's 31.9% (10k arms plan ~55,122 updates, consume 30.5%)",
+    "corpus": "The 10,000-story set is a strict superset of the 1,000-story set in the same order; validation, test and audit rows are byte-identical between corpora",
+    "budget_note": "16,800 updates is 18.3 passes of the 1k corpus but only 1.83 of the 10k corpus, so neither 10k arm has converged"
+  },
+  "audit_population": {
+    "stories": 200,
+    "targets": 45059,
+    "note": "Selected no checkpoint in any arm"
+  },
+  "results": {
+    "released-reference": {
+      "parameters": 52756661,
+      "audit": {
+        "stories": 200,
+        "tokens": 45059,
+        "nll_sum": 179705.70758149194,
+        "correct": 14141,
+        "cross_entropy": 3.9882311542975195,
+        "perplexity": 53.959359118617655,
+        "top1_accuracy": 0.3138329745444861
+      },
+      "validation": {
+        "stories": 100,
+        "tokens": 21874,
+        "nll_sum": 80516.69813330428,
+        "correct": 7709,
+        "cross_entropy": 3.6809316143962825,
+        "perplexity": 39.68334643405466,
+        "top1_accuracy": 0.3524275395446649
+      },
+      "vs_released_reference": null
+    },
+    "B32fixed-1k": {
+      "parameters": 51308213,
+      "audit": {
+        "stories": 200,
+        "tokens": 45059,
+        "nll_sum": 221350.89992049077,
+        "correct": 12492,
+        "cross_entropy": 4.912468095618872,
+        "perplexity": 135.97459891647313,
+        "top1_accuracy": 0.27723651212854256
+      },
+      "validation": {
+        "stories": 100,
+        "tokens": 21874,
+        "nll_sum": 98706.62712751812,
+        "correct": 6896,
+        "cross_entropy": 4.512509240537539,
+        "perplexity": 91.15024969782482,
+        "top1_accuracy": 0.3152601261771967
+      },
+      "vs_released_reference": {
+        "direction": "ours minus released",
+        "delta_cross_entropy": 0.9242369413213528,
+        "delta_accuracy": -0.03659646241594354,
+        "perplexity_ratio": 2.5199446608986436,
+        "ce_95_ci": [
+          0.8895836959137475,
+          0.9586070167044439
+        ],
+        "accuracy_95_ci": [
+          -0.04005146481515836,
+          -0.03305634875850559
+        ],
+        "point_estimates_within_margins": false,
+        "ce_noninferiority_supported": false,
+        "accuracy_noninferiority_supported": false,
+        "noninferiority_supported": false,
+        "two_sided_equivalence_supported": false,
+        "bootstrap": {
+          "unit": "paired whole story",
+          "resamples": 10000,
+          "seed": 1729,
+          "estimator": "token-weighted ratio of resampled story totals"
+        }
+      }
+    },
+    "G32rank64-1k": {
+      "parameters": 3956469,
+      "audit": {
+        "stories": 200,
+        "tokens": 45059,
+        "nll_sum": 147800.69115038987,
+        "correct": 15038,
+        "cross_entropy": 3.2801591502339127,
+        "perplexity": 26.580002576899584,
+        "top1_accuracy": 0.3337402072837835
+      },
+      "validation": {
+        "stories": 100,
+        "tokens": 21874,
+        "nll_sum": 67671.70489543657,
+        "correct": 7955,
+        "cross_entropy": 3.0937050788807063,
+        "perplexity": 22.058655816075323,
+        "top1_accuracy": 0.36367376794367745
+      },
+      "vs_released_reference": {
+        "direction": "ours minus released",
+        "delta_cross_entropy": -0.7080720040636069,
+        "delta_accuracy": 0.019907232739297367,
+        "perplexity_ratio": 0.49259299982546784,
+        "ce_95_ci": [
+          -0.7378795449119818,
+          -0.6786553374674692
+        ],
+        "accuracy_95_ci": [
+          0.016132886245313883,
+          0.023680969457204007
+        ],
+        "point_estimates_within_margins": false,
+        "ce_noninferiority_supported": true,
+        "accuracy_noninferiority_supported": true,
+        "noninferiority_supported": true,
+        "two_sided_equivalence_supported": false,
+        "bootstrap": {
+          "unit": "paired whole story",
+          "resamples": 10000,
+          "seed": 1729,
+          "estimator": "token-weighted ratio of resampled story totals"
+        }
+      }
+    },
+    "J32full-10k": {
+      "parameters": 51308213,
+      "audit": {
+        "stories": 200,
+        "tokens": 45059,
+        "nll_sum": 146979.9747925254,
+        "correct": 16114,
+        "cross_entropy": 3.2619448898671832,
+        "perplexity": 26.100249922752347,
+        "top1_accuracy": 0.3576200093211123
+      },
+      "validation": {
+        "stories": 100,
+        "tokens": 21874,
+        "nll_sum": 63756.09798261165,
+        "correct": 8955,
+        "cross_entropy": 2.9146977225295627,
+        "perplexity": 18.44323658516572,
+        "top1_accuracy": 0.4093901435494194
+      },
+      "vs_released_reference": {
+        "direction": "ours minus released",
+        "delta_cross_entropy": -0.7262862644303366,
+        "delta_accuracy": 0.0437870347766262,
+        "perplexity_ratio": 0.48370199996958346,
+        "ce_95_ci": [
+          -0.7647741615851609,
+          -0.687457470555485
+        ],
+        "accuracy_95_ci": [
+          0.03911283139212634,
+          0.0485396797288393
+        ],
+        "point_estimates_within_margins": false,
+        "ce_noninferiority_supported": true,
+        "accuracy_noninferiority_supported": true,
+        "noninferiority_supported": true,
+        "two_sided_equivalence_supported": false,
+        "bootstrap": {
+          "unit": "paired whole story",
+          "resamples": 10000,
+          "seed": 1729,
+          "estimator": "token-weighted ratio of resampled story totals"
+        }
+      }
+    },
+    "I32rank64-10k": {
+      "parameters": 3956469,
+      "audit": {
+        "stories": 200,
+        "tokens": 45059,
+        "nll_sum": 132894.1640409532,
+        "correct": 16865,
+        "cross_entropy": 2.9493367371879806,
+        "perplexity": 19.09328566122883,
+        "top1_accuracy": 0.3742870458731885
+      },
+      "validation": {
+        "stories": 100,
+        "tokens": 21874,
+        "nll_sum": 59329.791923946876,
+        "correct": 9125,
+        "cross_entropy": 2.7123430522056724,
+        "perplexity": 15.064531178821623,
+        "top1_accuracy": 0.41716192740239555
+      },
+      "vs_released_reference": {
+        "direction": "ours minus released",
+        "delta_cross_entropy": -1.038894417109539,
+        "delta_accuracy": 0.06045407132870237,
+        "perplexity_ratio": 0.35384567150355667,
+        "ce_95_ci": [
+          -1.0775106605949862,
+          -1.0007515695558162
+        ],
+        "accuracy_95_ci": [
+          0.05610002061895439,
+          0.06478376738072038
+        ],
+        "point_estimates_within_margins": false,
+        "ce_noninferiority_supported": true,
+        "accuracy_noninferiority_supported": true,
+        "noninferiority_supported": true,
+        "two_sided_equivalence_supported": false,
+        "bootstrap": {
+          "unit": "paired whole story",
+          "resamples": 10000,
+          "seed": 1729,
+          "estimator": "token-weighted ratio of resampled story totals"
+        }
+      }
+    }
+  },
+  "readout_gap_nats": {
+    "at_1k_stories": 1.6323089453849597,
+    "at_10k_stories": 0.3126081526792026,
+    "collapse_fraction": 0.8084871411364606
+  },
+  "readout_gap_accuracy_points": {
+    "at_1k_stories": 5.6503695155240905,
+    "at_10k_stories": 1.6667036552076127
+  },
+  "data_effect_nats": {
+    "full_readout": -1.6505232057516892,
+    "rank64": -0.3308224130459321
+  },
+  "arms": {
+    "I32rank64fixed10k": {
+      "status": "debug_stopped",
+      "updates": 16800,
+      "epochs_completed": 1,
+      "best_validation": {
+        "cross_entropy": 2.712343055401684,
+        "top1_accuracy": 0.41716192740239555,
+        "updates": 16800,
+        "epoch": 1
+      },
+      "selected_checkpoints": {
+        "minimum_validation_ce": {
+          "path": "/Users/fernando/fly_wordbrain_connectorch/results/corpus10k-v1/arms/I32rank64fixed10k/best.pt",
+          "sha256": "d0c8f94a1f073e7a5f9660f22361a4cafd9473645db3639c5a90cbf31e777c96",
+          "cursor": {
+            "epoch": 1,
+            "batch": 493,
+            "offset": 224,
+            "updates": 16800,
+            "phase": 0,
+            "epoch_loss_sum": 2746104.737767011,
+            "epoch_tokens": 930894,
+            "epoch_correct": 346914
+          },
+          "validation": {
+            "cross_entropy": 2.712343055401684,
+            "top1_accuracy": 0.41716192740239555,
+            "correct": 9125,
+            "tokens": 21874,
+            "stories": 100
+          },
+          "frozen_buffers_preserved": true,
+          "frozen_buffers_sha256": {
+            "brain.w_offsets": "53b216d7bc2503c539c2d2b03ce56f66eb8a2e9b902f0a20deda0ec4be37ade0",
+            "brain.w_indices": "0f17b9563457fbf84404c54227db86b5adcf04a689cdff5e33d32ec5d5e0b771",
+            "brain.w_values": "e6408887d3312783c65d3f10bb69b28fe50bb06699f0a8a9341d444e6eb0549a",
+            "brain.in_index": "ee440072f6c94b59c552cb09812af5894066ae28f686cda2cd2e35a3626beda6",
+            "brain.out_index": "5ac16e2c38cf0a1b4b4aea74eadeb2d487e153113d046895a813e09d010f0a18",
+            "brain.edge_group_index": "4b9af4b1e2313aba5a9a139ae3ecfc8fcae09a440c65802207a26775700f6eca",
+            "brain.node_type_index": "9ea440846c4bfde95c8c007320ad3bc3b79cfb3b69c2ff6a136c39fd41f658be"
+          }
+        },
+        "maximum_validation_accuracy": {
+          "path": "/Users/fernando/fly_wordbrain_connectorch/results/corpus10k-v1/arms/I32rank64fixed10k/best-accuracy.pt",
+          "sha256": "bf0a65c9c8fdc54ffcd0b842d700c6d1b56045a0d9acb14cb46ad24176e2df3a",
+          "cursor": {
+            "epoch": 1,
+            "batch": 493,
+            "offset": 224,
+            "updates": 16800,
+            "phase": 0,
+            "epoch_loss_sum": 2746104.737767011,
+            "epoch_tokens": 930894,
+            "epoch_correct": 346914
+          },
+          "validation": {
+            "cross_entropy": 2.712343055401684,
+            "top1_accuracy": 0.41716192740239555,
+            "correct": 9125,
+            "tokens": 21874,
+            "stories": 100
+          },
+          "frozen_buffers_preserved": true,
+          "frozen_buffers_sha256": {
+            "brain.w_offsets": "53b216d7bc2503c539c2d2b03ce56f66eb8a2e9b902f0a20deda0ec4be37ade0",
+            "brain.w_indices": "0f17b9563457fbf84404c54227db86b5adcf04a689cdff5e33d32ec5d5e0b771",
+            "brain.w_values": "e6408887d3312783c65d3f10bb69b28fe50bb06699f0a8a9341d444e6eb0549a",
+            "brain.in_index": "ee440072f6c94b59c552cb09812af5894066ae28f686cda2cd2e35a3626beda6",
+            "brain.out_index": "5ac16e2c38cf0a1b4b4aea74eadeb2d487e153113d046895a813e09d010f0a18",
+            "brain.edge_group_index": "4b9af4b1e2313aba5a9a139ae3ecfc8fcae09a440c65802207a26775700f6eca",
+            "brain.node_type_index": "9ea440846c4bfde95c8c007320ad3bc3b79cfb3b69c2ff6a136c39fd41f658be"
+          }
+        }
+      },
+      "config": {
+        "epochs": 4,
+        "second_epochs": 2,
+        "batch_size": 8,
+        "chunk_size": 32,
+        "seed": 42,
+        "max_updates": 16800,
+        "eval_limit": null,
+        "eval_interval_updates": 100,
+        "device": "mps",
+        "d_embed": 32,
+        "plasticity": "fixed",
+        "readout_rank": 64,
+        "history_length": 8,
+        "skip_final_test": true
+      },
+      "data_sha256": "2ce8531dea1a35bf73093883fda7e8060bb183074565c4818e5293543a42b665",
+      "frozen_buffers_sha256": {
+        "brain.w_offsets": "53b216d7bc2503c539c2d2b03ce56f66eb8a2e9b902f0a20deda0ec4be37ade0",
+        "brain.w_indices": "0f17b9563457fbf84404c54227db86b5adcf04a689cdff5e33d32ec5d5e0b771",
+        "brain.w_values": "e6408887d3312783c65d3f10bb69b28fe50bb06699f0a8a9341d444e6eb0549a",
+        "brain.in_index": "ee440072f6c94b59c552cb09812af5894066ae28f686cda2cd2e35a3626beda6",
+        "brain.out_index": "5ac16e2c38cf0a1b4b4aea74eadeb2d487e153113d046895a813e09d010f0a18",
+        "brain.edge_group_index": "4b9af4b1e2313aba5a9a139ae3ecfc8fcae09a440c65802207a26775700f6eca",
+        "brain.node_type_index": "9ea440846c4bfde95c8c007320ad3bc3b79cfb3b69c2ff6a136c39fd41f658be"
+      }
+    },
+    "J32fullfixed10k": {
+      "status": "debug_stopped",
+      "updates": 16800,
+      "epochs_completed": 1,
+      "best_validation": {
+        "cross_entropy": 2.9146977331800303,
+        "top1_accuracy": 0.4093901435494194,
+        "updates": 16800,
+        "epoch": 1
+      },
+      "selected_checkpoints": {
+        "minimum_validation_ce": {
+          "path": "/Users/fernando/fly_wordbrain_connectorch/results/corpus10k-v1/arms/J32fullfixed10k/best.pt",
+          "sha256": "b1f3099045c4b31e1dff60a710dca740a9a0a841bd1367807ccd388eddf47578",
+          "cursor": {
+            "epoch": 1,
+            "batch": 493,
+            "offset": 224,
+            "updates": 16800,
+            "phase": 0,
+            "epoch_loss_sum": 2930662.107728457,
+            "epoch_tokens": 930894,
+            "epoch_correct": 345468
+          },
+          "validation": {
+            "cross_entropy": 2.9146977331800303,
+            "top1_accuracy": 0.4093901435494194,
+            "correct": 8955,
+            "tokens": 21874,
+            "stories": 100
+          },
+          "frozen_buffers_preserved": true,
+          "frozen_buffers_sha256": {
+            "brain.w_offsets": "53b216d7bc2503c539c2d2b03ce56f66eb8a2e9b902f0a20deda0ec4be37ade0",
+            "brain.w_indices": "0f17b9563457fbf84404c54227db86b5adcf04a689cdff5e33d32ec5d5e0b771",
+            "brain.w_values": "e6408887d3312783c65d3f10bb69b28fe50bb06699f0a8a9341d444e6eb0549a",
+            "brain.in_index": "ee440072f6c94b59c552cb09812af5894066ae28f686cda2cd2e35a3626beda6",
+            "brain.out_index": "5ac16e2c38cf0a1b4b4aea74eadeb2d487e153113d046895a813e09d010f0a18",
+            "brain.edge_group_index": "4b9af4b1e2313aba5a9a139ae3ecfc8fcae09a440c65802207a26775700f6eca",
+            "brain.node_type_index": "9ea440846c4bfde95c8c007320ad3bc3b79cfb3b69c2ff6a136c39fd41f658be"
+          }
+        },
+        "maximum_validation_accuracy": {
+          "path": "/Users/fernando/fly_wordbrain_connectorch/results/corpus10k-v1/arms/J32fullfixed10k/best-accuracy.pt",
+          "sha256": "b12d8d756d1905296f8735acf78a3b7b52d2c9823aaae0568cc9eae235411f89",
+          "cursor": {
+            "epoch": 1,
+            "batch": 493,
+            "offset": 224,
+            "updates": 16800,
+            "phase": 0,
+            "epoch_loss_sum": 2930662.107728457,
+            "epoch_tokens": 930894,
+            "epoch_correct": 345468
+          },
+          "validation": {
+            "cross_entropy": 2.9146977331800303,
+            "top1_accuracy": 0.4093901435494194,
+            "correct": 8955,
+            "tokens": 21874,
+            "stories": 100
+          },
+          "frozen_buffers_preserved": true,
+          "frozen_buffers_sha256": {
+            "brain.w_offsets": "53b216d7bc2503c539c2d2b03ce56f66eb8a2e9b902f0a20deda0ec4be37ade0",
+            "brain.w_indices": "0f17b9563457fbf84404c54227db86b5adcf04a689cdff5e33d32ec5d5e0b771",
+            "brain.w_values": "e6408887d3312783c65d3f10bb69b28fe50bb06699f0a8a9341d444e6eb0549a",
+            "brain.in_index": "ee440072f6c94b59c552cb09812af5894066ae28f686cda2cd2e35a3626beda6",
+            "brain.out_index": "5ac16e2c38cf0a1b4b4aea74eadeb2d487e153113d046895a813e09d010f0a18",
+            "brain.edge_group_index": "4b9af4b1e2313aba5a9a139ae3ecfc8fcae09a440c65802207a26775700f6eca",
+            "brain.node_type_index": "9ea440846c4bfde95c8c007320ad3bc3b79cfb3b69c2ff6a136c39fd41f658be"
+          }
+        }
+      },
+      "config": {
+        "epochs": 4,
+        "second_epochs": 2,
+        "batch_size": 8,
+        "chunk_size": 32,
+        "seed": 42,
+        "max_updates": 16800,
+        "eval_limit": null,
+        "eval_interval_updates": 100,
+        "device": "mps",
+        "d_embed": 32,
+        "plasticity": "fixed",
+        "readout_rank": 0,
+        "history_length": 8,
+        "skip_final_test": true
+      },
+      "data_sha256": "2ce8531dea1a35bf73093883fda7e8060bb183074565c4818e5293543a42b665",
+      "frozen_buffers_sha256": {
+        "brain.w_offsets": "53b216d7bc2503c539c2d2b03ce56f66eb8a2e9b902f0a20deda0ec4be37ade0",
+        "brain.w_indices": "0f17b9563457fbf84404c54227db86b5adcf04a689cdff5e33d32ec5d5e0b771",
+        "brain.w_values": "e6408887d3312783c65d3f10bb69b28fe50bb06699f0a8a9341d444e6eb0549a",
+        "brain.in_index": "ee440072f6c94b59c552cb09812af5894066ae28f686cda2cd2e35a3626beda6",
+        "brain.out_index": "5ac16e2c38cf0a1b4b4aea74eadeb2d487e153113d046895a813e09d010f0a18",
+        "brain.edge_group_index": "4b9af4b1e2313aba5a9a139ae3ecfc8fcae09a440c65802207a26775700f6eca",
+        "brain.node_type_index": "9ea440846c4bfde95c8c007320ad3bc3b79cfb3b69c2ff6a136c39fd41f658be"
+      }
+    }
+  },
+  "findings": [
+    "The readout gap collapsed 1.6323 -> 0.3126 nats: 80.8% of it was a small-data artifact.",
+    "Ten times the data helps the full readout 5.0x more than the low-rank one (-1.6505 vs -0.3308 nats), which is the signature of a head that was memorising rather than generalising.",
+    "A residual advantage survives: 0.3126 nats and 1.67 accuracy points at matched compute.",
+    "The 3,956,469-parameter model trained on 10,000 stories is the best of the four: CE 2.9493, 37.43% top-1, 1.039 nats below the released 52,756,661-parameter reference."
+  ],
+  "limitations": [
+    "Neither 10k arm converged (1.83 passes). The residual 0.313-nat gap may be a convergence-rate difference rather than a final-quality difference; separating them requires training both to convergence on the larger corpus.",
+    "Both 10k arms are budget-capped, so their trainer status is 'debug_stopped' with debug=true. That flags the cap, not a failure.",
+    "Still no randomized-graph or zero-edge control, so nothing here speaks to whether the connectome itself contributes.",
+    "The audit population was revealed by an earlier audit and is no longer untouched. The reserved 100-story test remains unopened."
+  ],
+  "completed_at_utc": "2026-09-17T04:12:35.068575+00:00"
+}
