@@ -150,6 +150,13 @@ def main():
             routed = unified.router(trunk).argmax(-1).cpu()
         router_accuracy = float((routed == labels).float().mean())
 
+        # A perfect probe is not yet an interesting result. If the two tasks simply drive
+        # the brain to different magnitudes, a reader of "how big is this vector" scores
+        # perfectly while the state represents nothing task-like. So the norm is measured
+        # on its own, and the probe is repeated on direction alone.
+        norms = states.norm(dim=1, keepdim=True)
+        norm_train, norm_test = linear_probe(norms, labels)
+        direction_train, direction_test = linear_probe(states / norms.clamp_min(1e-6), labels)
         real_train, real_test = linear_probe(states, labels)
         generator = torch.Generator().manual_seed(4242)
         shuffled = labels[torch.randperm(labels.shape[0], generator=generator)]
@@ -160,13 +167,18 @@ def main():
             "trained_router_accuracy": router_accuracy,
             "linear_probe_train_accuracy": real_train,
             "linear_probe_heldout_accuracy": real_test,
+            "state_norm_only_heldout_accuracy": norm_test,
+            "direction_only_heldout_accuracy": direction_test,
+            "mean_state_norm": {"language": float(norms[labels == LANGUAGE].mean()),
+                                "chess": float(norms[labels == CHESS].mean())},
             "shuffled_label_probe_train_accuracy": fake_train,
             "shuffled_label_probe_heldout_accuracy": fake_test,
             "probe_margin_over_shuffled": real_test - fake_test,
         }
         print(f"settle depth {steps}: router {router_accuracy:.3f} | probe held-out "
               f"{real_test:.3f} (train {real_train:.3f}) | shuffled held-out {fake_test:.3f} "
-              f"(train {fake_train:.3f})", flush=True)
+              f"(train {fake_train:.3f}) | norm alone {norm_test:.3f} | direction alone "
+              f"{direction_test:.3f}", flush=True)
 
     trained = report["by_settle_depth"].get(str(args.steps[0]), {})
     matched = report["by_settle_depth"].get(str(args.steps[-1]), {})
