@@ -1,0 +1,22 @@
+{
+  "corpus": "data/chess-positions-v1",
+  "split": "audit",
+  "positions": 10000,
+  "mean_legal_moves": 28.629,
+  "target_move_always_legal": true,
+  "random_legal_move_top1_expected": 0.08475677921194427,
+  "random_legal_move_top1_one_over_mean_legal": 0.03492961682210346,
+  "random_legal_move_top1_expected_excluding_forced_mates": 0.05744328713922429,
+  "random_legal_move_top1_one_over_mean_legal_excluding_forced_mates": 0.03228419347373293,
+  "forced_mate_fraction": 0.1909,
+  "most_common_legal_move_top1": 0.1233,
+  "constant_value_mae": 0.18909363327440215,
+  "constant_value_prediction": 0.5226801633834839,
+  "reference_chessfly": {
+    "random_legal_move_top1": 0.03,
+    "most_common_legal_move_top1": 0.13,
+    "trained_top1": 0.304,
+    "trained_value_mae": 0.081
+  },
+  "note": "The prior is built from the training split only. Ties on the prior are scored as a uniform draw among the tied moves rather than by array order. Two random-move figures are reported because they answer different questions: the expected accuracy of a uniform draw is E[1/n], while the familiar 'one in about thirty legal moves' is 1/E[n]. E[1/n] is the larger of the two and is the one a trained model actually has to beat. The ChessFly reference's 3% corresponds to 1/E[n] excluding forced mates."
+}

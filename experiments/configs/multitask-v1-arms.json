@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "experiment": "multitask-v1",
+  "question": "Can one fly brain hold language and chess at the same time?",
+  "training_host": "macm3",
+  "trainer": "scripts/train_multitask.py",
+  "shared_between_tasks": {
+    "frozen": "the 49,393-neuron / 9,050,172-edge graph and every synaptic weight",
+    "trained": "148,179 per-neuron gain, rec_gain and bias -- the brain's dynamics",
+    "note": "The graph cannot be fought over because it does not move. The dynamics can, and both tasks must agree on one setting of them."
+  },
+  "private_to_each_task": {
+    "language": "token embedding, in_proj, LayerNorm, rank-64 readout into 1,024 byte-BPE tokens",
+    "chess": "780 -> rank-64 -> 14,064 board encoder, LayerNorm, rank-64 trunk, 1,968 move head and 64-bin value head"
+  },
+  "matched_recipe": {
+    "updates": 16800, "batch_size": 8, "chunk_size": 32, "seed": 42,
+    "optimizer": "AdamW, two-phase cosine, 1e-3 encoders / 1e-4 readouts then 3e-4 / 3e-5",
+    "language_corpus": "data/ngxson-tinystories-10k/dataset.json",
+    "chess_corpus": "data/chess-positions-v1",
+    "chess_batch": 32,
+    "chess_positions_seen": 537600,
+    "chess_passes_over_corpus": 0.896,
+    "note": "Identical in every respect to I32rank64fixed10k on the language side, so the language scores are directly comparable to Stage 6."
+  },
+  "arms": [
+    {"id": "I32rank64fixed10k", "role": "language-only reference (Stage 6, already trained)",
+     "language_weight": 1.0, "chess_weight": null, "plasticity": "fixed",
+     "audit_cross_entropy": 2.9493, "audit_top1_accuracy": 0.3743},
+    {"id": "C32chessonly", "role": "chess-only reference", "language_weight": 0.0,
+     "chess_weight": 1.0, "plasticity": "fixed",
+     "note": "The language forward pass still runs and still sets the schedule, so the chess side sees exactly the updates the joint arm sees; only its loss is switched off."},
+    {"id": "M32bothfixed", "role": "both tasks, one brain, frozen synapses",
+     "language_weight": 1.0, "chess_weight": 1.0, "plasticity": "fixed"},
+    {"id": "N32bothbounded", "role": "both tasks, one brain, synapses allowed to adapt",
+     "language_weight": 1.0, "chess_weight": 1.0, "plasticity": "bounded10",
+     "note": "Every synapse gets a bounded sign-preserving multiplier, 1 + 0.1 tanh(theta), shared across the cell-type grouping. Tests whether giving the connectome itself capacity relieves a two-task squeeze."}
+  ],
+  "reads_as": {
+    "interference": "M's language score against I, and M's chess score against C",
+    "capacity": "N against M; if sharing hurts and adapting the synapses recovers it, the squeeze was in the connectome rather than in the heads"
+  },
+  "baselines": "experiments/records/chess-baselines-v1.json",
+  "execution_status": "launched"
+}
