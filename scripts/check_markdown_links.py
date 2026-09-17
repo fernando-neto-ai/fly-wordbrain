@@ -23,9 +23,17 @@ SKIP_DIRS = ("vendor/",)
 
 
 def tracked_markdown():
-    out = subprocess.run(["git", "-C", str(ROOT), "ls-files", "*.md"],
+    """Every Markdown file git would consider part of the repository, committed or not.
+
+    `git ls-files` alone lists only what is already in the index, so a newly written page
+    is skipped in silence -- and a new page is exactly where a broken cross-reference is
+    most likely. `--others --exclude-standard` adds the untracked files that are not
+    ignored, which is what a reader of the repository will actually see.
+    """
+    out = subprocess.run(["git", "-C", str(ROOT), "ls-files", "--cached", "--others",
+                          "--exclude-standard", "*.md"],
                          capture_output=True, text=True, check=True).stdout.split()
-    return [ROOT / name for name in out if not name.startswith(SKIP_DIRS)]
+    return sorted({ROOT / name for name in out if not name.startswith(SKIP_DIRS)})
 
 
 def main():

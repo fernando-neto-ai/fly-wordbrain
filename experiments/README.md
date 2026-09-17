@@ -18,6 +18,8 @@ paths are cited by hash in run receipts, tests and external notes.
 | [`05-shared-population/`](05-shared-population/README.md) | Every model scored on one population, with paired confidence intervals |
 | [`06-corpus-size/`](06-corpus-size/README.md) | I/J — 2×2 over readout and corpus size; tests whether Stage 4 was a small-data artifact |
 | [`07-graph-control/`](07-graph-control/README.md) | K — the same model on a randomly rewired graph; tests whether the fly's wiring matters at all |
+| [`08-chess/`](08-chess/README.md) | A second task: Stockfish-labelled chess positions, its encoding and the baselines a model must beat |
+| [`09-two-tasks/`](09-two-tasks/README.md) | C/M/N/U/V — one brain for language and chess, through private then unified interfaces |
 | `configs/` | Declarative experiment specifications. **Specifications, not runnable config files** — see [pipeline commands](../docs/PIPELINE.md) |
 | `records/` | Selector hashes, parity, source ancestry, stop receipts, quality results |
 | `runs/` | Launch receipts |
