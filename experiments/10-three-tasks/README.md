@@ -104,7 +104,106 @@ official test labels are hidden.
 
 ## Result
 
-*Arm running. This section is filled in from the audit, not before.*
+**The cost does not compound. It collapses.** The second task cost 6.4 times what the third
+did, and the third cost chess nothing measurable at all.
+
+All 16,800 updates, frozen synapses, one 2,994-output head. Scored on the same 200-story
+audit population as every stage since 6, 10,000 held-out chess positions, and the 872-row
+official SST-2 validation set.
+
+| | language CE | language top-1 | chess top-1 *(legal-masked)* | sentiment |
+|---|---:|---:|---:|---:|
+| I — language alone | **2.9493** | **37.43%** | — | — |
+| U — + chess | 3.3881 | 31.19% | **17.50%** | — |
+| **T — + chess + sentiment** | 3.4571 | 30.31% | 17.45% | **71.79%** |
+| floors | — | — | 12.33% | 50.92% |
+
+### The shape of the cost
+
+| step | language CE | 95% CI | language top-1 |
+|---|---:|---|---:|
+| adding chess to language | **+0.4388** | [0.4263, 0.4514] | −6.24pp |
+| adding sentiment to both | **+0.0690** | [0.0577, 0.0801] | −0.88pp |
+
+Both intervals exclude zero, so both costs are real. But the second task took **6.4×** what
+the third took. Whatever the first act of sharing buys — arbitration, some reorganisation of
+the 148,179 per-neuron dynamics into a form that can serve more than one master — appears to
+be paid once rather than per task.
+
+On chess the third task cost **0.05 accuracy points**, from 17.50% to 17.45%. That is far
+inside the ±0.37pp standard error on 10,000 positions. Sentiment was, to measurement, free
+for chess. Value MAE moved 0.1135 → 0.1131.
+
+The T-minus-U contrast is paired on the same stories with the same estimator and seed as
+every other interval here, and reports `language_range_only` **only**: T predicts over 2,994
+classes and U over 2,992, so differencing their full-output cross-entropies would measure
+head width, not skill. Both renormalise over the same 1,024 token logits.
+
+### Sentiment works, comfortably
+
+**71.79%** on the official SST-2 validation set against a **50.92%** majority-class floor
+counted from that split's own labels — **+20.87 points**. On the 2,000-row internal
+validation split it reaches 74.70%. The contamination bound does not threaten it: even
+discarding all 24 audit rows that contain a four-word-or-longer training phrase as free
+wins, the figure is 69.1%, still eighteen points clear.
+
+Pooling mattered. The last-token arm plateaued several points lower, which is what the leak
+predicts — at `leak = 0.9` the final state retains almost nothing of a sentence's opening,
+so reading sentiment there asks the brain for memory it structurally does not have. Pooling
+over the sequence asks instead for an average of local impressions, which a leaky reservoir
+can supply.
+
+### Leakage stayed negligible throughout
+
+| task | mass outside its own range |
+|---|---:|
+| language | 0.0041 nats |
+| chess | 0.0075 |
+| sentiment | 0.00012 |
+
+The uniform null is 1970/2994 = 0.658 for language. Three tasks share one output space, and
+none of them puts meaningful mass in another's range, with nothing telling the model which
+task it is looking at except the settled state of the brain.
+
+### The router is *more* depth-dependent with three tasks, not less
+
+This is where the three-task arm differs qualitatively from the two-task one, and it is the
+opposite of what the accuracy alone suggests:
+
+| | settle depth 5 | settle depth 32 |
+|---|---:|---:|
+| U — two tasks | 1.000 | 1.000 |
+| **T — three tasks** | **0.515** | 1.000 |
+
+The two-task router is depth-invariant. The three-task router is not: at depth 5 it is at
+chance. Accuracy cannot say *how* it fails, so the probe now records where the mass goes,
+and the answer was not the one worth guessing — language and sentiment are both token
+streams, so the natural hypothesis is that they get confused. They do not:
+
+| true task, depth 5 | called language | called chess |
+|---|---:|---:|
+| language | 3 | **97** |
+| chess | 0 | 100 |
+
+At five settle steps the router calls almost everything chess. **It has learned that five
+settle steps means chess** — which is true of its training distribution, where chess is the
+only task settled that shallowly. With two tasks that shortcut was not available, or not
+worth taking. With three it is.
+
+The linear probe still separates the states perfectly at depth 5 against a 51% shuffled-label
+floor, so the information is there; the trained router simply stops using it when a cheaper
+cue is present. That is a finding about the router, not the brain — and it is exactly why
+the router is kept as a probe with a corruption test rather than read as evidence the brain
+knows what it is doing. Magnitude remains unruled-out as before: norm alone scores 100%.
+
+### What is still not measured
+
+Unchanged from [Stage 9](../09-two-tasks/README.md): there is no single-task chess arm, so
+the *chess* cost of sharing has no baseline. What this stage adds is that the **marginal**
+chess cost of a third task is zero, which is a different claim and a weaker one.
+
+Nor does this say where saturation is. Two steps establish that the curve bends sharply
+after the first; they cannot locate its knee. A fourth task is the cheap next measurement.
 
 Receipts: [`T32threetaskspooled.json`](../configs/T32threetaskspooled.json) (pooled) and
 [`T32threetasks.json`](../configs/T32threetasks.json) (last-token), the two-task baseline in

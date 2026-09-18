@@ -1,0 +1,52 @@
+{
+  "created_at_utc": "2026-09-18T09:14:36.058456+00:00",
+  "weights": {
+    "language": 1.0,
+    "chess": 1.0,
+    "router": 0.1,
+    "sentiment": 1.0
+  },
+  "chess_batch": 32,
+  "chess_positions_seen": 537600,
+  "chess_passes_over_corpus": 0.896,
+  "language_best_validation": {
+    "cross_entropy": 3.232979795696684,
+    "top1_accuracy": 0.3413184602724696,
+    "updates": 16800,
+    "epoch": 1
+  },
+  "validation": {
+    "chess": {
+      "positions": 10000,
+      "policy_cross_entropy": 4.272563934326172,
+      "top1_unmasked": 0.13130000233650208,
+      "top1_legal_masked": 0.174,
+      "value_mae": 0.109977588057518,
+      "router_accuracy": 1.0,
+      "leakage_into_language": 0.007362297540903092
+    },
+    "sentiment": {
+      "rows": 2000,
+      "accuracy": 0.747,
+      "leakage_out_of_range": 0.00012338081002235412,
+      "router_accuracy": 1.0
+    }
+  },
+  "audit": {
+    "chess": {
+      "positions": 10000,
+      "policy_cross_entropy": 4.275500774383545,
+      "top1_unmasked": 0.13030000030994415,
+      "top1_legal_masked": 0.1745,
+      "value_mae": 0.11313533037900925,
+      "router_accuracy": 0.9998999834060669,
+      "leakage_into_language": 0.00753087717294693
+    },
+    "sentiment": {
+      "rows": 872,
+      "accuracy": 0.7178899082568807,
+      "leakage_out_of_range": 0.00011986459867330268,
+      "router_accuracy": 1.0
+    }
+  }
+}

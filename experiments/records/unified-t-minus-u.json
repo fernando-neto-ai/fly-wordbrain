@@ -1,0 +1,52 @@
+{
+  "question": "Does T32threetaskspooled differ from U32unifiedfixed on held-out language?",
+  "treatment": "T32threetaskspooled",
+  "control": "U32unifiedfixed",
+  "plasticity": {
+    "T32threetaskspooled": "fixed",
+    "U32unifiedfixed": "fixed"
+  },
+  "checkpoint": "best.pt",
+  "direction": "T32threetaskspooled minus U32unifiedfixed; negative cross-entropy means T32threetaskspooled is better",
+  "rebuild_verified_against_published_audit": true,
+  "stories": 200,
+  "output_spaces": {
+    "T32threetaskspooled": {
+      "total": 2994,
+      "language_tokens": 1024
+    },
+    "U32unifiedfixed": {
+      "total": 2992,
+      "language_tokens": 1024
+    }
+  },
+  "spaces_compared": [
+    "language_range_only"
+  ],
+  "full_output_space_not_compared": "T32threetaskspooled predicts over 2994 classes and U32unifiedfixed over 2992; a difference of cross-entropies over different class counts is not a difference in skill. Both renormalise over the same 1024 token logits, so language_range_only is the paired contrast.",
+  "language_range_only": {
+    "direction": "T32threetaskspooled minus U32unifiedfixed; negative cross-entropy means T32threetaskspooled is better",
+    "delta_cross_entropy": 0.0689910889229557,
+    "delta_accuracy": -0.008832863578863268,
+    "perplexity_ratio": 1.0714266615402783,
+    "ce_95_ci": [
+      0.05768154557889375,
+      0.08014697707287556
+    ],
+    "accuracy_95_ci": [
+      -0.012054988330823186,
+      -0.005583624635652579
+    ],
+    "point_estimates_within_margins": true,
+    "ce_noninferiority_supported": true,
+    "accuracy_noninferiority_supported": true,
+    "noninferiority_supported": true,
+    "two_sided_equivalence_supported": true,
+    "bootstrap": {
+      "unit": "paired whole story",
+      "resamples": 10000,
+      "seed": 1729,
+      "estimator": "token-weighted ratio of resampled story totals"
+    }
+  }
+}

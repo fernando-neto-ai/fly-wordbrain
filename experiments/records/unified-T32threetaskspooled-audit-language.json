@@ -1,50 +1,50 @@
 {
-  "run": "results/unified-v1/arms/V32unifiedbounded",
+  "run": "results/unified-v1/arms/T32threetaskspooled",
   "checkpoint": "best.pt",
-  "checkpoint_sha256": "17960396560cefbca436701f7a3740b5802281f3080f12297631df84e17dd268",
+  "checkpoint_sha256": "80d4b5870ae963680ad6cc8ef5a14039e9b68da6bebde2841e1e38b6dc633c09",
   "updates": 16800,
   "stories": 200,
-  "seconds": 17.68285174993798,
+  "seconds": 17.07238733302802,
   "outputs": {
-    "total": 2992,
+    "total": 2994,
     "language": 1024,
     "chess": 1968,
-    "sentiment": 0
+    "sentiment": 2
   },
   "full_output_space": {
     "stories": 200,
     "tokens": 45059,
-    "nll_sum": 152241.87471126916,
-    "correct": 14126,
-    "cross_entropy": 3.3787228902387794,
-    "perplexity": 29.333285356613924,
-    "top1_accuracy": 0.313500077675936
+    "nll_sum": 155956.9306305463,
+    "correct": 13656,
+    "cross_entropy": 3.4611715890398433,
+    "perplexity": 31.854274780486584,
+    "top1_accuracy": 0.30306930912803215
   },
   "language_range_only": {
     "stories": 200,
     "tokens": 45059,
-    "nll_sum": 152042.19007377594,
-    "correct": 14126,
-    "cross_entropy": 3.3742912642041754,
-    "perplexity": 29.203578823250965,
-    "top1_accuracy": 0.313500077675936
+    "nll_sum": 155772.97190596798,
+    "correct": 13656,
+    "cross_entropy": 3.457088970149537,
+    "perplexity": 31.724491025602603,
+    "top1_accuracy": 0.30306930912803215
   },
-  "leakage_cost_nats": 0.004431626034604008,
+  "leakage_cost_nats": 0.0040826188903064775,
   "note": "language_range_only renormalises over the 1,024 token logits and is what compares to arms that never had a chess head; full_output_space is what this model actually predicts over. Their difference is the leakage cost.",
   "versus_reference": {
     "reference": "results/graph-control-audit-v1/I32rank64-10k.json",
     "full_output_space": {
       "direction": "ours minus released",
-      "delta_cross_entropy": 0.4293861530507987,
-      "delta_accuracy": -0.06078696819725249,
-      "perplexity_ratio": 1.5363141722735874,
+      "delta_cross_entropy": 0.5118348518518624,
+      "delta_accuracy": -0.07121773674515636,
+      "perplexity_ratio": 1.668349562546505,
       "ce_95_ci": [
-        0.4166396268723372,
-        0.4421432911076186
+        0.4985749692992135,
+        0.5248965744587022
       ],
       "accuracy_95_ci": [
-        -0.06439935945653034,
-        -0.057053133476962545
+        -0.07533333087441428,
+        -0.0670217660619467
       ],
       "point_estimates_within_margins": false,
       "ce_noninferiority_supported": false,
@@ -60,16 +60,16 @@
     },
     "language_range_only": {
       "direction": "ours minus released",
-      "delta_cross_entropy": 0.4249545270161947,
-      "delta_accuracy": -0.06078696819725249,
-      "perplexity_ratio": 1.5295208662044102,
+      "delta_cross_entropy": 0.507752232961556,
+      "delta_accuracy": -0.07121773674515636,
+      "perplexity_ratio": 1.661552212043992,
       "ce_95_ci": [
-        0.4122058773048687,
-        0.4377252950462837
+        0.4944763159059292,
+        0.5208047252897684
       ],
       "accuracy_95_ci": [
-        -0.06439935945653034,
-        -0.057053133476962545
+        -0.07533333087441428,
+        -0.0670217660619467
       ],
       "point_estimates_within_margins": false,
       "ce_noninferiority_supported": false,

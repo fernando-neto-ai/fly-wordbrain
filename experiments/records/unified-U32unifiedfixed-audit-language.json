@@ -1,13 +1,15 @@
 {
-  "run": "/Users/fernando/fly_wordbrain_connectorch/results/unified-v1/arms/U32unifiedfixed",
+  "run": "results/unified-v1/arms/U32unifiedfixed",
   "checkpoint": "best.pt",
   "checkpoint_sha256": "b868c163f9613bb614ab3895eb47591eb01a0c381b086879e7e7366d6df49672",
   "updates": 16800,
   "stories": 200,
-  "seconds": 17.675969375064597,
+  "seconds": 17.142973749898374,
   "outputs": {
     "total": 2992,
-    "language": 1024
+    "language": 1024,
+    "chess": 1968,
+    "sentiment": 0
   },
   "full_output_space": {
     "stories": 200,
@@ -30,7 +32,7 @@
   "leakage_cost_nats": 0.004621019035025764,
   "note": "language_range_only renormalises over the 1,024 token logits and is what compares to arms that never had a chess head; full_output_space is what this model actually predicts over. Their difference is the leakage cost.",
   "versus_reference": {
-    "reference": "/Users/fernando/fly_wordbrain_connectorch/results/graph-control-audit-v1/I32rank64-10k.json",
+    "reference": "results/graph-control-audit-v1/I32rank64-10k.json",
     "full_output_space": {
       "direction": "ours minus released",
       "delta_cross_entropy": 0.44338216307362627,

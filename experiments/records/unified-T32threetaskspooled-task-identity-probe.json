@@ -1,5 +1,5 @@
 {
-  "run": "results/unified-v1/arms/U32unifiedfixed",
+  "run": "results/unified-v1/arms/T32threetaskspooled",
   "checkpoint": "best.pt",
   "updates": 16800,
   "samples_per_task_requested": 1000,
@@ -8,10 +8,11 @@
     "5": {
       "samples_per_task_used": 100,
       "language_states_available": 100,
-      "trained_router_accuracy": 1.0,
+      "trained_router_accuracy": 0.5149999856948853,
       "router_predictions_by_true_task": {
         "language": {
-          "language": 100
+          "language": 3,
+          "chess": 97
         },
         "chess": {
           "chess": 100
@@ -22,10 +23,10 @@
       "state_norm_only_heldout_accuracy": 1.0,
       "direction_only_heldout_accuracy": 1.0,
       "mean_state_norm": {
-        "language": 78.87074279785156,
-        "chess": 86.90656280517578
+        "language": 87.95455932617188,
+        "chess": 100.73696899414062
       },
-      "shuffled_label_probe_train_accuracy": 0.7900000214576721,
+      "shuffled_label_probe_train_accuracy": 0.8100000023841858,
       "shuffled_label_probe_heldout_accuracy": 0.5099999904632568,
       "probe_margin_over_shuffled": 0.49000000953674316
     },
@@ -46,17 +47,17 @@
       "state_norm_only_heldout_accuracy": 1.0,
       "direction_only_heldout_accuracy": 1.0,
       "mean_state_norm": {
-        "language": 88.42002868652344,
-        "chess": 93.96714782714844
+        "language": 101.26102447509766,
+        "chess": 106.31596374511719
       },
       "shuffled_label_probe_train_accuracy": 1.0,
-      "shuffled_label_probe_heldout_accuracy": 0.5099999904632568,
-      "probe_margin_over_shuffled": 0.49000000953674316
+      "shuffled_label_probe_heldout_accuracy": 0.4699999988079071,
+      "probe_margin_over_shuffled": 0.5300000011920929
     }
   },
-  "reading": "The router holds at every settle depth measured (32: 1.000, 5: 1.000), so it is reading task content rather than recurrence length.",
+  "reading": "The router splits by settle depth (32: 1.000, 5: 0.515). It is not simply reading how long the recurrence has run -- that would fail everywhere -- but it is not depth-invariant either, so its accuracy is conditional on the depth a task is normally run at. See router_predictions_by_true_task at depth 5 for where the mass goes.",
   "router_accuracy_by_settle_depth": {
-    "5": 1.0,
+    "5": 0.5149999856948853,
     "32": 1.0
   }
 }

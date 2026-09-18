@@ -34,7 +34,9 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import train_connectorch as trainer
 from fly_wordbrain.chess_encoding import features_from_packed
 from fly_wordbrain.chess_model import settle
-from fly_wordbrain.unified_model import CHESS, LANGUAGE, UnifiedFly
+from fly_wordbrain.unified_model import CHESS, LANGUAGE, SENTIMENT, UnifiedFly
+
+TASK_NAMES = {LANGUAGE: "language", CHESS: "chess", SENTIMENT: "sentiment"}
 
 
 @torch.no_grad()
@@ -164,6 +166,15 @@ def main():
             trunk = unified.trunk(unified.ln(states.to(args.device)))
             routed = unified.router(trunk).argmax(-1).cpu()
         router_accuracy = float((routed == labels).float().mean())
+        # Accuracy alone cannot say *how* a router fails. A three-task router has somewhere
+        # else to put a state, and language and sentiment are both token streams, so a
+        # language state read as sentiment is a different failure from one read as chess.
+        confusion = {}
+        for task in (LANGUAGE, CHESS):
+            predicted = routed[labels == task]
+            confusion[TASK_NAMES[task]] = {
+                TASK_NAMES[choice]: int((predicted == choice).sum())
+                for choice in sorted(TASK_NAMES) if int((predicted == choice).sum())}
 
         # A perfect probe is not yet an interesting result. If the two tasks simply drive
         # the brain to different magnitudes, a reader of "how big is this vector" scores
@@ -181,6 +192,7 @@ def main():
             "samples_per_task_used": count,
             "language_states_available": int(language.shape[0]),
             "trained_router_accuracy": router_accuracy,
+            "router_predictions_by_true_task": confusion,
             "linear_probe_train_accuracy": real_train,
             "linear_probe_heldout_accuracy": real_test,
             "state_norm_only_heldout_accuracy": norm_test,
@@ -196,13 +208,30 @@ def main():
               f"(train {fake_train:.3f}) | norm alone {norm_test:.3f} | direction alone "
               f"{direction_test:.3f}", flush=True)
 
-    trained = report["by_settle_depth"].get(str(args.steps[0]), {})
-    matched = report["by_settle_depth"].get(str(args.steps[-1]), {})
-    report["reading"] = (
-        "The router survives matched settle depth, so it is reading task content."
-        if matched.get("trained_router_accuracy", 0) > .9 else
-        "The router collapses once settle depth is matched, so its training accuracy was "
-        "reading how long the recurrence had been running, not what it was running on.")
+    # Read every depth, not just the deepest. Summarising only the last one hid a router
+    # that scored 1.000 at depth 32 and 0.515 at depth 5 behind a clean verdict.
+    scored = {depth: body["trained_router_accuracy"]
+              for depth, body in report["by_settle_depth"].items()}
+    weakest_depth = min(scored, key=scored.get)
+    weakest = scored[weakest_depth]
+    if weakest > .9:
+        reading = ("The router holds at every settle depth measured "
+                   f"({', '.join(f'{d}: {a:.3f}' for d, a in sorted(scored.items()))}), "
+                   "so it is reading task content rather than recurrence length.")
+    elif max(scored.values()) > .9:
+        reading = (f"The router splits by settle depth ("
+                   f"{', '.join(f'{d}: {a:.3f}' for d, a in sorted(scored.items()))}). It is "
+                   f"not simply reading how long the recurrence has run -- that would fail "
+                   f"everywhere -- but it is not depth-invariant either, so its accuracy is "
+                   f"conditional on the depth a task is normally run at. See "
+                   f"router_predictions_by_true_task at depth {weakest_depth} for where the "
+                   f"mass goes.")
+    else:
+        reading = ("The router collapses once settle depth is matched, so its training "
+                   "accuracy was reading how long the recurrence had been running, not "
+                   "what it was running on.")
+    report["reading"] = reading
+    report["router_accuracy_by_settle_depth"] = scored
     text = json.dumps(report, indent=2) + "\n"
     if args.output:
         args.output.write_text(text)

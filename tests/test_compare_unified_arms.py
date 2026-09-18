@@ -177,3 +177,69 @@ class ComparableSpaceTests(unittest.TestCase):
         # V and U are both two-task arms, so that comparison was legitimately full-space.
         self.assertIn("full_output_space", record)
         self.assertIn("language_range_only", record)
+
+
+class RecordedOutputWidthTests(unittest.TestCase):
+    """The recorded head width decides whether two arms may be differenced at all.
+
+    An evaluator wrote `tokens + moves` and omitted the sentiment classes, so a 2,994-wide
+    three-task head was recorded as 2,992 -- and the comparability check, which trusted
+    that field, passed T and U as equal spaces. The guard was right; its input lied.
+    """
+
+    def widths(self, arm):
+        body = json.loads((RECORDS / f"unified-{arm}-audit-language.json").read_text())
+        return body["outputs"]
+
+    def test_the_three_task_arm_records_its_sentiment_classes(self):
+        outputs = self.widths("T32threetaskspooled")
+        self.assertEqual(outputs["sentiment"], 2)
+        self.assertEqual(outputs["total"], 2994)
+        self.assertEqual(outputs["total"],
+                         outputs["language"] + outputs["chess"] + outputs["sentiment"])
+
+    def test_the_two_task_arms_record_no_sentiment_range(self):
+        for arm in ("U32unifiedfixed", "V32unifiedbounded"):
+            outputs = self.widths(arm)
+            self.assertEqual(outputs["sentiment"], 0, arm)
+            self.assertEqual(outputs["total"], 2992, arm)
+
+    def test_the_paired_contrast_refused_the_full_output_space(self):
+        record = json.loads((RECORDS / "unified-t-minus-u.json").read_text())
+        self.assertEqual(record["spaces_compared"], ["language_range_only"])
+        self.assertNotIn("full_output_space", record)
+        self.assertIn("full_output_space_not_compared", record)
+
+    def test_the_third_task_cost_far_less_than_the_second(self):
+        third = json.loads((RECORDS / "unified-t-minus-u.json").read_text())["language_range_only"]
+        second = json.loads((RECORDS / "unified-U32unifiedfixed-audit-language.json").read_text()) \
+            ["versus_reference"]["language_range_only"]
+        self.assertGreater(third["ce_95_ci"][0], 0.0, "the third task's cost is real")
+        self.assertGreater(second["delta_cross_entropy"] / third["delta_cross_entropy"], 5.0,
+                           "the write-up claims the second task cost ~6.4x the third")
+
+
+class RouterDepthTests(unittest.TestCase):
+    """The router summary must read every settle depth, not only the deepest."""
+
+    def probe(self, arm):
+        return json.loads((RECORDS / f"unified-{arm}-task-identity-probe.json").read_text())
+
+    def test_the_three_task_router_is_not_depth_invariant(self):
+        body = self.probe("T32threetaskspooled")
+        by_depth = body["router_accuracy_by_settle_depth"]
+        self.assertAlmostEqual(by_depth["32"], 1.0, places=3)
+        self.assertLess(by_depth["5"], 0.6, "depth 5 is at chance for a two-way call")
+        self.assertIn("splits by settle depth", body["reading"])
+
+    def test_the_two_task_router_holds_everywhere(self):
+        body = self.probe("U32unifiedfixed")
+        self.assertTrue(all(a > 0.9 for a in body["router_accuracy_by_settle_depth"].values()))
+        self.assertIn("holds at every settle depth", body["reading"])
+
+    def test_shallow_language_states_are_called_chess_not_sentiment(self):
+        # The natural guess -- language confused with the other token-stream task -- is wrong.
+        confusion = self.probe("T32threetaskspooled")["by_settle_depth"]["5"] \
+            ["router_predictions_by_true_task"]
+        self.assertGreater(confusion["language"].get("chess", 0), 90)
+        self.assertNotIn("sentiment", confusion["language"])

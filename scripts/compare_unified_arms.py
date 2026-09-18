@@ -128,8 +128,21 @@ def main():
               f"(CE {aggregate(language)['cross_entropy']:.6f}, {seconds:.1f}s)", flush=True)
         records[arm] = {"full_output_space": full, "language_range_only": language}
         plasticity[arm] = how
-        spaces[arm] = {"total": published["outputs"]["total"],
-                       "language_tokens": published["outputs"]["language"]}
+        # Measure the head, do not read it off the record. An evaluator once wrote
+        # `tokens + moves` and omitted the sentiment classes, so a 2,994-wide head was
+        # recorded as 2,992 -- and a comparability check that trusted that field passed
+        # two arms as equal when they were not. A guard inherits the bugs of whatever it
+        # reads, so this reads the model and treats a disagreeing record as stale.
+        measured = {"total": unified.tokens + unified.moves + unified.classes,
+                    "language_tokens": unified.tokens}
+        recorded = {"total": published["outputs"]["total"],
+                    "language_tokens": published["outputs"]["language"]}
+        if measured != recorded:
+            raise SystemExit(
+                f"{arm}: the checkpoint emits {measured['total']} outputs but its "
+                f"audit-language.json records {recorded['total']}. The record is stale -- "
+                f"re-run evaluate_unified_quality.py for this arm before comparing.")
+        spaces[arm] = measured
         del model, unified
 
     comparable, note = comparable_spaces(spaces[args.treatment], spaces[args.control],

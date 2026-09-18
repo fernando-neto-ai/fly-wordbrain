@@ -126,7 +126,12 @@ def main():
         "run": str(args.run), "checkpoint": args.checkpoint,
         "checkpoint_sha256": trainer.file_hash(args.run / args.checkpoint),
         "updates": saved["cursor"]["updates"], "stories": len(rows), "seconds": seconds,
-        "outputs": {"total": unified.tokens + unified.moves, "language": unified.tokens},
+        # Every range the head actually emits. Omitting `classes` here recorded a
+        # three-task arm's 2,994-wide head as 2,992, which is the width a reader -- or a
+        # comparison script -- uses to decide whether two arms may be differenced at all.
+        "outputs": {"total": unified.tokens + unified.moves + unified.classes,
+                    "language": unified.tokens, "chess": unified.moves,
+                    "sentiment": unified.classes},
         "full_output_space": wide,
         "language_range_only": narrow,
         "leakage_cost_nats": wide["cross_entropy"] - narrow["cross_entropy"],
