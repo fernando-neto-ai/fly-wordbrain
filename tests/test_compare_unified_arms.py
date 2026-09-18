@@ -132,3 +132,48 @@ class DerivedFloorTests(unittest.TestCase):
         with self.assertRaises(SystemExit) as caught:
             self.module.chess_floors("validation")
         self.assertIn("not the 'validation' split", str(caught.exception))
+
+
+class ComparableSpaceTests(unittest.TestCase):
+    """A three-task arm and a two-task arm cannot be differenced over their full heads.
+
+    T predicts over 2,994 classes and U over 2,992, because T carries a sentiment range U
+    never had. Their language scores renormalise over the same 1,024 token logits and stay
+    paired; their full-output cross-entropies are sums over different class counts, so
+    differencing those measures head width, not skill.
+    """
+
+    def setUp(self):
+        import compare_unified_arms as module
+        self.module = module
+        self.two_task = {"total": 2992, "language_tokens": 1024}
+        self.three_task = {"total": 2994, "language_tokens": 1024}
+
+    def test_identical_spaces_compare_both(self):
+        spaces, note = self.module.comparable_spaces(self.two_task, dict(self.two_task), "V", "U")
+        self.assertEqual(spaces, ["full_output_space", "language_range_only"])
+        self.assertIsNone(note)
+
+    def test_a_wider_head_drops_the_full_output_contrast(self):
+        spaces, note = self.module.comparable_spaces(self.three_task, self.two_task, "T", "U")
+        self.assertEqual(spaces, ["language_range_only"])
+        self.assertIn("2994", note)
+        self.assertIn("2992", note)
+        self.assertIn("language_range_only", note)
+
+    def test_the_drop_is_symmetric(self):
+        spaces, _ = self.module.comparable_spaces(self.two_task, self.three_task, "U", "T")
+        self.assertEqual(spaces, ["language_range_only"])
+
+    def test_a_different_language_range_is_fatal_not_a_downgrade(self):
+        # If the token range itself differs, even the narrow contrast is meaningless.
+        with self.assertRaises(SystemExit) as caught:
+            self.module.comparable_spaces({"total": 4000, "language_tokens": 2048},
+                                          self.two_task, "X", "U")
+        self.assertIn("nothing here is paired", str(caught.exception))
+
+    def test_the_published_v_minus_u_record_compared_both_spaces(self):
+        record = json.loads((RECORDS / "unified-v-minus-u.json").read_text())
+        # V and U are both two-task arms, so that comparison was legitimately full-space.
+        self.assertIn("full_output_space", record)
+        self.assertIn("language_range_only", record)

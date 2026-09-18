@@ -10,6 +10,20 @@
   "direction": "V32unifiedbounded minus U32unifiedfixed; negative cross-entropy means V32unifiedbounded is better",
   "rebuild_verified_against_published_audit": true,
   "stories": 200,
+  "output_spaces": {
+    "V32unifiedbounded": {
+      "total": 2992,
+      "language_tokens": 1024
+    },
+    "U32unifiedfixed": {
+      "total": 2992,
+      "language_tokens": 1024
+    }
+  },
+  "spaces_compared": [
+    "full_output_space",
+    "language_range_only"
+  ],
   "full_output_space": {
     "direction": "V32unifiedbounded minus U32unifiedfixed; negative cross-entropy means V32unifiedbounded is better",
     "delta_cross_entropy": -0.013996010022827582,

@@ -67,6 +67,30 @@ def rebuild(config_name, model_path, groups_path, run, checkpoint, device):
     return model.to(device).eval(), unified, training["plasticity"]
 
 
+def comparable_spaces(treatment_space, control_space, treatment, control):
+    """Which of the two scored spaces can honestly be differenced between these arms.
+
+    Arms trained on different task sets have different output-space sizes: a three-task arm
+    carries a sentiment range a two-task arm never had. Their `language_range_only` scores
+    renormalise over the same token logits and stay comparable, but `full_output_space`
+    cross-entropies are sums over different class counts, so differencing them measures the
+    head's width as much as the model's skill.
+    """
+    if treatment_space["language_tokens"] != control_space["language_tokens"]:
+        raise SystemExit(
+            f"{treatment} and {control} disagree on the language range itself "
+            f"({treatment_space['language_tokens']} vs {control_space['language_tokens']} "
+            f"tokens); nothing here is paired.")
+    if treatment_space == control_space:
+        return ["full_output_space", "language_range_only"], None
+    return ["language_range_only"], (
+        f"{treatment} predicts over {treatment_space['total']} classes and {control} over "
+        f"{control_space['total']}; a difference of cross-entropies over different class "
+        f"counts is not a difference in skill. Both renormalise over the same "
+        f"{control_space['language_tokens']} token logits, so language_range_only is the "
+        f"paired contrast.")
+
+
 def verify(reproduced, published, arm, space):
     """Refuse to report a contrast between models that are not the published ones."""
     for key in ("cross_entropy", "top1_accuracy", "tokens"):
@@ -92,7 +116,7 @@ def main():
     args = parser.parse_args()
 
     rows = json.loads(args.audit_data.read_text())["audit"]
-    records, plasticity = {}, {}
+    records, plasticity, spaces = {}, {}, {}
     for arm in (args.treatment, args.control):
         run = args.arms / arm
         published = json.loads((run / "audit-language.json").read_text())
@@ -104,7 +128,12 @@ def main():
               f"(CE {aggregate(language)['cross_entropy']:.6f}, {seconds:.1f}s)", flush=True)
         records[arm] = {"full_output_space": full, "language_range_only": language}
         plasticity[arm] = how
+        spaces[arm] = {"total": published["outputs"]["total"],
+                       "language_tokens": published["outputs"]["language"]}
         del model, unified
+
+    comparable, note = comparable_spaces(spaces[args.treatment], spaces[args.control],
+                                         args.treatment, args.control)
 
     report = {
         "question": f"Does {args.treatment} differ from {args.control} on held-out language?",
@@ -115,8 +144,12 @@ def main():
                      f"{args.treatment} is better",
         "rebuild_verified_against_published_audit": True,
         "stories": len(rows),
+        "output_spaces": spaces,
+        "spaces_compared": comparable,
     }
-    for space in ("full_output_space", "language_range_only"):
+    if note:
+        report["full_output_space_not_compared"] = note
+    for space in comparable:
         report[space] = paired_comparison(records[args.treatment][space],
                                           records[args.control][space])
         report[space]["direction"] = report["direction"]
