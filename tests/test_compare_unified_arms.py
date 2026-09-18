@@ -86,3 +86,49 @@ class PublishedRecordTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class DerivedFloorTests(unittest.TestCase):
+    """Floors are recomputed from the split being scored, never written down.
+
+    A hardcoded floor is a number with no owner. This module shipped one -- a sentiment
+    "majority class" of 72.48% against a split whose real majority class is 50.92% -- and it
+    turned a 19-point win into an apparent miss. These pin the derivation instead.
+    """
+
+    def setUp(self):
+        import evaluate_unified_tasks as module
+        self.module = module
+
+    def test_majority_class_is_the_commonest_label_not_the_balanced_guess(self):
+        rows = [{"label": 1}] * 7 + [{"label": 0}] * 3
+        floor = self.module.majority_class(rows)
+        self.assertEqual(floor["rows"], 10)
+        self.assertAlmostEqual(floor["majority_class_accuracy"], 0.7)
+        self.assertEqual(floor["label_counts"], {1: 7, 0: 3})
+
+    def test_a_near_balanced_split_floors_near_one_half(self):
+        # The real audit split: 444 positive, 428 negative -> 50.92%, not 72.48%.
+        rows = [{"label": 1}] * 444 + [{"label": 0}] * 428
+        floor = self.module.majority_class(rows)
+        self.assertAlmostEqual(floor["majority_class_accuracy"], 444 / 872, places=6)
+        self.assertLess(floor["majority_class_accuracy"], 0.52)
+
+    def test_an_empty_split_cannot_silently_yield_a_floor(self):
+        with self.assertRaises(SystemExit):
+            self.module.majority_class([])
+
+    def test_chess_floors_come_from_the_measured_record(self):
+        floors = self.module.chess_floors("audit")
+        measured = json.loads((ROOT / "experiments/records/chess-baselines-v1.json").read_text())
+        self.assertEqual(floors["commonest_legal_move"], measured["most_common_legal_move_top1"])
+        self.assertEqual(floors["uniform_legal_draw_expected"],
+                         measured["random_legal_move_top1_expected"])
+        # E[1/n] is the larger of the two random figures and the one a model must beat.
+        self.assertGreater(floors["uniform_legal_draw_expected"],
+                           measured["random_legal_move_top1_one_over_mean_legal"])
+
+    def test_chess_floors_refuse_a_split_they_were_not_measured_on(self):
+        with self.assertRaises(SystemExit) as caught:
+            self.module.chess_floors("validation")
+        self.assertIn("not the 'validation' split", str(caught.exception))
