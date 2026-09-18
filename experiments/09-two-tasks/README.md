@@ -179,6 +179,41 @@ no single-task chess arm at 16,800 updates to compare 17.50% against. The 0.4388
 above is the *language* cost of sharing; the symmetric number for chess does not exist. It
 is the first thing to run once the machine is free.
 
+### What "frozen connectome" does and does not mean
+
+This phrase has done too much work in earlier stages, so it is stated exactly once, here,
+and the other stages point at it. Three different things can be trained, and only the first
+is the connectome:
+
+| level | parameters | trained in | what moves |
+|---|---:|---|---|
+| **topology and synapses** | 9,050,172 edges | `bounded10` arms only | via 18,322 cell-type gains, `W ← W·(1 + 0.1·tanh(θ))` — bounded, sign-preserving |
+| **per-neuron dynamics** | 148,179 | **every arm** | `gain`, `rec_gain`, `bias` |
+| **interfaces** | ~4.14M | every arm | embedding, board projection, injection, trunk, head |
+
+The middle row is the one that gets lost. It is trained in *every* arm, including the ones
+described as frozen, and it moves a long way: measured on the three-task arm against the
+untrained reference, `gain` displaces **55.0%** in relative L2 and `rec_gain` **926%** — its
+mean rises from 48.94 to 108.99.
+
+That matters because of where `rec_gain` sits in the recurrence:
+
+```
+x ← (1−leak)·x + leak·tanh( gain·( rec_gain·(W·x) + drive ) + bias )
+```
+
+`rec_gain[i]` multiplies the **entire incoming sum** for neuron *i*, which is arithmetically
+identical to scaling row *i* of `W` by a constant. So a "frozen connectome" arm does change
+effective synaptic strengths, substantially.
+
+What a per-row scalar cannot do is change **which** neuron connects to which, the
+**relative** strengths of one neuron's incoming synapses, or any **sign**. That is precisely
+the structure [Stage 7](../07-graph-control/README.md) destroyed by rewiring, and it is why
+the claim stays meaningful rather than becoming a word game: the measured anatomy is intact
+under a per-neuron gain that is free to move. The `bounded10` arms are the only ones that
+touch relative weights, and all frozen graph buffers stay byte-identical in every arm —
+verified by SHA256 against the untrained reference.
+
 ### The router reads content, not depth
 
 The router hits 100% on both arms, and that number is worth nothing on its own — it is

@@ -196,6 +196,19 @@ cue is present. That is a finding about the router, not the brain — and it is 
 the router is kept as a probe with a corruption test rather than read as evidence the brain
 knows what it is doing. Magnitude remains unruled-out as before: norm alone scores 100%.
 
+### "Frozen synapses" is a precise claim, not a claim that nothing moved
+
+All 7 frozen graph buffers in this arm are byte-identical to the untrained MaleCNS
+reference under the project's own digest, and it carries zero edge parameters. But the
+148,179 per-neuron values *are* trained, and `rec_gain` — which multiplies each neuron's
+whole incoming sum, and so rescales that neuron's synapses uniformly — moves 926% in
+relative L2. [Stage 9](../09-two-tasks/README.md#what-frozen-connectome-does-and-does-not-mean)
+sets out the three levels and what each can and cannot change.
+
+The companion arm `W32threetasksbounded` is this arm with `bounded10` plasticity, so the
+pair measures what adapting the connectome is worth when three tasks compete for it. The
+same contrast at two tasks was −0.0138 nats [−0.0176, −0.0100].
+
 ### What is still not measured
 
 Unchanged from [Stage 9](../09-two-tasks/README.md): there is no single-task chess arm, so

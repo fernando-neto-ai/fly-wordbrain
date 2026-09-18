@@ -20,6 +20,7 @@ paths are cited by hash in run receipts, tests and external notes.
 | [`07-graph-control/`](07-graph-control/README.md) | K — the same model on a randomly rewired graph; tests whether the fly's wiring matters at all |
 | [`08-chess/`](08-chess/README.md) | A second task: Stockfish-labelled chess positions, its encoding and the baselines a model must beat |
 | [`09-two-tasks/`](09-two-tasks/README.md) | C/M/N/U/V — one brain for language and chess, through private then unified interfaces |
+| [`10-three-tasks/`](10-three-tasks/README.md) | T/W — sentiment as a third task; what shape the multi-task cost has, and what plasticity is worth under it |
 | `configs/` | Declarative experiment specifications. **Specifications, not runnable config files** — see [pipeline commands](../docs/PIPELINE.md) |
 | `records/` | Selector hashes, parity, source ancestry, stop receipts, quality results |
 | `runs/` | Launch receipts |
@@ -40,6 +41,20 @@ paths are cited by hash in run receipts, tests and external notes.
 | **I32rank64fixed10k** | `exp/corpus10k-rank64` | [I](configs/I32rank64fixed10k.json) | **3,956,469** | budget-capped at 16,800 updates — **best audit score** |
 | J32fullfixed10k | `exp/corpus10k-fullreadout` | [J](configs/J32fullfixed10k.json) | 51,308,213 | budget-capped at 16,800 updates; Stage 6 control |
 | K32rank64shuffled10k | `exp/graph-control-shuffle` | [K](configs/K32rank64shuffled10k.json) | 3,956,469 | randomised graph, degrees preserved; Stage 7 control for I |
+| C32chessonly | `exp/multitask-chess-solo` | — | — | **stopped at 1,967 updates**; the chess-solo reference does not exist |
+| **U32unifiedfixed** | `exp/u32unifiedfixed` | [U](configs/U32unifiedfixed.json) | 4,286,325 | language + chess, frozen synapses; Stage 9 baseline |
+| **V32unifiedbounded** | `exp/v32unifiedbounded` | [V](configs/V32unifiedbounded.json) | 4,304,647 | language + chess, **connectome trained** (18,322 gains) |
+| T32threetasks | `exp/t32threetasks` | [T-last](configs/T32threetasks.json) | 4,286,613 | three tasks, last-token sentiment readout; superseded by the pooled arm |
+| **T32threetaskspooled** | `exp/t32threetaskspooled` | [T](configs/T32threetaskspooled.json) | 4,286,613 | three tasks, pooled readout, frozen synapses; Stage 10 baseline |
+| **W32threetasksbounded** | `exp/w32threetasksbounded` | [W](configs/W32threetasksbounded.json) | 4,304,935 | three tasks, **connectome trained**; the plasticity contrast for T |
+
+**Only two arms in this repository have ever trained the connectome to completion**, and
+both are multi-task: `V32unifiedbounded` and `W32threetasksbounded`. The three language-only
+plastic arms were never run — `C128bounded` and `D32bounded` were deferred in
+[Stage 3](03-encoder-compression/README.md) because the loss they existed to recover never
+appeared, and `F32rank128bounded` was stopped for ordering. So there is **no language-only
+measurement of what edge plasticity is worth**, and any claim about plasticity in general
+rests on the multi-task arms alone.
 
 The two 10k arms are **budget-capped**, not plateau-stopped: they were given exactly 16,800
 updates to match G's compute, so the trainer records them as `debug_stopped` with
