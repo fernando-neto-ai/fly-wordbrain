@@ -65,7 +65,7 @@ it is.
 We also tested whether the low-rank advantage was real or just an artifact of a small
 corpus: at 10× the data the gap between a full and a low-rank readout collapses from 1.632
 nats to 0.313, so about four fifths of it was scarcity. This demo runs the 10,000-story
-weights, which score **2.9493** against the reference's 3.9882 — though at 1.83 passes they
+weights, which score **2.9493** against the reference's 3.9882 — though at 1.40 passes they
 are not converged.
 
 Model: [fly-wordbrain-rank64](https://huggingface.co/fernandofernandes/fly-wordbrain-rank64) ·

@@ -24,6 +24,12 @@ from safetensors.torch import save_file
 ROOT = Path(__file__).resolve().parents[1]
 
 
+# Measured, not assumed: one pass over the 10,000-story corpus at batch 8 / chunk 32.
+# Every arm's manifest records this identically. A 10x scaling of the 1,000-story
+# epoch (1,196) would give 11,960; the real figure is 12,042, and an earlier constant
+# of 9,180 overstated every arm's data exposure by 31%.
+EPOCH_UPDATES_10K = 12042
+
 def digest(path):
     h = hashlib.sha256()
     with open(path, "rb") as fh:
@@ -127,7 +133,9 @@ def main():
         "training": {
             "corpus": "10,000 TinyStories (identical corpus and splits to the arm it controls)",
             "corpus_sha256": spec["dataset_sha256"],
-            "updates": status["updates"], "passes_over_corpus": 1.83, "budget_capped": True,
+            "updates": status["updates"],
+            "passes_over_corpus": round(status["updates"] / EPOCH_UPDATES_10K, 2),
+            "budget_capped": True,
             "status": "debug_stopped — the trainer's label for an update cap, not a failure",
             "converged": False, "seed": spec["training"]["seed"],
             "host": "Apple M3 Max, PyTorch MPS",

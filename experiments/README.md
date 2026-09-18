@@ -58,7 +58,7 @@ rests on the multi-task arms alone.
 
 The two 10k arms are **budget-capped**, not plateau-stopped: they were given exactly 16,800
 updates to match G's compute, so the trainer records them as `debug_stopped` with
-`debug: true`. That flags the cap, not a failure. They completed 1.83 passes over their
+`debug: true`. That flags the cap, not a failure. They completed 1.40 passes over their
 corpus and are **not converged**; read [Stage 6](06-corpus-size/README.md) before quoting
 their numbers.
 

@@ -70,8 +70,8 @@ A residual advantage remains: **0.3126 nats and 1.67 accuracy points** at matche
 and the 3,956,469-parameter model is still the best of the four — now **1.039 nats** below
 the released 52,756,661-parameter reference.
 
-**But neither 10k arm converged.** 16,800 updates is 18.3 passes over 1,000 stories and only
-**1.83** over 10,000. The residual gap is therefore consistent with two different stories:
+**But neither 10k arm converged.** 16,800 updates is 14.05 passes over 1,000 stories and only
+**1.40** over 10,000. The residual gap is therefore consistent with two different stories:
 
 1. a genuine remaining quality advantage for the constrained readout, or
 2. a **convergence-rate** difference — the smaller model simply reaching its plateau in

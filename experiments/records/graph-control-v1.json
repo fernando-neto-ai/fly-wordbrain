@@ -302,7 +302,7 @@
   },
   "limits": [
     "one seed and one shuffle",
-    "both arms budget-capped at 1.83 passes over the corpus",
+    "both arms budget-capped at 1.40 passes over the corpus",
     "a degree-preserving shuffle is one randomisation among several; no zero-edge arm bounds how much the recurrence itself contributes"
   ]
 }

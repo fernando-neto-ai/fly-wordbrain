@@ -227,8 +227,8 @@ generalise from. The prediction held.
 
 What survives is smaller and less certain: 0.313 nats and 1.67 accuracy points at matched
 compute, with the 3,956,469-parameter model still best overall at **CE 2.9493 / 37.43%**,
-now **1.039 nats** below the released reference. But 16,800 updates is 18.3 passes over
-1,000 stories and only **1.83** over 10,000, so **neither large-corpus arm converged** — the
+now **1.039 nats** below the released reference. But 16,800 updates is 14.05 passes over
+1,000 stories and only **1.40** over 10,000, so **neither large-corpus arm converged** — the
 residual could equally be the smaller model reaching its plateau sooner. Separating those
 needs both trained to convergence, which we have not done.
 
@@ -354,7 +354,7 @@ model = ct.nn.ConnectomeRNN(brain, weights="trainable", backend="metal_csr").to(
   as [fly-wordbrain-fullreadout-10k](https://huggingface.co/fernandofernandes/fly-wordbrain-fullreadout-10k).
 
 The 10k weights ship inside the rank-64 repo under `corpus-10k/`. They are **budget-capped at
-16,800 updates (1.83 passes), not trained to convergence** — the trainer marks them
+16,800 updates (1.40 passes), not trained to convergence** — the trainer marks them
 `debug_stopped`, which flags the cap rather than a failure.
 
 We keep the **lowest-validation-CE** and **highest-validation-accuracy** weights as separate

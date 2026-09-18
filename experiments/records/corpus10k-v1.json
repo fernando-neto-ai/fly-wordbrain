@@ -6,7 +6,7 @@
     "factorial": "2x2 over readout (full / rank 64) and training corpus (1,000 / 10,000 stories)",
     "matched": "16,800 updates for every arm; planned cosine sized so the consumed fraction matches G's 31.9% (10k arms plan ~55,122 updates, consume 30.5%)",
     "corpus": "The 10,000-story set is a strict superset of the 1,000-story set in the same order; validation, test and audit rows are byte-identical between corpora",
-    "budget_note": "16,800 updates is 18.3 passes of the 1k corpus but only 1.83 of the 10k corpus, so neither 10k arm has converged"
+    "budget_note": "16,800 updates is 14.05 passes of the 1k corpus (epoch 1,196 updates) but only 1.40 of the 10k corpus (epoch 12,042), so neither 10k arm has converged. An earlier note said 18.3 and 1.83, from an assumed 918-update epoch that the tokenised corpus does not match."
   },
   "audit_population": {
     "stories": 200,
@@ -445,7 +445,7 @@
     "The 3,956,469-parameter model trained on 10,000 stories is the best of the four: CE 2.9493, 37.43% top-1, 1.039 nats below the released 52,756,661-parameter reference."
   ],
   "limitations": [
-    "Neither 10k arm converged (1.83 passes). The residual 0.313-nat gap may be a convergence-rate difference rather than a final-quality difference; separating them requires training both to convergence on the larger corpus.",
+    "Neither 10k arm converged (1.40 passes). The residual 0.313-nat gap may be a convergence-rate difference rather than a final-quality difference; separating them requires training both to convergence on the larger corpus.",
     "Both 10k arms are budget-capped, so their trainer status is 'debug_stopped' with debug=true. That flags the cap, not a failure.",
     "Still no randomized-graph or zero-edge control, so nothing here speaks to whether the connectome itself contributes.",
     "The audit population was revealed by an earlier audit and is no longer untouched. The reserved 100-story test remains unopened."

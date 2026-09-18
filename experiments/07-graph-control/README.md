@@ -156,7 +156,7 @@ not run.
 
 Other limits, stated plainly: **one seed and one shuffle.** A degree-preserving global
 permutation is a strong randomisation but not the only one, and a second seed would show how
-much of the 0.0100 nats is run-to-run noise. Both arms remain budget-capped at 1.83 passes
+much of the 0.0100 nats is run-to-run noise. Both arms remain budget-capped at 1.40 passes
 over the corpus, so this is a matched-budget comparison, not a converged one.
 
 Arm K is budget-capped, so the trainer records it as `debug_stopped` with `debug: true`.

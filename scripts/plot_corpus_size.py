@@ -64,7 +64,7 @@ def main():
     left.legend(frameon=False, fontsize=9, loc="upper right")
     left.grid(True, axis="y", alpha=.25, linewidth=.6)
 
-    passes = [18.3, 1.83]
+    passes = [14.05, 1.40]
     bars = right.bar([0, 1], passes, color=["#5a5a66", "#2a5d9f"], width=.5)
     for bar, value in zip(bars, passes):
         right.annotate(f"{value:.2f}", (bar.get_x() + bar.get_width() / 2, value),
