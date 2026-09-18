@@ -43,14 +43,21 @@ All matched to [`I32rank64fixed10k`](../configs/I32rank64fixed10k.json) on the l
 side — same corpus, same 16,800 updates, same seed, same two-phase schedule — so the
 language scores stay comparable to [Stage 6](../06-corpus-size/README.md)'s 2.9493.
 
-| arm | interfaces | brain | synapses | isolates |
-|---|---|---|---|---|
-| I *(Stage 6)* | private | language only | frozen | the reference |
-| C | private | chess only | frozen | the chess reference |
-| M | private | shared | frozen | cost of sharing the *dynamics* |
-| N | private | shared | ±10% | whether adapting the connectome buys it back |
-| **U** | **unified + router** | shared | frozen | cost of sharing the *interfaces* too |
-| **V** | **unified + router** | shared | ±10% | the same, with the connectome free to move |
+| arm | interfaces | brain | synapses | isolates | status |
+|---|---|---|---|---|---|
+| I *(Stage 6)* | private | language only | frozen | the language reference | **complete** |
+| C | private | chess only | frozen | the chess reference | **stopped at 1,967 updates** |
+| M | private | shared | frozen | cost of sharing the *dynamics* | **not run** |
+| N | private | shared | ±10% | whether adapting the connectome buys it back | **not run** |
+| **U** | **unified + router** | shared | frozen | cost of sharing the *interfaces* too | **complete** |
+| **V** | **unified + router** | shared | ±10% | the same, with the connectome free to move | **complete** |
+
+Only the two unified arms and the language reference completed. `M` and `N` were dropped
+because the unified design subsumes them — they test the weaker form of sharing, and `U`
+answered the strong form directly. `C` was stopped early to give the machine to the
+three-task arm. That abandonment has a **cost recorded in the results below**: there is no
+single-task chess arm at a matched budget, so the language side of the sharing question is
+measured and the chess side is not.
 
 `N` and `V` use the existing `bounded10` plasticity: every synapse gets a bounded,
 sign-preserving multiplier `1 + 0.1·tanh(θ)`. That is a bounded form of what the ChessFly
@@ -93,7 +100,107 @@ provably cannot.
 
 ## Result
 
-*Arms running. This section is filled in from the audit, not before.*
+**One brain holds two tasks. Sharing is not free, and adapting the connectome barely helps.**
+
+Both unified arms trained all 16,800 updates with one encoder, one head and one
+2,992-output space. Scored on the same 200-story audit population as every other stage
+(45,059 next-token targets), and on 10,000 held-out chess positions.
+
+| | language CE | language top-1 | chess top-1 *(legal-masked)* | value MAE | router |
+|---|---:|---:|---:|---:|---:|
+| I — language only *(Stage 6)* | **2.9493** | **37.43%** | — | — | — |
+| U — unified, frozen synapses | 3.3881 | 31.19% | **17.50%** | 0.1135 | 100% |
+| V — unified, ±10% synapses | **3.3743** | 31.35% | 17.21% | 0.1140 | 100% |
+| naive floors | — | — | 12.33% *(commonest legal move)* | 0.1891 | — |
+
+Language CE is `language_range_only` — the same targets against a softmax restricted to the
+1,024 token logits — which is what compares to arms that never had a chess head.
+
+### Sharing costs 0.44 nats
+
+Adding chess to the same brain, the same injection and the same head costs
+**+0.4388 nats [0.4263, 0.4514]** and **−6.24 accuracy points [−6.62, −5.86]** against the
+language-only reference. That is a wide, unambiguous interference penalty: the two tasks
+are genuinely competing for the same 148,179 per-neuron dynamics and the same rank-64
+trunk, and the brain cannot serve both as well as it serves one.
+
+This is the first stage where the *brain* is clearly the binding constraint. Stages 4–7
+kept finding the readout did the work; here the readout is shared by construction, and the
+cost shows up immediately.
+
+### Adapting the connectome recovers 3% of it
+
+The paired contrast — same stories, same estimator, same 10,000 resamples, seed 1729,
+[`unified-v-minus-u.json`](../records/unified-v-minus-u.json):
+
+| V minus U | delta | 95% CI |
+|---|---:|---|
+| language cross-entropy | **−0.0138** | [−0.0176, −0.0100] |
+| language top-1 | +0.16pp | [−0.05pp, +0.38pp] |
+| chess top-1 *(legal-masked)* | −0.29pp | *not paired; see below* |
+
+Letting all 9,050,172 synapses move — through 18,322 bounded, sign-preserving cell-type
+gains, `W ← W·(1 + 0.1·tanh(θ))` — buys **0.0138 nats**. The interval excludes zero, so the
+effect is real, and it is **3.1% of the 0.4388-nat penalty it was meant to relieve**. The
+accuracy interval straddles zero. On chess it is 0.29pp *worse*, which is smaller than the
+0.38pp marginal standard error on 10,000 positions and was not measured as a paired
+contrast, so it is best read as no effect rather than as a loss.
+
+Put beside [Stage 7](../07-graph-control/README.md), the scale is almost comic:
+
+| operation on the connectome | effect on language CE |
+|---|---:|
+| rewire all 9.05M edges at random *(Stage 7)* | +0.0100 [+0.0026, +0.0175] |
+| adapt all 9.05M edges within ±10% *(here)* | −0.0138 [−0.0176, −0.0100] |
+
+**Destroying the wiring and improving it are the same size, and both are tiny.** The
+hypothesis that "modifying the connectome becomes interesting" when capacity is tight is
+measurable, and the measurement says it is worth about one part in thirty of the squeeze.
+The caveat that keeps this from being final is granularity: `bounded10` has one parameter
+per cell type per side, not one per synapse, and the ChessFly reference trains a free
+per-edge `W = sign·exp(θ)`. A per-edge arm could answer differently; this one cannot.
+
+### Chess works, and is well short of the reference
+
+17.50% legal-masked top-1 against a 12.33% commonest-legal-move prior and an 8.48% uniform
+legal draw — **2.1× random**, and 5.2 points over the strongest naive baseline. Value MAE
+0.1135 against a 0.1891 constant predictor. The model is really reading boards.
+
+It is also well short of ChessFly's 30.4%, and three differences each plausibly account for
+part of that: the reference trains a **free per-edge weight matrix** where this is frozen;
+it uses a 138,639-neuron FlyWire connectome against this 49,393-neuron MaleCNS; and it saw
+roughly 4.4M positions against this arm's 537,600 — **0.896 passes over the corpus, not
+even one epoch**. None of those is separated here, so no claim is made about which matters.
+
+### What is not measured
+
+**The chess cost of sharing is unknown.** Arm C was stopped at 1,967 updates, so there is
+no single-task chess arm at 16,800 updates to compare 17.50% against. The 0.4388-nat figure
+above is the *language* cost of sharing; the symmetric number for chess does not exist. It
+is the first thing to run once the machine is free.
+
+### The router reads content, not depth
+
+The router hits 100% on both arms, and that number is worth nothing on its own — it is
+reached within a couple of hundred updates. The
+[matched-settle-depth control](../records/unified-U32unifiedfixed-task-identity-probe.json)
+re-measures with both tasks having run the recurrence the same number of steps, against a
+shuffled-label floor fitted the same way:
+
+| | probe held-out | shuffled-label floor | norm alone | direction alone |
+|---|---:|---:|---:|---:|
+| U, 5 steps | 100% | 51% | 100% | 100% |
+| U, 32 steps | 100% | 51% | 100% | 100% |
+| V, 5 steps | 100% | 57% | 94% | 100% |
+| V, 32 steps | 100% | 49% | 99% | 100% |
+
+Depth is ruled out — separability survives matched settle steps, and the floor confirms the
+probe is not just memorising 49,393 dimensions from a few hundred samples. **Magnitude is
+not ruled out.** Mean state norms differ by task (U: 78.9 language vs 86.9 chess) and a
+probe given *only* the norm still scores 100% on U. Direction alone also scores 100%, so
+the task identity is present in both, and this cannot say the router uses the content
+rather than the gain. That is why the router is kept as a probe with a corruption test
+rather than being read as evidence the brain "knows what it is doing".
 
 Receipts: arm table [`multitask-v1-arms.json`](../configs/multitask-v1-arms.json), chess
 baselines [`chess-baselines-v1.json`](../records/chess-baselines-v1.json), the task itself

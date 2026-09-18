@@ -1,0 +1,63 @@
+{
+  "question": "Does V32unifiedbounded differ from U32unifiedfixed on held-out language?",
+  "treatment": "V32unifiedbounded",
+  "control": "U32unifiedfixed",
+  "plasticity": {
+    "V32unifiedbounded": "bounded10",
+    "U32unifiedfixed": "fixed"
+  },
+  "checkpoint": "best.pt",
+  "direction": "V32unifiedbounded minus U32unifiedfixed; negative cross-entropy means V32unifiedbounded is better",
+  "rebuild_verified_against_published_audit": true,
+  "stories": 200,
+  "full_output_space": {
+    "direction": "V32unifiedbounded minus U32unifiedfixed; negative cross-entropy means V32unifiedbounded is better",
+    "delta_cross_entropy": -0.013996010022827582,
+    "delta_accuracy": 0.0015979049690405913,
+    "perplexity_ratio": 0.9861014787774026,
+    "ce_95_ci": [
+      -0.017831508199391218,
+      -0.010181251495453559
+    ],
+    "accuracy_95_ci": [
+      -0.0004654027341891508,
+      0.0037675090809843963
+    ],
+    "point_estimates_within_margins": true,
+    "ce_noninferiority_supported": true,
+    "accuracy_noninferiority_supported": true,
+    "noninferiority_supported": true,
+    "two_sided_equivalence_supported": true,
+    "bootstrap": {
+      "unit": "paired whole story",
+      "resamples": 10000,
+      "seed": 1729,
+      "estimator": "token-weighted ratio of resampled story totals"
+    }
+  },
+  "language_range_only": {
+    "direction": "V32unifiedbounded minus U32unifiedfixed; negative cross-entropy means V32unifiedbounded is better",
+    "delta_cross_entropy": -0.013806617022405595,
+    "delta_accuracy": 0.0015979049690405913,
+    "perplexity_ratio": 0.9862882571818917,
+    "ce_95_ci": [
+      -0.017628569079745447,
+      -0.00999443654091844
+    ],
+    "accuracy_95_ci": [
+      -0.0004654027341891508,
+      0.0037675090809843963
+    ],
+    "point_estimates_within_margins": true,
+    "ce_noninferiority_supported": true,
+    "accuracy_noninferiority_supported": true,
+    "noninferiority_supported": true,
+    "two_sided_equivalence_supported": true,
+    "bootstrap": {
+      "unit": "paired whole story",
+      "resamples": 10000,
+      "seed": 1729,
+      "estimator": "token-weighted ratio of resampled story totals"
+    }
+  }
+}

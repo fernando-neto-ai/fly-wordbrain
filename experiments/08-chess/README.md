@@ -102,8 +102,27 @@ reference's 4.4M would be 3.9. A chess arm and its control are an overnight run.
 
 ## Result
 
-*The chess arms are [Stage 9](../09-two-tasks/README.md), because the interesting question
-turned out not to be "can it play chess" but "can one brain hold both".*
+The chess arms are [Stage 9](../09-two-tasks/README.md), because the interesting question
+turned out not to be "can it play chess" but "can one brain hold both". The task itself
+works:
+
+| | top-1 *(legal-masked)* | value MAE |
+|---|---:|---:|
+| uniform legal draw, E[1/n] | 8.48% | — |
+| commonest legal move | 12.33% | — |
+| constant value predictor | — | 0.1891 |
+| **this brain, sharing with language** | **17.50%** | **0.1135** |
+| ChessFly reference | 30.4% | 0.081 |
+
+**2.1× a uniform legal draw and 5.2 points over the strongest naive prior**, from a brain
+that is simultaneously doing language and has never had a synapse modified. It is also well
+short of the reference, which trains a free per-edge weight matrix on a 138,639-neuron
+connectome and saw roughly eight times as many positions — this arm completed **0.896
+passes over its corpus**, not even one epoch. Nothing here separates those three
+differences.
+
+A single-task chess arm at a matched budget was started and stopped at 1,967 updates, so
+the cost this number pays for sharing the brain with language is **not yet measured**.
 
 Receipts: [`records/chess-baselines-v1.json`](../records/chess-baselines-v1.json), corpus
 provenance in `data/chess-positions-v1/provenance.json`.

@@ -1,0 +1,35 @@
+{
+  "created_at_utc": "2026-09-17T15:26:56.839217+00:00",
+  "weights": {
+    "language": 1.0,
+    "chess": 1.0,
+    "router": 0.1
+  },
+  "chess_batch": 32,
+  "chess_positions_seen": 537600,
+  "chess_passes_over_corpus": 0.896,
+  "language_best_validation": {
+    "cross_entropy": 3.1706408317949935,
+    "top1_accuracy": 0.35562768583706683,
+    "updates": 16800,
+    "epoch": 1
+  },
+  "validation": {
+    "positions": 10000,
+    "policy_cross_entropy": 4.251150608062744,
+    "top1_unmasked": 0.12600000202655792,
+    "top1_legal_masked": 0.1709,
+    "value_mae": 0.11087563633918762,
+    "router_accuracy": 1.0,
+    "leakage_into_language": 0.007461249487102032
+  },
+  "audit": {
+    "positions": 10000,
+    "policy_cross_entropy": 4.253304481506348,
+    "top1_unmasked": 0.1306000053882599,
+    "top1_legal_masked": 0.175,
+    "value_mae": 0.11348757147789001,
+    "router_accuracy": 1.0,
+    "leakage_into_language": 0.007494841971993446
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "run": "results/unified-v1/arms/V32unifiedbounded",
+  "checkpoint": "best.pt",
+  "updates": 16800,
+  "samples_per_task_requested": 1000,
+  "note": "Language states are taken after exactly `steps` tokens so that both tasks have run the recurrence the same number of times.",
+  "by_settle_depth": {
+    "5": {
+      "samples_per_task_used": 100,
+      "language_states_available": 100,
+      "trained_router_accuracy": 1.0,
+      "linear_probe_train_accuracy": 1.0,
+      "linear_probe_heldout_accuracy": 1.0,
+      "state_norm_only_heldout_accuracy": 0.9399999976158142,
+      "direction_only_heldout_accuracy": 1.0,
+      "mean_state_norm": {
+        "language": 80.22154235839844,
+        "chess": 85.6454849243164
+      },
+      "shuffled_label_probe_train_accuracy": 0.7900000214576721,
+      "shuffled_label_probe_heldout_accuracy": 0.5699999928474426,
+      "probe_margin_over_shuffled": 0.4300000071525574
+    },
+    "32": {
+      "samples_per_task_used": 100,
+      "language_states_available": 100,
+      "trained_router_accuracy": 1.0,
+      "linear_probe_train_accuracy": 1.0,
+      "linear_probe_heldout_accuracy": 1.0,
+      "state_norm_only_heldout_accuracy": 0.9900000095367432,
+      "direction_only_heldout_accuracy": 1.0,
+      "mean_state_norm": {
+        "language": 89.14215850830078,
+        "chess": 92.91675567626953
+      },
+      "shuffled_label_probe_train_accuracy": 1.0,
+      "shuffled_label_probe_heldout_accuracy": 0.49000000953674316,
+      "probe_margin_over_shuffled": 0.5099999904632568
+    }
+  },
+  "reading": "The router survives matched settle depth, so it is reading task content."
+}

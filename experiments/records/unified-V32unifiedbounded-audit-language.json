@@ -1,0 +1,85 @@
+{
+  "run": "results/unified-v1/arms/V32unifiedbounded",
+  "checkpoint": "best.pt",
+  "checkpoint_sha256": "17960396560cefbca436701f7a3740b5802281f3080f12297631df84e17dd268",
+  "updates": 16800,
+  "stories": 200,
+  "seconds": 17.82574687502347,
+  "outputs": {
+    "total": 2992,
+    "language": 1024
+  },
+  "full_output_space": {
+    "stories": 200,
+    "tokens": 45059,
+    "nll_sum": 152241.87471126916,
+    "correct": 14126,
+    "cross_entropy": 3.3787228902387794,
+    "perplexity": 29.333285356613924,
+    "top1_accuracy": 0.313500077675936
+  },
+  "language_range_only": {
+    "stories": 200,
+    "tokens": 45059,
+    "nll_sum": 152042.19007377594,
+    "correct": 14126,
+    "cross_entropy": 3.3742912642041754,
+    "perplexity": 29.203578823250965,
+    "top1_accuracy": 0.313500077675936
+  },
+  "leakage_cost_nats": 0.004431626034604008,
+  "note": "language_range_only renormalises over the 1,024 token logits and is what compares to arms that never had a chess head; full_output_space is what this model actually predicts over. Their difference is the leakage cost.",
+  "versus_reference": {
+    "reference": "results/graph-control-audit-v1/I32rank64-10k.json",
+    "full_output_space": {
+      "direction": "ours minus released",
+      "delta_cross_entropy": 0.4293861530507987,
+      "delta_accuracy": -0.06078696819725249,
+      "perplexity_ratio": 1.5363141722735874,
+      "ce_95_ci": [
+        0.4166396268723372,
+        0.4421432911076186
+      ],
+      "accuracy_95_ci": [
+        -0.06439935945653034,
+        -0.057053133476962545
+      ],
+      "point_estimates_within_margins": false,
+      "ce_noninferiority_supported": false,
+      "accuracy_noninferiority_supported": false,
+      "noninferiority_supported": false,
+      "two_sided_equivalence_supported": false,
+      "bootstrap": {
+        "unit": "paired whole story",
+        "resamples": 10000,
+        "seed": 1729,
+        "estimator": "token-weighted ratio of resampled story totals"
+      }
+    },
+    "language_range_only": {
+      "direction": "ours minus released",
+      "delta_cross_entropy": 0.4249545270161947,
+      "delta_accuracy": -0.06078696819725249,
+      "perplexity_ratio": 1.5295208662044102,
+      "ce_95_ci": [
+        0.4122058773048687,
+        0.4377252950462837
+      ],
+      "accuracy_95_ci": [
+        -0.06439935945653034,
+        -0.057053133476962545
+      ],
+      "point_estimates_within_margins": false,
+      "ce_noninferiority_supported": false,
+      "accuracy_noninferiority_supported": false,
+      "noninferiority_supported": false,
+      "two_sided_equivalence_supported": false,
+      "bootstrap": {
+        "unit": "paired whole story",
+        "resamples": 10000,
+        "seed": 1729,
+        "estimator": "token-weighted ratio of resampled story totals"
+      }
+    }
+  }
+}
