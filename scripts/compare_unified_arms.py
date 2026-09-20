@@ -58,6 +58,7 @@ def rebuild(config_name, model_path, groups_path, run, checkpoint, device):
                          tokens=space.get("language_tokens", 1024),
                          moves=space.get("chess_moves", 1968),
                          classes=space.get("sentiment_classes", 0),
+                         toxicity_classes=space.get("toxicity_classes", 0),
                          tasks=len(form.get("tasks", ["language", "chess"])),
                          task_cue=form.get("task_cue", False),
                          sentiment_pooling=form.get("sentiment_pooling", "mean"))
