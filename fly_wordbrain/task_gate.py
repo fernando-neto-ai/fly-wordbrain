@@ -28,8 +28,10 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-LANGUAGE, CHESS, SENTIMENT = 0, 1, 2
-TOKEN_TASKS = (LANGUAGE, SENTIMENT)
+LANGUAGE, CHESS, SENTIMENT, TOXICITY = 0, 1, 2, 3
+# The tasks that arrive as token streams, in the class order the gate predicts. Chess is
+# absent on purpose: it is 780 floats and is dispatched by shape, not classified.
+TOKEN_TASKS = (LANGUAGE, SENTIMENT, TOXICITY)
 
 
 class TaskGate(nn.Module):
@@ -40,13 +42,19 @@ class TaskGate(nn.Module):
     large model here would make it impossible to tell which.
     """
 
-    def __init__(self, tokens=1024, width=64, classes=2, use_length=False):
+    def __init__(self, tokens=1024, width=64, classes=len(TOKEN_TASKS), use_length=False,
+                 task_ids=None):
         super().__init__()
         self.tokens, self.width, self.classes = tokens, width, classes
         self.use_length = use_length
         self.embedding = nn.Embedding(tokens, width)
         self.norm = nn.LayerNorm(width)
         self.head = nn.Linear(width + (1 if use_length else 0), classes)
+        # Which task each predicted class means. Kept as a buffer so a saved gate carries
+        # its own mapping: a gate trained on two classes and read back as three would
+        # silently relabel every prediction.
+        ids = task_ids if task_ids is not None else TOKEN_TASKS[:classes]
+        self.register_buffer("task_ids", torch.tensor(list(ids), dtype=torch.long))
 
     def summarise(self, input_ids, attention_mask):
         mask = attention_mask.to(self.embedding.weight.dtype).unsqueeze(-1)
@@ -63,8 +71,7 @@ class TaskGate(nn.Module):
     def classify(self, input_ids, attention_mask):
         """Task id per row, over the token-stream tasks only."""
         choice = self.forward(input_ids, attention_mask).argmax(-1)
-        return torch.where(choice == 0, torch.full_like(choice, LANGUAGE),
-                           torch.full_like(choice, SENTIMENT))
+        return self.task_ids.to(choice.device)[choice]
 
 
 class LengthOnlyGate(nn.Module):
@@ -74,7 +81,7 @@ class LengthOnlyGate(nn.Module):
     than the text, and the routing claim is empty.
     """
 
-    def __init__(self, classes=2):
+    def __init__(self, classes=len(TOKEN_TASKS)):
         super().__init__()
         self.head = nn.Linear(2, classes)
 

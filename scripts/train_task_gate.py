@@ -31,7 +31,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from fly_wordbrain.task_gate import LengthOnlyGate, TaskGate
+from fly_wordbrain.task_gate import TOKEN_TASKS, LengthOnlyGate, TaskGate
 
 
 def windows(rows, width, pad=0, limit=None, generator=None):
@@ -54,16 +54,22 @@ def windows(rows, width, pad=0, limit=None, generator=None):
     return torch.from_numpy(ids), torch.from_numpy(mask)
 
 
-def build(language, sentiment, width, limit, seed):
+def build(sources, width, limit, seed):
+    """One window per row from each source, labelled by its position in `sources`.
+
+    `sources` is ordered to match TOKEN_TASKS, so class k means task TOKEN_TASKS[k].
+    Sizes are deliberately not balanced here -- the corpora are the sizes they are, and
+    the majority-class floor reported alongside is what accounts for that.
+    """
     generator = np.random.default_rng(seed)
-    li, lm = windows(language, width, limit=limit, generator=generator)
-    si, sm = windows(sentiment, width, limit=limit, generator=generator)
-    ids = torch.cat([li, si])
-    mask = torch.cat([lm, sm])
-    labels = torch.cat([torch.zeros(li.shape[0], dtype=torch.long),
-                        torch.ones(si.shape[0], dtype=torch.long)])
+    pieces, masks, labels = [], [], []
+    for index, rows in enumerate(sources):
+        i, m = windows(rows, width, limit=limit, generator=generator)
+        pieces.append(i); masks.append(m)
+        labels.append(torch.full((i.shape[0],), index, dtype=torch.long))
+    ids, mask, label = torch.cat(pieces), torch.cat(masks), torch.cat(labels)
     order = torch.randperm(ids.shape[0], generator=torch.Generator().manual_seed(seed))
-    return ids[order], mask[order], labels[order]
+    return ids[order], mask[order], label[order]
 
 
 def fit(model, data, epochs, learning_rate, batch=256, seed=42):
@@ -87,10 +93,29 @@ def score(model, data):
     predicted = model(ids, mask).argmax(-1)
     correct = (predicted == labels)
     out = {"rows": int(labels.numel()), "accuracy": float(correct.float().mean())}
-    for name, value in (("language", 0), ("sentiment", 1)):
+    names = ("language", "sentiment", "toxicity")
+    recalls = []
+    for value, name in enumerate(names[:int(labels.max()) + 1]):
         pick = labels == value
-        out[f"{name}_recall"] = float(correct[pick].float().mean())
+        if not bool(pick.any()):
+            continue
+        recall = float(correct[pick].float().mean())
+        out[f"{name}_recall"] = recall
         out[f"{name}_rows"] = int(pick.sum())
+        recalls.append(recall)
+    # With three uneven classes the plain mean is dominated by the biggest, so the
+    # balanced figure is reported too: it is the one that falls if a small class is lost.
+    out["balanced_accuracy"] = sum(recalls) / max(len(recalls), 1)
+    # Which pairs get confused matters more than the total: sentiment and toxicity are
+    # both short binary judgements over English prose, so they are the hard pair.
+    confusion = {}
+    for value, name in enumerate(names[:int(labels.max()) + 1]):
+        pick = labels == value
+        if not bool(pick.any()):
+            continue
+        confusion[name] = {names[int(c)]: int((predicted[pick] == c).sum())
+                           for c in predicted[pick].unique()}
+    out["confusion"] = confusion
     return out
 
 
@@ -104,6 +129,9 @@ def main():
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--language", type=Path, required=True)
     parser.add_argument("--sentiment", type=Path, required=True)
+    parser.add_argument("--toxicity", type=Path,
+                        help="adds the third token-stream class; the hard pair is "
+                             "sentiment against toxicity")
     parser.add_argument("--width", type=int, default=32, help="pipeline chunk size")
     parser.add_argument("--train-rows", type=int, default=8000)
     parser.add_argument("--epochs", type=int, default=6)
@@ -114,17 +142,27 @@ def main():
 
     language = json.loads(args.language.read_text())
     sentiment = json.loads(args.sentiment.read_text())
-    train = build(language["train"], sentiment["train"], args.width, args.train_rows, args.seed)
-    # Held out: the language validation split and the official SST-2 validation set.
-    held = build(language["validation"], sentiment["audit"], args.width, None, args.seed + 1)
+    train_sources = [language["train"], sentiment["train"]]
+    held_sources = [language["validation"], sentiment["audit"]]
+    if args.toxicity:
+        toxicity = json.loads(args.toxicity.read_text())
+        train_sources.append(toxicity["train"])
+        held_sources.append(toxicity["audit"])
+    classes = len(train_sources)
+    train = build(train_sources, args.width, args.train_rows, args.seed)
+    held = build(held_sources, args.width, None, args.seed + 1)
 
-    report = {"width": args.width, "train_rows": int(train[2].numel()),
+    report = {"width": args.width, "classes": classes,
+              "tasks": list(TOKEN_TASKS[:classes]),
+              "train_rows": int(train[2].numel()),
               "held_out_rows": int(held[2].numel()),
               "note": "Chess is excluded: it is dispatched by shape, not classified."}
 
-    gate = fit(TaskGate(width=64), train, args.epochs, args.learning_rate, seed=args.seed)
+    gate = fit(TaskGate(width=64, classes=classes), train, args.epochs,
+               args.learning_rate, seed=args.seed)
     report["gate"] = score(gate, held)
-    control = fit(LengthOnlyGate(), train, args.epochs, args.learning_rate, seed=args.seed)
+    control = fit(LengthOnlyGate(classes=classes), train, args.epochs,
+                  args.learning_rate, seed=args.seed)
     report["length_only"] = score(control, held)
     report["majority_class"] = majority(held[2])
     report["gate_margin_over_length_only"] = (report["gate"]["accuracy"]
@@ -133,7 +171,7 @@ def main():
     print(json.dumps(report, indent=2))
     if args.output:
         args.output.write_text(json.dumps(report, indent=2) + "\n")
-        torch.save({"state": gate.state_dict(), "width": args.width},
+        torch.save({"state": gate.state_dict(), "width": args.width, "classes": classes},
                    args.output.with_suffix(".pt"))
 
 
