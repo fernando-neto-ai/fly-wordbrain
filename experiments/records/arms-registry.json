@@ -1,0 +1,559 @@
+{
+  "note": "Coordinates are read from each arm's config, never restated here. An arm pair differing on exactly one axis is a clean contrast.",
+  "axes": [
+    "tasks",
+    "readout_rank",
+    "plasticity",
+    "graph",
+    "weights",
+    "corpus",
+    "max_updates",
+    "d_embed",
+    "history_length",
+    "seed",
+    "sentiment_pooling",
+    "task_cue"
+  ],
+  "arms": {
+    "A128fixed": {
+      "tasks": [
+        "language"
+      ],
+      "readout_rank": 0,
+      "plasticity": "fixed",
+      "weights": null,
+      "corpus": "data/ngxson-tinystories-v1/dataset.json",
+      "max_updates": null,
+      "d_embed": 128,
+      "history_length": 8,
+      "seed": 42,
+      "sentiment_pooling": null,
+      "task_cue": null,
+      "graph": "measured",
+      "output_width": null
+    },
+    "B32fixed": {
+      "tasks": [
+        "language"
+      ],
+      "readout_rank": 0,
+      "plasticity": "fixed",
+      "weights": null,
+      "corpus": "data/ngxson-tinystories-v1/dataset.json",
+      "max_updates": null,
+      "d_embed": 32,
+      "history_length": 8,
+      "seed": 42,
+      "sentiment_pooling": null,
+      "task_cue": null,
+      "graph": "measured",
+      "output_width": null
+    },
+    "C128bounded": {
+      "tasks": [
+        "language"
+      ],
+      "readout_rank": 0,
+      "plasticity": "bounded10",
+      "weights": null,
+      "corpus": "data/ngxson-tinystories-v1/dataset.json",
+      "max_updates": null,
+      "d_embed": 128,
+      "history_length": 8,
+      "seed": 42,
+      "sentiment_pooling": null,
+      "task_cue": null,
+      "graph": "measured",
+      "output_width": null
+    },
+    "D32bounded": {
+      "tasks": [
+        "language"
+      ],
+      "readout_rank": 0,
+      "plasticity": "bounded10",
+      "weights": null,
+      "corpus": "data/ngxson-tinystories-v1/dataset.json",
+      "max_updates": null,
+      "d_embed": 32,
+      "history_length": 8,
+      "seed": 42,
+      "sentiment_pooling": null,
+      "task_cue": null,
+      "graph": "measured",
+      "output_width": null
+    },
+    "E32rank128fixed": {
+      "tasks": [
+        "language"
+      ],
+      "readout_rank": 128,
+      "plasticity": "fixed",
+      "weights": null,
+      "corpus": "data/ngxson-tinystories-v1/dataset.json",
+      "max_updates": null,
+      "d_embed": 32,
+      "history_length": 8,
+      "seed": 42,
+      "sentiment_pooling": null,
+      "task_cue": null,
+      "graph": "measured",
+      "output_width": null
+    },
+    "F32rank128bounded": {
+      "tasks": [
+        "language"
+      ],
+      "readout_rank": 128,
+      "plasticity": "bounded10",
+      "weights": null,
+      "corpus": "data/ngxson-tinystories-v1/dataset.json",
+      "max_updates": null,
+      "d_embed": 32,
+      "history_length": 8,
+      "seed": 42,
+      "sentiment_pooling": null,
+      "task_cue": null,
+      "graph": "measured",
+      "output_width": null
+    },
+    "G32rank64fixed": {
+      "tasks": [
+        "language"
+      ],
+      "readout_rank": 64,
+      "plasticity": "fixed",
+      "weights": null,
+      "corpus": "data/ngxson-tinystories-v1/dataset.json",
+      "max_updates": null,
+      "d_embed": 32,
+      "history_length": 8,
+      "seed": 42,
+      "sentiment_pooling": null,
+      "task_cue": null,
+      "graph": "measured",
+      "output_width": null
+    },
+    "H32rank32fixed": {
+      "tasks": [
+        "language"
+      ],
+      "readout_rank": 32,
+      "plasticity": "fixed",
+      "weights": null,
+      "corpus": "data/ngxson-tinystories-v1/dataset.json",
+      "max_updates": null,
+      "d_embed": 32,
+      "history_length": 8,
+      "seed": 42,
+      "sentiment_pooling": null,
+      "task_cue": null,
+      "graph": "measured",
+      "output_width": null
+    },
+    "I32rank64fixed10k": {
+      "tasks": [
+        "language"
+      ],
+      "readout_rank": 64,
+      "plasticity": "fixed",
+      "weights": null,
+      "corpus": "data/ngxson-tinystories-10k/dataset.json",
+      "max_updates": 16800,
+      "d_embed": 32,
+      "history_length": 8,
+      "seed": 42,
+      "sentiment_pooling": null,
+      "task_cue": null,
+      "graph": "measured",
+      "output_width": null
+    },
+    "J32fullfixed10k": {
+      "tasks": [
+        "language"
+      ],
+      "readout_rank": 0,
+      "plasticity": "fixed",
+      "weights": null,
+      "corpus": "data/ngxson-tinystories-10k/dataset.json",
+      "max_updates": 16800,
+      "d_embed": 32,
+      "history_length": 8,
+      "seed": 42,
+      "sentiment_pooling": null,
+      "task_cue": null,
+      "graph": "measured",
+      "output_width": null
+    },
+    "K32rank64shuffled10k": {
+      "tasks": [
+        "language"
+      ],
+      "readout_rank": 64,
+      "plasticity": "fixed",
+      "weights": null,
+      "corpus": "data/ngxson-tinystories-10k/dataset.json",
+      "max_updates": 16800,
+      "d_embed": 32,
+      "history_length": 8,
+      "seed": 42,
+      "sentiment_pooling": null,
+      "task_cue": null,
+      "graph": "shuffle",
+      "output_width": null
+    },
+    "Q32fourtasksheavylanguage": {
+      "tasks": [
+        "language",
+        "chess",
+        "sentiment",
+        "toxicity"
+      ],
+      "readout_rank": 64,
+      "plasticity": "bounded10",
+      "weights": {
+        "chess": 0.6,
+        "language": 2.2,
+        "router": 0.1,
+        "sentiment": 0.6,
+        "toxicity": 0.6
+      },
+      "corpus": "data/ngxson-tinystories-10k/dataset.json",
+      "max_updates": 16800,
+      "d_embed": 32,
+      "history_length": 8,
+      "seed": 42,
+      "sentiment_pooling": "mean",
+      "task_cue": true,
+      "graph": "measured",
+      "output_width": 2996
+    },
+    "R32fourtasksrank256bounded": {
+      "tasks": [
+        "language",
+        "chess",
+        "sentiment",
+        "toxicity"
+      ],
+      "readout_rank": 256,
+      "plasticity": "bounded10",
+      "weights": {
+        "chess": 1.0,
+        "language": 1.0,
+        "router": 0.1,
+        "sentiment": 1.0,
+        "toxicity": 1.0
+      },
+      "corpus": "data/ngxson-tinystories-10k/dataset.json",
+      "max_updates": 16800,
+      "d_embed": 32,
+      "history_length": 8,
+      "seed": 42,
+      "sentiment_pooling": "mean",
+      "task_cue": true,
+      "graph": "measured",
+      "output_width": 2996
+    },
+    "S32sentimentsolo": {
+      "tasks": [
+        "language",
+        "chess",
+        "sentiment"
+      ],
+      "readout_rank": 64,
+      "plasticity": "fixed",
+      "weights": {
+        "chess": 0.0,
+        "language": 0.0,
+        "router": 0.1,
+        "sentiment": 1.0
+      },
+      "corpus": "data/ngxson-tinystories-10k/dataset.json",
+      "max_updates": 16800,
+      "d_embed": 32,
+      "history_length": 8,
+      "seed": 42,
+      "sentiment_pooling": null,
+      "task_cue": true,
+      "graph": "measured",
+      "output_width": 2994
+    },
+    "T32threetasks": {
+      "tasks": [
+        "language",
+        "chess",
+        "sentiment"
+      ],
+      "readout_rank": 64,
+      "plasticity": "fixed",
+      "weights": {
+        "chess": 1.0,
+        "language": 1.0,
+        "router": 0.1,
+        "sentiment": 1.0
+      },
+      "corpus": "data/ngxson-tinystories-10k/dataset.json",
+      "max_updates": 16800,
+      "d_embed": 32,
+      "history_length": 8,
+      "seed": 42,
+      "sentiment_pooling": "last",
+      "task_cue": true,
+      "graph": "measured",
+      "output_width": 2994
+    },
+    "T32threetaskspooled": {
+      "tasks": [
+        "language",
+        "chess",
+        "sentiment"
+      ],
+      "readout_rank": 64,
+      "plasticity": "fixed",
+      "weights": {
+        "chess": 1.0,
+        "language": 1.0,
+        "router": 0.1,
+        "sentiment": 1.0
+      },
+      "corpus": "data/ngxson-tinystories-10k/dataset.json",
+      "max_updates": 16800,
+      "d_embed": 32,
+      "history_length": 8,
+      "seed": 42,
+      "sentiment_pooling": "mean",
+      "task_cue": true,
+      "graph": "measured",
+      "output_width": 2994
+    },
+    "U32unifiedfixed": {
+      "tasks": [
+        "language",
+        "chess"
+      ],
+      "readout_rank": 64,
+      "plasticity": "fixed",
+      "weights": {
+        "chess": 1.0,
+        "language": 1.0,
+        "router": 0.1
+      },
+      "corpus": "data/ngxson-tinystories-10k/dataset.json",
+      "max_updates": 16800,
+      "d_embed": 32,
+      "history_length": 8,
+      "seed": 42,
+      "sentiment_pooling": null,
+      "task_cue": false,
+      "graph": "measured",
+      "output_width": 2992
+    },
+    "V32unifiedbounded": {
+      "tasks": [
+        "language",
+        "chess"
+      ],
+      "readout_rank": 64,
+      "plasticity": "bounded10",
+      "weights": {
+        "chess": 1.0,
+        "language": 1.0,
+        "router": 0.1
+      },
+      "corpus": "data/ngxson-tinystories-10k/dataset.json",
+      "max_updates": 16800,
+      "d_embed": 32,
+      "history_length": 8,
+      "seed": 42,
+      "sentiment_pooling": null,
+      "task_cue": false,
+      "graph": "measured",
+      "output_width": 2992
+    },
+    "W32threetasksbounded": {
+      "tasks": [
+        "language",
+        "chess",
+        "sentiment"
+      ],
+      "readout_rank": 64,
+      "plasticity": "bounded10",
+      "weights": {
+        "chess": 1.0,
+        "language": 1.0,
+        "router": 0.1,
+        "sentiment": 1.0
+      },
+      "corpus": "data/ngxson-tinystories-10k/dataset.json",
+      "max_updates": 16800,
+      "d_embed": 32,
+      "history_length": 8,
+      "seed": 42,
+      "sentiment_pooling": "mean",
+      "task_cue": true,
+      "graph": "measured",
+      "output_width": 2994
+    },
+    "Y32threetasksrank128bounded": {
+      "tasks": [
+        "language",
+        "chess",
+        "sentiment"
+      ],
+      "readout_rank": 128,
+      "plasticity": "bounded10",
+      "weights": {
+        "chess": 1.0,
+        "language": 1.0,
+        "router": 0.1,
+        "sentiment": 1.0
+      },
+      "corpus": "data/ngxson-tinystories-10k/dataset.json",
+      "max_updates": 16800,
+      "d_embed": 32,
+      "history_length": 8,
+      "seed": 42,
+      "sentiment_pooling": "mean",
+      "task_cue": true,
+      "graph": "measured",
+      "output_width": 2994
+    },
+    "Z32fourtasksbounded": {
+      "tasks": [
+        "language",
+        "chess",
+        "sentiment",
+        "toxicity"
+      ],
+      "readout_rank": 64,
+      "plasticity": "bounded10",
+      "weights": {
+        "chess": 1.0,
+        "language": 1.0,
+        "router": 0.1,
+        "sentiment": 1.0,
+        "toxicity": 1.0
+      },
+      "corpus": "data/ngxson-tinystories-10k/dataset.json",
+      "max_updates": 16800,
+      "d_embed": 32,
+      "history_length": 8,
+      "seed": 42,
+      "sentiment_pooling": "mean",
+      "task_cue": true,
+      "graph": "measured",
+      "output_width": 2996
+    },
+    "ngxson-reference": {
+      "tasks": [
+        "language"
+      ],
+      "readout_rank": null,
+      "plasticity": null,
+      "weights": null,
+      "corpus": "data/ngxson-tinystories-v1/dataset.json",
+      "max_updates": null,
+      "d_embed": null,
+      "history_length": null,
+      "seed": 42,
+      "sentiment_pooling": null,
+      "task_cue": null,
+      "graph": "measured",
+      "output_width": null
+    }
+  },
+  "clean_contrasts": {
+    "d_embed": [
+      [
+        "A128fixed",
+        "B32fixed"
+      ],
+      [
+        "C128bounded",
+        "D32bounded"
+      ]
+    ],
+    "plasticity": [
+      [
+        "A128fixed",
+        "C128bounded"
+      ],
+      [
+        "B32fixed",
+        "D32bounded"
+      ],
+      [
+        "E32rank128fixed",
+        "F32rank128bounded"
+      ],
+      [
+        "T32threetaskspooled",
+        "W32threetasksbounded"
+      ],
+      [
+        "U32unifiedfixed",
+        "V32unifiedbounded"
+      ]
+    ],
+    "readout_rank": [
+      [
+        "B32fixed",
+        "E32rank128fixed"
+      ],
+      [
+        "B32fixed",
+        "G32rank64fixed"
+      ],
+      [
+        "B32fixed",
+        "H32rank32fixed"
+      ],
+      [
+        "D32bounded",
+        "F32rank128bounded"
+      ],
+      [
+        "E32rank128fixed",
+        "G32rank64fixed"
+      ],
+      [
+        "E32rank128fixed",
+        "H32rank32fixed"
+      ],
+      [
+        "G32rank64fixed",
+        "H32rank32fixed"
+      ],
+      [
+        "I32rank64fixed10k",
+        "J32fullfixed10k"
+      ],
+      [
+        "R32fourtasksrank256bounded",
+        "Z32fourtasksbounded"
+      ],
+      [
+        "W32threetasksbounded",
+        "Y32threetasksrank128bounded"
+      ]
+    ],
+    "graph": [
+      [
+        "I32rank64fixed10k",
+        "K32rank64shuffled10k"
+      ]
+    ],
+    "weights": [
+      [
+        "Q32fourtasksheavylanguage",
+        "Z32fourtasksbounded"
+      ]
+    ],
+    "sentiment_pooling": [
+      [
+        "T32threetasks",
+        "T32threetaskspooled"
+      ]
+    ]
+  }
+}

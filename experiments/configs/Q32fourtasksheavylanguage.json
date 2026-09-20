@@ -41,14 +41,14 @@
     "primary": "minimum token-weighted validation cross-entropy",
     "secondary": "maximum validation top-1 accuracy; retain actual weights and selection receipt"
   },
-  "claim_scope": "Three tasks, connectome trainable, readout widened to rank 256. Differs from W32threetasksbounded (rank 64) and Y32threetasksrank128bounded (rank 128) in the readout width alone, so the three arms form a rank curve at one budget.",
+  "claim_scope": "All four tasks, connectome trainable, rank 64, objective reweighted toward language: 2.2 / 0.6 / 0.6 / 0.6 against Z32fourtasksbounded's 1.0 each. Language takes 55% of the task weight instead of 25%.",
   "environment": {
     "PYTORCH_ENABLE_MPS_FALLBACK": "0",
     "OMP_NUM_THREADS": "4",
     "VECLIB_MAXIMUM_THREADS": "4"
   },
-  "experiment_id": "R32threetasksrank256bounded",
-  "branch": "exp/r32threetasksrank256bounded",
+  "experiment_id": "Q32fourtasksheavylanguage",
+  "branch": "exp/q32fourtasksheavylanguage",
   "trainer": "scripts/train_unified.py",
   "connectorch_revision": "4bbfb645099aeb85bdbf850e1a87cc094769af87",
   "groups_path": "data/connectorch-groups-v1/groups.npz",
@@ -64,7 +64,7 @@
     "eval_interval_updates": 100,
     "d_embed": 32,
     "plasticity": "bounded10",
-    "readout_rank": 256,
+    "readout_rank": 64,
     "history_length": 8,
     "skip_final_test": true,
     "max_updates": 16800
@@ -95,10 +95,11 @@
   ],
   "unified": {
     "output_space": {
-      "total": 2994,
+      "total": 2996,
       "language_tokens": 1024,
       "chess_moves": 1968,
-      "sentiment_classes": 2
+      "sentiment_classes": 2,
+      "toxicity_classes": 2
     },
     "shared": [
       "the frozen graph",
@@ -115,9 +116,10 @@
     "chess_batch": 32,
     "settle_steps": 5,
     "weights": {
-      "language": 1.0,
-      "chess": 1.0,
-      "sentiment": 1.0,
+      "language": 2.2,
+      "chess": 0.6,
+      "sentiment": 0.6,
+      "toxicity": 0.6,
       "router": 0.1
     },
     "note": "Language recipe, schedule, corpus, seed and 16,800-update budget identical to I32rank64fixed10k. Carries the learned per-task cue and a three-lane router. Sentiment is read as a masked mean of the settled state over the sequence's real positions, so the classifier sees the whole sentence rather than what a leak-0.9 recurrence still remembers at its final token.",
@@ -125,13 +127,16 @@
     "tasks": [
       "language",
       "chess",
-      "sentiment"
+      "sentiment",
+      "toxicity"
     ],
     "sentiment_corpus": "data/sentiment-sst2-v1",
     "sentiment_batch": 32,
-    "sentiment_pooling": "mean"
+    "sentiment_pooling": "mean",
+    "toxicity_corpus": "data/toxicity-wikitoxic-v1",
+    "toxicity_batch": 8
   },
-  "isolates": "Rank is the largest measured lever on language: 64 -> 128 bought -0.1517 nats [-0.1620, -0.1413] and +2.06pp [+1.71, +2.40], against plasticity's -0.0200 and the fly's own wiring at 0.0100. This asks whether the slope continues. It need not: at 1,000 stories rank 128 was 0.0929 nats WORSE than rank 64 (E32rank128fixed 3.3731 vs G32rank64fixed 3.2802), so the optimum rank rises with data and task count and may already have been passed at 128.",
+  "isolates": "What language accuracy can be bought by asking for more of it, and what the other three tasks charge. The task weights sum to 4.0 in both arms deliberately: raising language alone would raise total gradient magnitude on every shared parameter, so a gain could not be told apart from a larger effective learning rate.",
   "plasticity_detail": {
     "form": "W <- W * (1 + 0.1 * tanh(theta_source[type(i)] + theta_destination[type(j)]))",
     "parameters": 18322,
@@ -139,5 +144,6 @@
     "bounded": "multiplier lies in (0.9, 1.1); no synapse changes sign or exceeds +/-10%",
     "granularity": "one gain per cell type per side, not one per synapse",
     "graph_untouched": "topology, per-synapse base weights and signs stay byte-identical"
-  }
+  },
+  "budget_note": "Toxicity runs at batch 8 rather than sentiment's 32 because its comments average 72 tokens against SST-2's 26 and the brain settles the whole row for a pooled judgement. The update budget is unchanged at 16,800 so the arm stays comparable to T, W and Y."
 }

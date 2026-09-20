@@ -119,6 +119,7 @@
       "language": 1.0,
       "chess": 1.0,
       "sentiment": 1.0,
+      "toxicity": 1.0,
       "router": 0.1
     },
     "note": "Language recipe, schedule, corpus, seed and 16,800-update budget identical to I32rank64fixed10k. Carries the learned per-task cue and a three-lane router. Sentiment is read as a masked mean of the settled state over the sequence's real positions, so the classifier sees the whole sentence rather than what a leak-0.9 recurrence still remembers at its final token.",
