@@ -71,7 +71,8 @@ def connectorch_training_args(config_name):
         require(key in spec, f"Configuration {config_name} does not declare {key}")
     return argparse.Namespace(d_embed=spec["d_embed"], plasticity=spec["plasticity"],
                               readout_rank=spec["readout_rank"],
-                              history_length=spec["history_length"], seed=spec["seed"]), spec
+                              history_length=spec["history_length"], seed=spec["seed"],
+                              leak=spec.get("leak", "fixed")), spec
 
 
 def score(model, rows, label, output, device, batch_size=8, chunk_size=32):

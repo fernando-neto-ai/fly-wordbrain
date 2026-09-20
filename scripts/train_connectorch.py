@@ -128,6 +128,7 @@ def build_model(reference, args, groups):
     from fly_wordbrain.connectorch_model import build_connectorch_model
     lag_map = list(range(args.history_length)) * (8 // args.history_length)
     return build_connectorch_model(reference, d_embed=args.d_embed, plasticity=args.plasticity,
+        leak=getattr(args, "leak", "fixed"),
         node_type_index=groups, readout_rank=args.readout_rank, lag_map=lag_map,
         seed=args.seed, copy_reference_parameters=False, device="cpu")
 
@@ -143,7 +144,7 @@ def parameter_counts(model):
             group = "embedding"
         elif name == "brain.in_proj":
             group = "input_projection"
-        elif name in ("brain.gain", "brain.rec_gain", "brain.bias"):
+        elif name in ("brain.gain", "brain.rec_gain", "brain.bias", "brain.leak_delta"):
             group = "neurons"
         elif name.startswith("brain.edge_theta"):
             group = "edge_gains"
@@ -163,7 +164,7 @@ def expected_parameter_counts(model, args, groups):
     neurons, vocab, width, output = cfg.n_neurons, cfg.vocab_size, args.d_embed, cfg.n_out
     counts = {"embedding": vocab * width,
               "input_projection": model.brain.in_index.numel() * width,
-              "neurons": 3 * neurons,
+              "neurons": (4 if getattr(args, "leak", "fixed") == "trainable" else 3) * neurons,
               "edge_gains": 2 * (int(groups.max()) + 1) if args.plasticity == "bounded10" else 0,
               "layernorm": 2 * output,
               "readout": output * vocab if args.readout_rank == 0 else args.readout_rank * (output + vocab),
@@ -424,6 +425,9 @@ def parser():
     p.add_argument("--groups", type=Path, required=True)
     p.add_argument("--d-embed", type=int, choices=(32, 128), default=128)
     p.add_argument("--plasticity", choices=("fixed", "bounded10"), default="fixed")
+    p.add_argument("--leak", choices=("fixed", "trainable"), default="fixed",
+                   help="trainable: one per-neuron time constant, an offset from the pinned "
+                        "0.9 in logit space so it starts identical to fixed")
     p.add_argument("--readout-rank", type=int, default=0)
     p.add_argument("--history-length", type=int, choices=(1, 2, 4, 8), default=8)
     p.add_argument("--skip-final-test", action="store_true",

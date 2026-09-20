@@ -17,7 +17,7 @@ ROOT = HOME / "fly_wordbrain_connectorch"
 ARMS = ROOT / "results/unified-v1/arms"
 TARGET = 16800
 PYTHON = str(ROOT / ".venv-connectorch/bin/python")
-QUEUE = ["R32fourtasksrank256bounded", "Q32fourtasksheavylanguage"]
+QUEUE = ["R32fourtasksrank256bounded", "Q32fourtasksheavylanguage", "L32fourtaskstrainableleak"]
 
 
 def alive(pid):

@@ -40,11 +40,12 @@ def settle(brain, drive, steps, collect=False):
     sequenced = drive.dim() == 3
     state = drive.new_zeros(config.n_neurons, drive.shape[-1])
     collected = []
+    leak = brain.effective_leak()
     for step in range(steps):
         current = drive[step] if sequenced else drive
         recurrent = runtime.mm(state.t().contiguous(), values).t().contiguous()
         pre = (rec_gain * recurrent).index_add(0, brain.in_index, current)
-        state = (1 - config.leak) * state + config.leak * torch.tanh(gain * pre + bias)
+        state = (1 - leak) * state + leak * torch.tanh(gain * pre + bias)
         if collect:
             collected.append(state[brain.out_index])
     if collect:

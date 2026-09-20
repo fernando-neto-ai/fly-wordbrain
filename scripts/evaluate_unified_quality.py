@@ -99,7 +99,8 @@ def main():
     groups, _ = trainer.load_groups(args.groups)
     build = Namespace(d_embed=training["d_embed"], plasticity=training["plasticity"],
                       readout_rank=training["readout_rank"],
-                      history_length=training["history_length"], seed=training["seed"])
+                      history_length=training["history_length"], seed=training["seed"],
+                      leak=training.get("leak", "fixed"))
     model = trainer.build_model(reference, build, groups)
     # Rebuild the arm in the form it was trained in. Defaults describe the two-task arms,
     # which predate both the sentiment range and the task cue.

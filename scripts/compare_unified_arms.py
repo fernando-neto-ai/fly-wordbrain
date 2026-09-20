@@ -50,7 +50,8 @@ def rebuild(config_name, model_path, groups_path, run, checkpoint, device):
     groups, _ = trainer.load_groups(groups_path)
     build = Namespace(d_embed=training["d_embed"], plasticity=training["plasticity"],
                       readout_rank=training["readout_rank"],
-                      history_length=training["history_length"], seed=training["seed"])
+                      history_length=training["history_length"], seed=training["seed"],
+                      leak=training.get("leak", "fixed"))
     model = trainer.build_model(reference, build, groups)
     form = config.get("unified", {})
     space = form.get("output_space", {})

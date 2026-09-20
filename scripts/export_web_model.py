@@ -147,7 +147,8 @@ def main():
     groups, group_metadata = load_groups(args.groups)
     train_args = argparse.Namespace(d_embed=spec["d_embed"], plasticity=spec["plasticity"],
                                     readout_rank=spec["readout_rank"],
-                                    history_length=spec["history_length"], seed=spec["seed"])
+                                    history_length=spec["history_length"], seed=spec["seed"],
+                                    leak=spec.get("leak", "fixed"))
     model = build_model(reference, train_args, groups).eval()
     saved = torch.load(args.checkpoint, map_location="cpu", weights_only=False)
     restore_parameters(model, saved["parameters"])

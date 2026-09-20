@@ -82,6 +82,15 @@ class ConnectorchBrain(nn.Module):
         self.edge_theta = nn.Parameter(torch.zeros(self.group_count)) if adaptive and not factorized else None
         self.edge_theta_source = nn.Parameter(torch.zeros(self.group_count)) if adaptive and factorized else None
         self.edge_theta_destination = nn.Parameter(torch.zeros(self.group_count)) if adaptive and factorized else None
+        # The leak is the fraction of state replaced each step, one scalar for all 49,393
+        # neurons in the pinned model. At 0.9 nothing survives ~26 steps, which is shorter
+        # than the 32-token chunk language is scored over. Trainable, each neuron picks its
+        # own time constant. Parameterised as a per-neuron offset from the fixed value in
+        # logit space, so it starts EXACTLY as the fixed arm and weight decay pulls it back
+        # toward the fixed arm rather than toward leak = 0.5. None unless the config asks,
+        # so every existing checkpoint keeps its exact parameter set and restores unchanged.
+        self.leak_delta = (nn.Parameter(torch.zeros(config.n_neurons))
+                           if getattr(config, "leak_mode", "fixed") == "trainable" else None)
         self._edge_targets = None
         self._edge_targets_signature = None
         self._edge_targets_sha256 = None
@@ -109,6 +118,18 @@ class ConnectorchBrain(nn.Module):
             signature = (targets.data_ptr(), targets._version, str(targets.device), targets.dtype, tuple(targets.shape))
             if signature != self._edge_targets_signature:
                 raise RuntimeError("Derived canonical edge-target cache changed")
+
+    def effective_leak(self):
+        """The per-step replacement fraction, in the form the recurrence should use.
+
+        Fixed: the config scalar itself, a python float, so the update is byte-identical to
+        the pinned model. Trainable: sigmoid(logit(leak) + delta) per neuron, shaped to
+        broadcast over the batch axis of the neuron-major state.
+        """
+        if self.leak_delta is None:
+            return self.config.leak
+        base = math.log(self.config.leak / (1.0 - self.config.leak))
+        return torch.sigmoid(base + self.leak_delta)[:, None]
 
     def verify_frozen(self):
         self._check_frozen()
@@ -195,10 +216,11 @@ class ConnectorchBrain(nn.Module):
         mask = attention_mask.to(state.dtype).t() if attention_mask is not None else None
         drive = drive.permute(1, 2, 0).contiguous()
         outs = []
+        leak = self.effective_leak()
         for time in range(length):
             recurrent = runtime.mm(state.t().contiguous(), values).t().contiguous()
             pre = (rec_gain * recurrent).index_add(0, self.in_index, drive[time])
-            new = (1 - cfg.leak) * state + cfg.leak * torch.tanh(gain * pre + bias)
+            new = (1 - leak) * state + leak * torch.tanh(gain * pre + bias)
             if mask is not None:
                 m = mask[time][None, :]
                 new = m * new + (1 - m) * state
@@ -268,7 +290,8 @@ class ConnectorchFlyForCausalLM(nn.Module):
 
     def parameter_counts(self):
         return {"embedding": self.brain.wte.weight.numel(), "input_projection": self.brain.in_proj.numel(),
-                "neuron_parameters": sum(getattr(self.brain, name).numel() for name in ("gain", "rec_gain", "bias")),
+                "neuron_parameters": sum(getattr(self.brain, name).numel() for name in ("gain", "rec_gain", "bias"))
+                                     + (0 if self.brain.leak_delta is None else self.brain.leak_delta.numel()),
                 "layer_norm": sum(p.numel() for p in self.ln.parameters()),
                 "readout": sum(p.numel() for p in self.lm_head.parameters()),
                 "edge_gains": sum(p.numel() for name, p in self.brain.named_parameters() if name.startswith("edge_theta")),
@@ -280,6 +303,7 @@ class ConnectorchFlyForCausalLM(nn.Module):
                 "edge_parameterization": self.config.edge_parameterization,
                 "lag_map": list(self.brain.lag_map), "d_embed": self.config.d_embed,
                 "readout_rank": self.config.readout_rank, "neuron_gain_policy": "reference_unconstrained",
+                "leak_mode": getattr(self.config, "leak_mode", "fixed"), "leak": self.config.leak,
                 "sparse_backend": self.brain.sparse_runtime().metadata()}
 
     @torch.no_grad()
@@ -325,6 +349,10 @@ class ConnectorchFlyForCausalLM(nn.Module):
                 "effective_neuron_recurrent_multiplier": _stats(b.gain * b.rec_gain),
                 "effective_neuron_recurrent_multiplier_displacement": _stats(
                     (b.gain * b.rec_gain).detach().cpu() - self._initial_gain * self._initial_rec_gain),
+                "leak_mode": getattr(self.config, "leak_mode", "fixed"),
+                "leak_delta": None if b.leak_delta is None else _stats(b.leak_delta),
+                "effective_leak": (None if b.leak_delta is None
+                                   else _stats(b.effective_leak().detach().cpu().squeeze(1))),
                 "note": "Edge multipliers are bounded; original gain and rec_gain remain unconstrained."}
 
 
@@ -343,7 +371,7 @@ def _validate_groups(edge_group_index, edges, plasticity):
     return groups
 
 
-def build_connectorch_model(reference, *, d_embed=None, plasticity="fixed", edge_group_index=None,
+def build_connectorch_model(reference, *, d_embed=None, plasticity="fixed", leak="fixed", edge_group_index=None,
                             readout_rank=0, lag_map=None, seed=42, copy_reference_parameters=False, node_type_index=None,
                             device="cpu", csr_factory: Callable | None = None):
     """Build an independent model from CPU reference buffers; never mutate reference.
@@ -355,6 +383,8 @@ def build_connectorch_model(reference, *, d_embed=None, plasticity="fixed", edge
     """
     if plasticity not in ("fixed", "bounded10"):
         raise ValueError("plasticity must be fixed or bounded10")
+    if leak not in ("fixed", "trainable"):
+        raise ValueError("leak must be fixed or trainable")
     if any(value.device.type != "cpu" for value in reference.parameters()):
         raise ValueError("Load the reference on CPU before constructing an independent model")
     for name in GRAPH_NAMES[:-2]:
@@ -369,7 +399,7 @@ def build_connectorch_model(reference, *, d_embed=None, plasticity="fixed", edge
         raise ValueError("d_embed must be a positive integer")
     if not isinstance(readout_rank, int) or readout_rank < 0 or readout_rank > min(cfg.n_out, cfg.vocab_size):
         raise ValueError("readout_rank must be zero or a valid positive matrix rank")
-    cfg.plasticity, cfg.readout_rank = plasticity, readout_rank
+    cfg.plasticity, cfg.readout_rank, cfg.leak_mode = plasticity, readout_rank, leak
     cfg.lag_map = list(range(cfg.delay_k)) if lag_map is None else list(lag_map)
     if (len(cfg.lag_map) != cfg.delay_k or any(not isinstance(lag, int) or lag < 0 or lag >= cfg.delay_k for lag in cfg.lag_map)):
         raise ValueError("lag_map must assign a lag in [0, delay_k) to every original input group")

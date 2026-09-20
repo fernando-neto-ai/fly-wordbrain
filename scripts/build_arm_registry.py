@@ -23,7 +23,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CONFIGS = ROOT / "experiments/configs"
 
 # The axes an arm can differ on. Anything not here is not a designed difference.
-AXES = ("tasks", "readout_rank", "plasticity", "graph", "weights", "corpus", "max_updates",
+AXES = ("tasks", "readout_rank", "plasticity", "leak", "graph", "weights", "corpus", "max_updates",
         "d_embed", "history_length", "seed", "sentiment_pooling", "task_cue")
 
 # Config keys that are prose, provenance or measurement rather than a designed knob. Any
@@ -67,6 +67,7 @@ def coordinates(config):
         "tasks": tuple(tasks) if tasks else ("language",),
         "readout_rank": training.get("readout_rank"),
         "plasticity": training.get("plasticity"),
+        "leak": training.get("leak", "fixed"),
         "weights": {k: float(v) for k, v in sorted(weights.items())} or None,
         "corpus": config.get("dataset_path"),
         "max_updates": training.get("max_updates"),
