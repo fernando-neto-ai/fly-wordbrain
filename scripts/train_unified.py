@@ -46,8 +46,9 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import train_connectorch as trainer
 from fly_wordbrain.chess_encoding import FEATURES
 from fly_wordbrain.chess_model import top1_against_legal
-from fly_wordbrain.unified_model import (CHESS, LANGUAGE, SENTIMENT, UnifiedFly,
-                                         move_targets, sentiment_targets)
+from fly_wordbrain.unified_model import (CHESS, LANGUAGE, SENTIMENT, TOXICITY, UnifiedFly,
+                                         move_targets, pooled_targets,
+                                         sentiment_targets)
 from train_multitask import ChessBatches
 
 STATE = {}
@@ -95,31 +96,45 @@ class SentimentBatches:
 
 
 @torch.no_grad()
-def evaluate_sentiment(unified, batches, split, device, limit=None, chunk=128):
+def evaluate_pooled(unified, batches, split, device, task, limit=None, chunk=128):
+    """Score a pooled token-stream judgement inside its own output range.
+
+    Sentiment and toxicity are the same computation against different ranges, so they
+    share this. Reading the answer inside the range matters: a token is not a label, and
+    an argmax over the whole 2,996-wide head would score the wrong thing whenever the
+    model put more mass on a word than on either class.
+    """
     rows = batches.split(split, limit)
     was_training = unified.training
     unified.eval()
     correct = total = 0
     leaks, routed = [], []
-    start, stop = unified.ranges()[SENTIMENT]
+    start, stop = unified.ranges()[task]
     for begin in range(0, len(rows), chunk):
         piece = rows[begin:begin + chunk]
         ids, mask, labels = batches.tensors(piece)
-        logits, router = unified.sentiment(ids, mask)
-        # Scored inside the sentiment range: a token is not a sentiment label.
+        logits, router = unified.classify(ids, mask, task)
         predicted = logits[:, start:stop].argmax(-1)
         correct += int((predicted == labels).sum())
         total += labels.numel()
-        leaks.append(unified.leakage(logits, SENTIMENT) * labels.numel())
-        routed.append(int((router.argmax(-1) == SENTIMENT).sum()))
+        leaks.append(unified.leakage(logits, task) * labels.numel())
+        routed.append(int((router.argmax(-1) == task).sum()))
     unified.train(was_training)
     return {"rows": total, "accuracy": correct / max(total, 1),
             "leakage_out_of_range": sum(leaks) / max(total, 1),
             "router_accuracy": sum(routed) / max(total, 1)}
 
 
+def evaluate_sentiment(unified, batches, split, device, limit=None, chunk=128):
+    return evaluate_pooled(unified, batches, split, device, SENTIMENT, limit, chunk)
+
+
+def evaluate_toxicity(unified, batches, split, device, limit=None, chunk=128):
+    return evaluate_pooled(unified, batches, split, device, TOXICITY, limit, chunk)
+
+
 def unified_losses(unified, language_batch, chess_batch, weights, pad_id,
-                   sentiment_batch=None):
+                   sentiment_batch=None, toxicity_batch=None):
     """One update's worth of both tasks, through one head over one output space."""
     inputs, targets, mask, cache = language_batch
     logits, language_router, next_cache = unified.language(inputs, attention_mask=mask,
@@ -154,21 +169,38 @@ def unified_losses(unified, language_batch, chess_batch, weights, pad_id,
             "sentiment_leakage": unified.leakage(class_logits.detach(), SENTIMENT),
         }
 
+    toxicity_loss = torch.zeros((), device=logits.device)
+    toxicity_router = None
+    if toxicity_batch is not None:
+        ids, mask, labels = toxicity_batch
+        toxic_logits, toxicity_router = unified.classify(ids, mask, TOXICITY)
+        toxicity_loss = F.cross_entropy(
+            toxic_logits.float(), pooled_targets(labels, unified, TOXICITY))
+        start, stop = unified.ranges()[TOXICITY]
+        record_extra.update({
+            "toxicity_loss": float(toxicity_loss.item()),
+            "toxicity_accuracy": float(
+                (toxic_logits[:, start:stop].argmax(-1) == labels).float().mean()),
+            "toxicity_leakage": unified.leakage(toxic_logits.detach(), TOXICITY),
+        })
+
     # The router is supervised on every task, and never feeds the output path.
     supervised = targets.ne(pad_id).reshape(-1)
     device = logits.device
     pieces = [language_router.reshape(-1, unified.router.out_features)[supervised], chess_router]
     labels_for = [torch.full((int(supervised.sum()),), LANGUAGE, device=device, dtype=torch.long),
                   torch.full((moves.shape[0],), CHESS, device=device, dtype=torch.long)]
-    if sentiment_router is not None:
-        pieces.append(sentiment_router)
-        labels_for.append(torch.full((sentiment_router.shape[0],), SENTIMENT, device=device,
-                                     dtype=torch.long))
+    for head, task in ((sentiment_router, SENTIMENT), (toxicity_router, TOXICITY)):
+        if head is not None:
+            pieces.append(head)
+            labels_for.append(torch.full((head.shape[0],), task, device=device,
+                                         dtype=torch.long))
     router_logits, router_labels = torch.cat(pieces), torch.cat(labels_for)
     router_loss = F.cross_entropy(router_logits.float(), router_labels)
 
     total = (weights["language"] * language_loss + weights["chess"] * (chess_loss + value_loss)
              + weights.get("sentiment", 0.0) * sentiment_loss
+             + weights.get("toxicity", 0.0) * toxicity_loss
              + weights["router"] * router_loss)
     record = {
         "language_loss": float(language_loss.item()), "chess_policy_loss": float(chess_loss.item()),
@@ -218,13 +250,23 @@ def install(args):
 
     def patched_build(reference, training_args, groups):
         model = original_build(reference, training_args, groups)
-        # A third task widens the output space, adds a router lane and turns on the task
-        # cue. Two-task arms keep exactly the shape they were trained in.
+        # Each extra task widens the output space by its own class count, adds a router
+        # lane and turns on the task cue. Arms keep exactly the shape they were trained
+        # in: a two-task arm is 2,992 wide with a 2-way router, a three-task arm 2,994
+        # with 3, a four-task arm 2,996 with 4.
         third = args.sentiment_corpus is not None
+        fourth = args.toxicity_corpus is not None
+        if fourth and not third:
+            raise SystemExit("--toxicity-corpus needs --sentiment-corpus: the toxicity "
+                             "range sits above the sentiment range, so an arm cannot have "
+                             "the fourth task without the third")
         unified = UnifiedFly(model.brain, settle_steps=args.settle_steps,
                              readout_rank=training_args.readout_rank, features=FEATURES,
-                             classes=2 if third else 0, tasks=3 if third else 2,
-                             task_cue=third, sentiment_pooling=args.sentiment_pooling)
+                             classes=2 if third else 0,
+                             toxicity_classes=2 if fourth else 0,
+                             tasks=2 + int(third) + int(fourth),
+                             task_cue=third or fourth,
+                             sentiment_pooling=args.sentiment_pooling)
         # The pinned model's own readout is unused here. Freeze it rather than leave it to
         # collect weight decay and inflate the reported trainable count.
         model.lm_head.requires_grad_(False)
@@ -267,9 +309,10 @@ def install(args):
             correct = int(((logits.argmax(-1) == targets) & targets.ne(pad_id)).sum().item())
             return summed / count, count, correct, next_cache
         sentiment = STATE["sentiment"].next() if STATE.get("sentiment") else None
+        toxicity = STATE["toxicity"].next() if STATE.get("toxicity") else None
         total, _, count, correct, next_cache, record = unified_losses(
             unified, (inputs, targets, mask, cache), STATE["batches"].next(),
-            STATE["weights"], pad_id, sentiment)
+            STATE["weights"], pad_id, sentiment, toxicity)
         record["updates"] = STATE.get("updates", 0) + 1
         STATE["updates"] = record["updates"]
         if STATE.get("log"):
@@ -293,6 +336,12 @@ def main():
     parser.add_argument("--sentiment-corpus", type=Path,
                         help="Enables the third task; omit for a two-task arm")
     parser.add_argument("--sentiment-batch", type=int, default=32)
+    parser.add_argument("--toxicity-corpus", type=Path,
+                        help="fourth task; needs --sentiment-corpus")
+    parser.add_argument("--toxicity-batch", type=int, default=8,
+                        help="smaller than sentiment's: comments average 72 tokens "
+                             "against SST-2's 26, and the brain settles the whole row")
+    parser.add_argument("--toxicity-weight", type=float, default=1.0)
     parser.add_argument("--sentiment-weight", type=float, default=1.0)
     parser.add_argument("--sentiment-pooling", choices=("mean", "last"), default="mean",
                         help="'mean' reads the whole sequence; 'last' only its final "
@@ -305,7 +354,8 @@ def main():
     install(known)
     STATE["weights"] = {"language": known.language_weight, "chess": known.chess_weight,
                         "router": known.router_weight,
-                        "sentiment": known.sentiment_weight if known.sentiment_corpus else 0.0}
+                        "sentiment": known.sentiment_weight if known.sentiment_corpus else 0.0,
+                        "toxicity": known.toxicity_weight if known.toxicity_corpus else 0.0}
 
     original_run = trainer.run
     STATE["batches"] = ChessBatches(known.chess_corpus, training_args.device,
@@ -313,6 +363,9 @@ def main():
     STATE["sentiment"] = (SentimentBatches(known.sentiment_corpus, training_args.device,
                                            known.sentiment_batch, training_args.seed)
                           if known.sentiment_corpus else None)
+    STATE["toxicity"] = (SentimentBatches(known.toxicity_corpus, training_args.device,
+                                          known.toxicity_batch, training_args.seed)
+                         if known.toxicity_corpus else None)
     training_args.output.mkdir(parents=True, exist_ok=True)
     STATE["log"] = training_args.output / "unified.jsonl"
     print(json.dumps({"unified": {
@@ -321,7 +374,10 @@ def main():
         "sentiment_corpus": str(known.sentiment_corpus) if known.sentiment_corpus else None,
         "sentiment_train_rows": len(STATE["sentiment"]) if STATE["sentiment"] else 0,
         "sentiment_batch": known.sentiment_batch if known.sentiment_corpus else 0,
-        "tasks": 3 if known.sentiment_corpus else 2,
+        "toxicity_corpus": str(known.toxicity_corpus) if known.toxicity_corpus else None,
+        "toxicity_train_rows": len(STATE["toxicity"]) if STATE["toxicity"] else 0,
+        "toxicity_batch": known.toxicity_batch if known.toxicity_corpus else 0,
+        "tasks": 2 + int(known.sentiment_corpus is not None) + int(known.toxicity_corpus is not None),
         "sentiment_pooling": known.sentiment_pooling if known.sentiment_corpus else None,
         "weights": STATE["weights"], "settle_steps": known.settle_steps}}), flush=True)
     original_run(training_args)
@@ -340,6 +396,9 @@ def main():
         if STATE["sentiment"]:
             report[split]["sentiment"] = evaluate_sentiment(
                 unified, STATE["sentiment"], split, training_args.device)
+        if STATE["toxicity"]:
+            report[split]["toxicity"] = evaluate_toxicity(
+                unified, STATE["toxicity"], split, training_args.device)
     (training_args.output / "unified-results.json").write_text(json.dumps(report, indent=2) + "\n")
     print(json.dumps(report, indent=2), flush=True)
 

@@ -1,0 +1,77 @@
+{
+  "question": "Does W32threetasksbounded differ from T32threetaskspooled on held-out language?",
+  "treatment": "W32threetasksbounded",
+  "control": "T32threetaskspooled",
+  "plasticity": {
+    "W32threetasksbounded": "bounded10",
+    "T32threetaskspooled": "fixed"
+  },
+  "checkpoint": "best.pt",
+  "direction": "W32threetasksbounded minus T32threetaskspooled; negative cross-entropy means W32threetasksbounded is better",
+  "rebuild_verified_against_published_audit": true,
+  "stories": 200,
+  "output_spaces": {
+    "W32threetasksbounded": {
+      "total": 2994,
+      "language_tokens": 1024
+    },
+    "T32threetaskspooled": {
+      "total": 2994,
+      "language_tokens": 1024
+    }
+  },
+  "spaces_compared": [
+    "full_output_space",
+    "language_range_only"
+  ],
+  "full_output_space": {
+    "direction": "W32threetasksbounded minus T32threetaskspooled; negative cross-entropy means W32threetasksbounded is better",
+    "delta_cross_entropy": -0.020120700504399517,
+    "delta_accuracy": 0.002818526820391043,
+    "perplexity_ratio": 0.9800803699722551,
+    "ce_95_ci": [
+      -0.023309552117278656,
+      -0.016862469526874754
+    ],
+    "accuracy_95_ci": [
+      0.0007597803653190939,
+      0.004849830614988722
+    ],
+    "point_estimates_within_margins": true,
+    "ce_noninferiority_supported": true,
+    "accuracy_noninferiority_supported": true,
+    "noninferiority_supported": true,
+    "two_sided_equivalence_supported": true,
+    "bootstrap": {
+      "unit": "paired whole story",
+      "resamples": 10000,
+      "seed": 1729,
+      "estimator": "token-weighted ratio of resampled story totals"
+    }
+  },
+  "language_range_only": {
+    "direction": "W32threetasksbounded minus T32threetaskspooled; negative cross-entropy means W32threetasksbounded is better",
+    "delta_cross_entropy": -0.01995211901612115,
+    "delta_accuracy": 0.002818526820391043,
+    "perplexity_ratio": 0.9802456073072441,
+    "ce_95_ci": [
+      -0.023125268229278597,
+      -0.016689697672594612
+    ],
+    "accuracy_95_ci": [
+      0.0007597803653190939,
+      0.004849830614988722
+    ],
+    "point_estimates_within_margins": true,
+    "ce_noninferiority_supported": true,
+    "accuracy_noninferiority_supported": true,
+    "noninferiority_supported": true,
+    "two_sided_equivalence_supported": true,
+    "bootstrap": {
+      "unit": "paired whole story",
+      "resamples": 10000,
+      "seed": 1729,
+      "estimator": "token-weighted ratio of resampled story totals"
+    }
+  }
+}

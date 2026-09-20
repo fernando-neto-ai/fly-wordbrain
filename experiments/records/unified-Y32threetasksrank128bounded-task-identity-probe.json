@@ -1,0 +1,64 @@
+{
+  "run": "/Users/fernando/fly_wordbrain_connectorch/results/unified-v1/arms/Y32threetasksrank128bounded",
+  "checkpoint": "best.pt",
+  "updates": 16800,
+  "samples_per_task_requested": 1000,
+  "note": "Language states are taken after exactly `steps` tokens so that both tasks have run the recurrence the same number of times.",
+  "by_settle_depth": {
+    "5": {
+      "samples_per_task_used": 100,
+      "language_states_available": 100,
+      "trained_router_accuracy": 0.5,
+      "router_predictions_by_true_task": {
+        "language": {
+          "chess": 100
+        },
+        "chess": {
+          "chess": 100
+        }
+      },
+      "linear_probe_train_accuracy": 1.0,
+      "linear_probe_heldout_accuracy": 1.0,
+      "state_norm_only_heldout_accuracy": 0.9800000190734863,
+      "direction_only_heldout_accuracy": 1.0,
+      "mean_state_norm": {
+        "language": 95.23086547851562,
+        "chess": 103.07466888427734
+      },
+      "shuffled_label_probe_train_accuracy": 0.8100000023841858,
+      "shuffled_label_probe_heldout_accuracy": 0.5199999809265137,
+      "probe_margin_over_shuffled": 0.48000001907348633
+    },
+    "32": {
+      "samples_per_task_used": 100,
+      "language_states_available": 100,
+      "trained_router_accuracy": 0.5049999952316284,
+      "router_predictions_by_true_task": {
+        "language": {
+          "language": 1,
+          "chess": 94,
+          "sentiment": 5
+        },
+        "chess": {
+          "chess": 100
+        }
+      },
+      "linear_probe_train_accuracy": 1.0,
+      "linear_probe_heldout_accuracy": 0.9900000095367432,
+      "state_norm_only_heldout_accuracy": 0.9900000095367432,
+      "direction_only_heldout_accuracy": 1.0,
+      "mean_state_norm": {
+        "language": 104.48294830322266,
+        "chess": 108.21631622314453
+      },
+      "shuffled_label_probe_train_accuracy": 1.0,
+      "shuffled_label_probe_heldout_accuracy": 0.5,
+      "probe_margin_over_shuffled": 0.49000000953674316
+    }
+  },
+  "reading": "The router collapses once settle depth is matched, so its training accuracy was reading how long the recurrence had been running, not what it was running on.",
+  "router_accuracy_by_settle_depth": {
+    "5": 0.5,
+    "32": 0.5049999952316284
+  }
+}

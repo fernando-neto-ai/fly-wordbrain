@@ -1,0 +1,65 @@
+{
+  "run": "/Users/fernando/fly_wordbrain_connectorch/results/unified-v1/arms/W32threetasksbounded",
+  "checkpoint": "best.pt",
+  "updates": 16800,
+  "samples_per_task_requested": 1000,
+  "note": "Language states are taken after exactly `steps` tokens so that both tasks have run the recurrence the same number of times.",
+  "by_settle_depth": {
+    "5": {
+      "samples_per_task_used": 100,
+      "language_states_available": 100,
+      "trained_router_accuracy": 0.5149999856948853,
+      "router_predictions_by_true_task": {
+        "language": {
+          "language": 3,
+          "chess": 97
+        },
+        "chess": {
+          "chess": 100
+        }
+      },
+      "linear_probe_train_accuracy": 1.0,
+      "linear_probe_heldout_accuracy": 1.0,
+      "state_norm_only_heldout_accuracy": 1.0,
+      "direction_only_heldout_accuracy": 1.0,
+      "mean_state_norm": {
+        "language": 83.81277465820312,
+        "chess": 95.945556640625
+      },
+      "shuffled_label_probe_train_accuracy": 0.7900000214576721,
+      "shuffled_label_probe_heldout_accuracy": 0.5299999713897705,
+      "probe_margin_over_shuffled": 0.4700000286102295
+    },
+    "32": {
+      "samples_per_task_used": 100,
+      "language_states_available": 100,
+      "trained_router_accuracy": 0.9649999737739563,
+      "router_predictions_by_true_task": {
+        "language": {
+          "language": 93,
+          "chess": 5,
+          "sentiment": 2
+        },
+        "chess": {
+          "chess": 100
+        }
+      },
+      "linear_probe_train_accuracy": 1.0,
+      "linear_probe_heldout_accuracy": 0.9800000190734863,
+      "state_norm_only_heldout_accuracy": 1.0,
+      "direction_only_heldout_accuracy": 1.0,
+      "mean_state_norm": {
+        "language": 94.81259155273438,
+        "chess": 100.78180694580078
+      },
+      "shuffled_label_probe_train_accuracy": 1.0,
+      "shuffled_label_probe_heldout_accuracy": 0.4300000071525574,
+      "probe_margin_over_shuffled": 0.550000011920929
+    }
+  },
+  "reading": "The router splits by settle depth (32: 0.965, 5: 0.515). It is not simply reading how long the recurrence has run -- that would fail everywhere -- but it is not depth-invariant either, so its accuracy is conditional on the depth a task is normally run at. See router_predictions_by_true_task at depth 5 for where the mass goes.",
+  "router_accuracy_by_settle_depth": {
+    "5": 0.5149999856948853,
+    "32": 0.9649999737739563
+  }
+}

@@ -33,22 +33,33 @@ from torch import nn
 from .chess_encoding import FEATURES
 from .chess_model import settle
 
-LANGUAGE, CHESS, SENTIMENT = 0, 1, 2
+LANGUAGE, CHESS, SENTIMENT, TOXICITY = 0, 1, 2, 3
 TASKS = 3
 TOKENS, MOVES, CLASSES = 1024, 1968, 2
+TOXICITY_CLASSES = 0
 OUTPUTS = TOKENS + MOVES + CLASSES
+
+# Which tasks are a pooled judgement over a token stream. Both arrive through the same
+# tokenizer, embedding and injection as language, and differ only in the question asked
+# and the range their answer is read from.
+POOLED_TASKS = (SENTIMENT, TOXICITY)
 
 
 class UnifiedFly(nn.Module):
     def __init__(self, brain, settle_steps=5, readout_rank=64, value_bins=64,
                  features=FEATURES, tokens=TOKENS, moves=MOVES, classes=CLASSES,
-                 tasks=TASKS, task_cue=True, sentiment_pooling="mean"):
+                 tasks=TASKS, task_cue=True, sentiment_pooling="mean",
+                 toxicity_classes=TOXICITY_CLASSES):
         super().__init__()
         # A plain attribute: the brain is shared, and registering it here would list its
         # parameters twice and duplicate every edge value into the checkpoint.
         object.__setattr__(self, "brain", brain)
         self.settle_steps, self.tokens, self.moves = settle_steps, tokens, moves
         self.classes, self.value_bins = classes, value_bins
+        # Zero by default, so a three-task arm's head stays exactly `tokens + moves +
+        # classes` wide and its checkpoints keep restoring. A fourth task widens the head
+        # only for arms whose config declares it.
+        self.toxicity_classes = toxicity_classes
         if sentiment_pooling not in ("mean", "last"):
             raise ValueError("sentiment_pooling must be 'mean' or 'last'")
         self.sentiment_pooling = sentiment_pooling
@@ -71,7 +82,8 @@ class UnifiedFly(nn.Module):
         self.board_adapter = nn.Linear(features, slots * width, bias=False)
         self.ln = nn.LayerNorm(outputs)
         self.trunk = nn.Linear(outputs, readout_rank, bias=False)
-        self.head = nn.Linear(readout_rank, tokens + moves + classes, bias=False)
+        self.head = nn.Linear(readout_rank, tokens + moves + classes + toxicity_classes,
+                              bias=False)
         self.value = nn.Linear(readout_rank, value_bins, bias=False)
         # One output per task. A two-task arm's router is 2 wide and a three-task arm's is
         # 3, so an arm's task count is part of the form a scorer has to rebuild.
@@ -127,7 +139,23 @@ class UnifiedFly(nn.Module):
         `sentiment_pooling="last"` keeps the original behaviour so the arms trained that
         way stay reproducible.
         """
-        out = self.brain(input_ids=input_ids, inputs_embeds=self.embed(input_ids, SENTIMENT),
+        return self.classify(input_ids, attention_mask, SENTIMENT)
+
+    def classify(self, input_ids, attention_mask, task):
+        """Any pooled judgement over a token stream: sentiment, toxicity, the next one.
+
+        Sentiment and toxicity differ in exactly two things -- the cue added at the input
+        and the range the answer is read from -- so they share this path rather than each
+        carrying a near-copy of it. A fourth task that duplicated the forward pass would
+        be a place for the two to drift apart silently.
+        """
+        if task not in POOLED_TASKS:
+            raise ValueError(f"classify is for pooled token-stream tasks, not task {task}")
+        start, stop = self.ranges()[task]
+        if stop <= start:
+            raise ValueError(f"task {task} has no output range on this arm; "
+                             f"its config did not declare one")
+        out = self.brain(input_ids=input_ids, inputs_embeds=self.embed(input_ids, task),
                          attention_mask=attention_mask, use_cache=False, return_dict=True)
         hidden = out.last_hidden_state
         if self.sentiment_pooling == "last":
@@ -138,6 +166,9 @@ class UnifiedFly(nn.Module):
             summary = (hidden * mask).sum(1) / mask.sum(1).clamp_min(1.0)
         logits, _, router = self.read(summary)
         return logits, router
+
+    def toxicity(self, input_ids, attention_mask):
+        return self.classify(input_ids, attention_mask, TOXICITY)
 
     def board_drive(self, features):
         slots, width = self.brain.in_proj.shape[0], self.brain.in_proj.shape[1]
@@ -166,9 +197,11 @@ class UnifiedFly(nn.Module):
 
     def ranges(self):
         """Where each task's outputs live in the shared space."""
+        sentiment_end = self.tokens + self.moves + self.classes
         return {LANGUAGE: (0, self.tokens),
                 CHESS: (self.tokens, self.tokens + self.moves),
-                SENTIMENT: (self.tokens + self.moves, self.tokens + self.moves + self.classes)}
+                SENTIMENT: (self.tokens + self.moves, sentiment_end),
+                TOXICITY: (sentiment_end, sentiment_end + self.toxicity_classes)}
 
     def leakage(self, logits, task):
         """Probability mass this output puts outside its own task's range."""
@@ -193,3 +226,17 @@ def move_targets(moves, tokens=TOKENS):
 def sentiment_targets(labels, tokens=TOKENS, moves=MOVES):
     """Sentiment targets live above the chess range."""
     return labels + tokens + moves
+
+
+def pooled_targets(labels, unified, task):
+    """Shift class labels into whichever range this task owns.
+
+    Each pooled task's answer is a class index, but the loss is taken over the whole
+    shared head, so the label has to be offset to the task's own slice. Deriving the
+    offset from `ranges()` rather than restating `tokens + moves` means a fourth task
+    cannot quietly land on the third's outputs.
+    """
+    start, stop = unified.ranges()[task]
+    if stop <= start:
+        raise ValueError(f"task {task} has no output range on this arm")
+    return labels + start

@@ -196,6 +196,39 @@ cue is present. That is a finding about the router, not the brain — and it is 
 the router is kept as a probe with a corruption test rather than read as evidence the brain
 knows what it is doing. Magnitude remains unruled-out as before: norm alone scores 100%.
 
+### Adapting the connectome pays more at three tasks than at two
+
+`W32threetasksbounded` is this arm with `bounded10` plasticity — all 9,050,172 synapses
+free to move under 18,322 bounded, sign-preserving cell-type gains, every other field
+copied. It beats the frozen arm on all three tasks:
+
+| | language acc | language CE | chess *(legal-masked)* | value MAE | sentiment |
+|---|---:|---:|---:|---:|---:|
+| T — frozen | 30.31% | 3.4571 | 17.45% | 0.1131 | 71.79% |
+| **W — connectome trained** | **30.59%** | **3.4371** | **18.15%** | **0.1128** | **73.17%** |
+
+The paired language contrast, same estimator, seed and resample count as every interval
+here ([`unified-w-minus-t.json`](../records/unified-w-minus-t.json)), set against the same
+contrast at two tasks:
+
+| plasticity is worth | ΔCE | 95% CI | Δaccuracy | 95% CI |
+|---|---:|---|---:|---|
+| at two tasks *(V−U)* | −0.0138 | [−0.0176, −0.0100] | +0.16pp | [−0.05, +0.38] **includes zero** |
+| **at three tasks *(W−T)*** | **−0.0200** | **[−0.0231, −0.0167]** | **+0.28pp** | **[+0.08, +0.48]** |
+
+**1.45× more on cross-entropy, and the accuracy effect crosses from indistinguishable to
+significant.** Plasticity is not a fixed toll paid once: it pays more when the brain is
+under more pressure, which is the hypothesis this arm existed to test.
+
+Both arms reproduced their published audits to 1e-9 before the contrast was computed, and
+both output spaces were compared, since W and T share a 2,994-wide head.
+
+W's chess (**18.15%**) is the best of any arm in this repository, above even the two-task
+`U32unifiedfixed` at 17.50%, and its sentiment (73.17%) is likewise the project best.
+Neither is a paired contrast, and neither is established: chess is +0.70pp against a
+0.38pp marginal standard error, about 1.8σ; sentiment is +1.38pp against 1.52pp, **inside
+one standard error and not distinguishable from noise**.
+
 ### "Frozen synapses" is a precise claim, not a claim that nothing moved
 
 All 7 frozen graph buffers in this arm are byte-identical to the untrained MaleCNS

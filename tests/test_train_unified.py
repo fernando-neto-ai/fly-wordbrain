@@ -105,7 +105,8 @@ class UnifiedTrainerTests(unittest.TestCase):
         self.args = Namespace(chess_corpus=corpus, chess_batch=4, settle_steps=2,
                               language_weight=1.0, chess_weight=1.0, router_weight=0.1,
                               sentiment_corpus=None, sentiment_batch=4, sentiment_weight=1.0,
-                              sentiment_pooling="mean")
+                              sentiment_pooling="mean",
+                              toxicity_corpus=None, toxicity_batch=4, toxicity_weight=1.0)
         train_unified.install(self.args)
         train_unified.STATE["weights"] = {"language": 1.0, "chess": 1.0, "router": 0.1,
                                           "sentiment": 0.0}
@@ -260,7 +261,8 @@ class ThreeTaskTrainerTests(unittest.TestCase):
         self.args = Namespace(chess_corpus=chess, chess_batch=4, settle_steps=2,
                               language_weight=1.0, chess_weight=1.0, router_weight=0.1,
                               sentiment_corpus=sentiment, sentiment_batch=4,
-                              sentiment_weight=1.0, sentiment_pooling="mean")
+                              sentiment_weight=1.0, sentiment_pooling="mean",
+                              toxicity_corpus=None, toxicity_batch=4, toxicity_weight=1.0)
         train_unified.install(self.args)
         train_unified.STATE["weights"] = {"language": 1.0, "chess": 1.0, "router": 0.1,
                                           "sentiment": 1.0}
@@ -340,3 +342,98 @@ class ThreeTaskTrainerTests(unittest.TestCase):
         alone, _ = unified.sentiment(*batches.tensors([rows[0]])[:2])
         self.assertTrue(torch.allclose(together[0], alone[0], atol=1e-6),
                         "padding changed where the short sequence was read")
+
+
+class FourTaskTrainerTests(unittest.TestCase):
+    """The fourth task widens the head again, and must not disturb the third.
+
+    Sentiment and toxicity are both pooled binary judgements over token streams, which is
+    exactly why they are easy to confuse in code: they share a forward pass, differ only
+    in cue and output range, and a wrong offset would train toxicity on sentiment's two
+    outputs without any shape error to reveal it.
+    """
+
+    def setUp(self):
+        self.originals = {name: getattr(trainer, name) for name in
+                          ("build_model", "expected_parameter_counts", "optimizer_for", "chunk_loss")}
+        torch.manual_seed(1729)
+        self.directory = tempfile.TemporaryDirectory()
+        chess = tiny_corpus(self.directory.name)
+        sentiment_dir = Path(self.directory.name) / "sentiment"
+        sentiment_dir.mkdir(exist_ok=True)
+        sentiment = tiny_sentiment(sentiment_dir)
+        toxicity_dir = Path(self.directory.name) / "toxicity"
+        toxicity_dir.mkdir(exist_ok=True)
+        toxicity = tiny_sentiment(toxicity_dir)
+        self.args = Namespace(chess_corpus=chess, chess_batch=4, settle_steps=2,
+                              language_weight=1.0, chess_weight=1.0, router_weight=0.1,
+                              sentiment_corpus=sentiment, sentiment_batch=4,
+                              sentiment_weight=1.0, sentiment_pooling="mean",
+                              toxicity_corpus=toxicity, toxicity_batch=4, toxicity_weight=1.0)
+        train_unified.install(self.args)
+        train_unified.STATE["weights"] = {"language": 1.0, "chess": 1.0, "router": 0.1,
+                                          "sentiment": 1.0, "toxicity": 1.0}
+        train_unified.STATE["log"] = None
+        train_unified.STATE["batches"] = train_unified.ChessBatches(chess, "cpu", 4, 42)
+        train_unified.STATE["sentiment"] = train_unified.SentimentBatches(sentiment, "cpu", 4, 42)
+        train_unified.STATE["toxicity"] = train_unified.SentimentBatches(toxicity, "cpu", 4, 42)
+        self.training_args = Namespace(d_embed=4, plasticity="fixed", readout_rank=2,
+                                       history_length=DELAY, seed=42)
+        self.groups = np.arange(NEURONS) % 3
+        self.model = trainer.build_model(eight_slot_fixture(), self.training_args, self.groups)
+        self.model.brain._csr_factory = TrainableCSR
+        self.model.train()
+
+    def tearDown(self):
+        for name, value in self.originals.items():
+            setattr(trainer, name, value)
+        train_unified.STATE.clear()
+        self.directory.cleanup()
+
+    def test_the_head_and_router_widen_for_the_fourth_task(self):
+        unified = self.model.unified
+        self.assertEqual(unified.router.out_features, 4)
+        self.assertEqual(unified.toxicity_classes, 2)
+        self.assertEqual(unified.head.out_features,
+                         unified.tokens + unified.moves + unified.classes + 2)
+
+    def test_each_task_owns_a_disjoint_output_range(self):
+        ranges = self.model.unified.ranges()
+        spans = sorted(ranges.values())
+        for (a_start, a_stop), (b_start, b_stop) in zip(spans, spans[1:]):
+            self.assertLessEqual(a_stop, b_start, "task output ranges overlap")
+        self.assertEqual(spans[-1][1], self.model.unified.head.out_features)
+
+    def test_toxicity_targets_land_above_the_sentiment_range(self):
+        from fly_wordbrain.unified_model import SENTIMENT, TOXICITY, pooled_targets
+        unified = self.model.unified
+        labels = torch.tensor([0, 1])
+        sentiment_start = unified.ranges()[SENTIMENT][0]
+        toxicity_start = unified.ranges()[TOXICITY][0]
+        self.assertGreater(toxicity_start, sentiment_start)
+        moved = pooled_targets(labels, unified, TOXICITY)
+        self.assertTrue(bool((moved >= toxicity_start).all()))
+        self.assertTrue(bool((moved < unified.head.out_features).all()))
+
+    def one_record(self):
+        rows = [{"ids": [1, 3, 4, 2, 5]}, {"ids": [1, 8, 2, 0, 0]}]
+        inputs, targets, mask = trainer.batch_tensors(rows, "cpu", self.model.config.pad_token_id)
+        _, _, _, _, _, record = train_unified.unified_losses(
+            train_unified.STATE["unified"], (inputs, targets, mask, None),
+            train_unified.STATE["batches"].next(), train_unified.STATE["weights"],
+            self.model.config.pad_token_id,
+            train_unified.STATE["sentiment"].next(), train_unified.STATE["toxicity"].next())
+        return record
+
+    def test_the_record_carries_the_toxicity_terms(self):
+        record = self.one_record()
+        for key in ("toxicity_loss", "toxicity_accuracy", "toxicity_leakage",
+                    "sentiment_loss", "sentiment_accuracy"):
+            self.assertIn(key, record, f"{key} missing from the training record")
+        self.assertGreaterEqual(record["toxicity_accuracy"], 0.0)
+        self.assertLessEqual(record["toxicity_accuracy"], 1.0)
+
+    def test_the_router_is_supervised_on_all_four_tasks(self):
+        record = self.one_record()
+        self.assertIn("router_accuracy", record)
+        self.assertEqual(self.model.unified.router.out_features, 4)
