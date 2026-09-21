@@ -77,10 +77,12 @@ def main():
     prompts = [r["ids"][:args.prompt_tokens] for r in rows]
 
     report = {"prompts": [tok.decode(p[1:]) for p in prompts], "arms": {}}
+    updates = []
     for spec in args.specs:
         name, config, ckpt = spec.split(":")
         model, unified, _ = rebuild(config, args.model, args.groups, args.arms / name, ckpt, args.device)
         status = json.loads((args.arms / name / "status.json").read_text())
+        updates.append((name, status.get("updates")))
         entries = []
         for p in prompts:
             out, conf = generate(unified, unified.tokens, p, args.steps, args.device)
@@ -93,6 +95,16 @@ def main():
                                 "mean_repeated_3gram_rate": sum(e["repeated_3gram_rate"] for e in entries) / len(entries),
                                 "mean_top1_confidence": sum(e["mean_top1_confidence"] for e in entries) / len(entries)}
         del model, unified
+    # A live arm's latest.pt advances between runs, so two arms compared from `latest.pt`
+    # are only matched by luck. Record the gap and say so rather than let a reader assume.
+    counts = [u for _, u in updates if u is not None]
+    spread = max(counts) - min(counts) if counts else 0
+    report["update_spread"] = spread
+    report["matched"] = spread <= 50
+    if not report["matched"]:
+        report["warning"] = (f"Arms differ by {spread:,} updates ({dict(updates)}); this is NOT a "
+                             f"matched comparison and the better-trained arm is favoured.")
+        print(f"\n!! NOT MATCHED: arms differ by {spread:,} updates -- {dict(updates)}")
     if args.output:
         args.output.write_text(json.dumps(report, indent=2) + "\n")
     # Human-readable side by side.

@@ -1,0 +1,82 @@
+{
+  "prompts": [
+    "Once upon a time, there was a little bird named",
+    "Once upon a time, there was a happy little girl",
+    "Once upon a time, there was a little girl named",
+    "Once upon a time, there was a big ted"
+  ],
+  "arms": {
+    "L32fourtaskstrainableleak": {
+      "checkpoint": "latest.pt",
+      "updates": 8998,
+      "generations": [
+        {
+          "text": " Lily. She loved to play with her friends. She felt so happy that she had a great day.",
+          "tokens": 22,
+          "repeated_3gram_rate": 0.0,
+          "longest_repeated_span": 2,
+          "mean_top1_confidence": 0.381721034984697
+        },
+        {
+          "text": " named Lily. She loved to play with her friends. She felt so happy that she had a great day, she felt a little girl named Sarahailoning.",
+          "tokens": 37,
+          "repeated_3gram_rate": 0.0,
+          "longest_repeated_span": 2,
+          "mean_top1_confidence": 0.30879367042232203
+        },
+        {
+          "text": " Lily. She loved to play with her friends. She felt very happy. She felt so happy that she had a great day, she felt a little girl named Sue were walking to behail-ning and said, \"Yes, he would doails.",
+          "tokens": 57,
+          "repeated_3gram_rate": 0.01818181818181818,
+          "longest_repeated_span": 3,
+          "mean_top1_confidence": 0.24950205789584862
+        },
+        {
+          "text": ". She loved to play with a big friends. She felt sohhoaring.",
+          "tokens": 20,
+          "repeated_3gram_rate": 0.0,
+          "longest_repeated_span": 2,
+          "mean_top1_confidence": 0.23383991960436107
+        }
+      ],
+      "mean_repeated_3gram_rate": 0.004545454545454545,
+      "mean_top1_confidence": 0.2934641707268072
+    },
+    "Z32fourtasksbounded-partial8992": {
+      "checkpoint": "latest.pt",
+      "updates": 8991,
+      "generations": [
+        {
+          "text": " Lily. She loved to play with her toys. She was very happy that she were very happy to beeph-hust lesson, she learned that she were very happy to behieoning. She looked at a big, and decided to behaure. She were",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.10344827586206896,
+          "longest_repeated_span": 7,
+          "mean_top1_confidence": 0.23903527626146873
+        },
+        {
+          "text": " named Lily. She loved to play with her toys. She were very happy. She were very happy to behie were very happy. She were very mommy were very mom. She were very mommy were very mommy were very best friends were very friends. She were very happy to beh, she",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.3793103448275862,
+          "longest_repeated_span": 8,
+          "mean_top1_confidence": 0.25393151429792243
+        },
+        {
+          "text": " Lily. She loved to play with her toys. She was very happy that she were very happy to beephong. He was very happy to behie were very happy and he were very mommy. He was very excited to eat were very happy to beh friends were very very lon",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.1724137931034483,
+          "longest_repeated_span": 5,
+          "mean_top1_confidence": 0.23562536270668108
+        },
+        {
+          "text": ". She was very happy. She was very happy to behieoning. She looked at a big lon was a big lonningningningningningning, she would sonningningningningningningningningningningningningningningningningningningningning",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.46551724137931033,
+          "longest_repeated_span": 19,
+          "mean_top1_confidence": 0.213565683675309
+        }
+      ],
+      "mean_repeated_3gram_rate": 0.2801724137931034,
+      "mean_top1_confidence": 0.2355394592353453
+    }
+  }
+}

@@ -1,0 +1,622 @@
+{
+  "prompts": [
+    "Once upon a time, there was a little bird named",
+    "Once upon a time, there was a happy little girl",
+    "Once upon a time, there was a little girl named",
+    "Once upon a time, there was a big ted",
+    "Once upon a time, there was a little girl named",
+    "Once upon a time, there was a little boy named",
+    "Once upon a time, there was a pirate",
+    "Once upon a time, there was a thoughtful girl",
+    "Once upon a time, there was a little boy named",
+    "Once upon a time, there was a little boy named",
+    "Once upon a time, there was a little girl named",
+    "Once upon a time, there was a little girl named",
+    "Once upon a time, there was a little girl named",
+    "Once upon a time, there was a goat.",
+    "Once upon a time, there was a little boy named",
+    "Once upon a time, there was a farmer",
+    "Once upon a time, there was a little girl named",
+    "Once upon a time, there was a little girl named",
+    "Once upon a time, there was a hairy",
+    "Once upon a time, there was a kind farm",
+    "Once upon a time, there was a little girl named",
+    "Once upon a time, there was a graceful",
+    "Once upon a time, there was a boy named Tim",
+    "Once upon a time, there was a boy named Timmy",
+    "Once upon a time, there was a little girl named",
+    "Once upon a time, there was a firem",
+    "Once upon a time, there was a little girl named",
+    "Once upon a time, there was a little boy named",
+    "Once upon a time, there was a little brown",
+    "Once upon a time, there was a little girl named",
+    "Once upon a time, there was a little girl named",
+    "Once upon a time, there was a little boy named",
+    "Once upon a time, in a small house, there",
+    "Once upon a time, there was a little tra",
+    "Once upon a time, there was a boy named Tim",
+    "Once upon a time, there was a little boy named",
+    "Once upon a time, there was a little girl named",
+    "Once upon a time, there was a little girl named",
+    "Once upon a time, there was a sweet dog",
+    "Once upon a time, there was a little boy named"
+  ],
+  "arms": {
+    "L32fourtaskstrainableleak": {
+      "checkpoint": "latest.pt",
+      "updates": 10171,
+      "generations": [
+        {
+          "text": " Lily. She loved to play with her toys. One day, Lily's momdynaa and gave a little girl named Suedynsidedys and smiled and tried to getdynails and gave a little girl smiled and tried to tried to find a way, but",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.10344827586206896,
+          "longest_repeated_span": 5,
+          "mean_top1_confidence": 0.28750232718884944
+        },
+        {
+          "text": " named Lily. She loved to play outside and gave a little girl named Sue, Tommy was a big neighbailnail and tried to beepha was very happy and gave a little girl named Suedynailly. The girl smiled and gavedy",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.1206896551724138,
+          "longest_repeated_span": 8,
+          "mean_top1_confidence": 0.24927352145314216
+        },
+        {
+          "text": " Lily. She loved to play outside and loved to play with a big neighble. He was very happy and loved to come to dory to beepna's mom's momdys. One day, she saw a girl called Bennyailly and gave a little girl",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.034482758620689655,
+          "longest_repeated_span": 3,
+          "mean_top1_confidence": 0.258655748454233
+        },
+        {
+          "text": ". He loved to play with a little girl named Lilydy. He loved to play with a big neaby. He loved to doa and tried to behaure to behailer.",
+          "tokens": 45,
+          "repeated_3gram_rate": 0.20930232558139536,
+          "longest_repeated_span": 7,
+          "mean_top1_confidence": 0.22499932588802443
+        },
+        {
+          "text": " Lily. She loved to play outside and loved to play with a big neighble. He was very happy and loved to come to dory to beepna's mom's momdys. One day, she saw a girl called Bennyailly and gave a little girl",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.034482758620689655,
+          "longest_repeated_span": 3,
+          "mean_top1_confidence": 0.258655748454233
+        },
+        {
+          "text": " Timmy. He loved to play outside and loved to eat a big neighberappy was very happy and Tom. One day, she saw a little girl named Timmydy friends. He had a big girl named Bennyailly tried to tried to boady, but she",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.0,
+          "longest_repeated_span": 2,
+          "mean_top1_confidence": 0.2591269331673781
+        },
+        {
+          "text": "ful. She loved to play with a little girl named Lily. She loved to play outside and gave a little girl named Lily. The girl named Tommy huggeddys and tried to get anailly. The girl smiled and tried to tried to beep, but she didn't want",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.15517241379310345,
+          "longest_repeated_span": 6,
+          "mean_top1_confidence": 0.2975233723719915
+        },
+        {
+          "text": " named Lily. He loved to play with her friends. One day, Lily's momdynepnef a little girl who wanted to doing a little girl named Sue, Benny was a little girl named Tom smiled and tried to find a far, but she took a little girl",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.06896551724137931,
+          "longest_repeated_span": 4,
+          "mean_top1_confidence": 0.27867207129796345
+        },
+        {
+          "text": " Timmy. He loved to play outside and loved to eat a big neighberappy was very happy and Tom. One day, she saw a little girl named Timmydy friends. He had a big girl named Bennyailly tried to tried to boady, but she",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.0,
+          "longest_repeated_span": 2,
+          "mean_top1_confidence": 0.2591269331673781
+        },
+        {
+          "text": " Timmy. He loved to play outside and loved to eat a big neighberappy was very happy and Tom. One day, she saw a little girl named Timmydy friends. He had a big girl named Bennyailly tried to tried to boady, but she",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.0,
+          "longest_repeated_span": 2,
+          "mean_top1_confidence": 0.2591269331673781
+        },
+        {
+          "text": " Lily. She loved to play outside and loved to play with a big neighble. He was very happy and loved to come to dory to beepna's mom's momdys. One day, she saw a girl called Bennyailly and gave a little girl",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.034482758620689655,
+          "longest_repeated_span": 3,
+          "mean_top1_confidence": 0.258655748454233
+        },
+        {
+          "text": " Lily. She loved to play outside and loved to play with a big neighble. He was very happy and loved to come to dory to beepna's mom's momdys. One day, she saw a girl called Bennyailly and gave a little girl",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.034482758620689655,
+          "longest_repeated_span": 3,
+          "mean_top1_confidence": 0.258655748454233
+        },
+        {
+          "text": " Lily. She loved to play outside and loved to play with a big neighble. He was very happy and loved to come to dory to beepna's mom's momdys. One day, she saw a girl called Bennyailly and gave a little girl",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.034482758620689655,
+          "longest_repeated_span": 3,
+          "mean_top1_confidence": 0.258655748454233
+        },
+        {
+          "text": " One day, Lily's mom came to play with a big neaby. He loved to play outside and said, \"Yes, Tom's momdys. The end.",
+          "tokens": 38,
+          "repeated_3gram_rate": 0.0,
+          "longest_repeated_span": 2,
+          "mean_top1_confidence": 0.28721159971074056
+        },
+        {
+          "text": " Timmy. He loved to play outside and loved to eat a big neighberappy was very happy and Tom. One day, she saw a little girl named Timmydy friends. He had a big girl named Bennyailly tried to tried to boady, but she",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.0,
+          "longest_repeated_span": 2,
+          "mean_top1_confidence": 0.2591269331673781
+        },
+        {
+          "text": ". He was very happy and hugged a little girl named Tommydydy. He tried to getdydy stopped and said, \"Yes, Tom smiled and tried to behaure to behaure that she had a greatful.",
+          "tokens": 51,
+          "repeated_3gram_rate": 0.061224489795918366,
+          "longest_repeated_span": 5,
+          "mean_top1_confidence": 0.2375276672343413
+        },
+        {
+          "text": " Lily. She loved to play outside and loved to play with a big neighble. He was very happy and loved to come to dory to beepna's mom's momdys. One day, she saw a girl called Bennyailly and gave a little girl",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.034482758620689655,
+          "longest_repeated_span": 3,
+          "mean_top1_confidence": 0.258655748454233
+        },
+        {
+          "text": " Lily. She loved to play outside and loved to play with a big neighble. He was very happy and loved to come to dory to beepna's mom's momdys. One day, she saw a girl called Bennyailly and gave a little girl",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.034482758620689655,
+          "longest_repeated_span": 3,
+          "mean_top1_confidence": 0.258655748454233
+        },
+        {
+          "text": ". She was a big dog named Tommydydy. The name named Tommydydy and said, \"Yes, Tommydysied. The end and said, \u00e2\u20ac\u0153Yes, \u00e2\u20ac\u0153Yes, \u00e2\u20ac\u0153Yes, \u00e2\u20ac\u0153Yes, \u00e2\u20ac\u0153",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.3793103448275862,
+          "longest_repeated_span": 19,
+          "mean_top1_confidence": 0.3507835219303767
+        },
+        {
+          "text": "by. He was very happy and loved to play with a toys. One day, Lily's momdynaa's mom's momdys.",
+          "tokens": 33,
+          "repeated_3gram_rate": 0.03225806451612903,
+          "longest_repeated_span": 3,
+          "mean_top1_confidence": 0.25391400921525376
+        },
+        {
+          "text": " Lily. She loved to play outside and loved to play with a big neighble. He was very happy and loved to come to dory to beepna's mom's momdys. One day, she saw a girl called Bennyailly and gave a little girl",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.034482758620689655,
+          "longest_repeated_span": 3,
+          "mean_top1_confidence": 0.258655748454233
+        },
+        {
+          "text": ". It was a big dog named Tom. The girl named Lily saw a big girl named Tommydy saw a big neighby smiled and took a little girl named Tommy tried to tried to a far, and took a little girl named Tommydydys and tried to get a",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.1724137931034483,
+          "longest_repeated_span": 8,
+          "mean_top1_confidence": 0.25287066934009395
+        },
+        {
+          "text": ". He loved to play with his friends. One day, Lily's momdyner and gave a little girl named Tommydydys and tried to get anail and tried to beh, but she took a little girl smiled and tried to tried to find a rabbit, but",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.05172413793103448,
+          "longest_repeated_span": 3,
+          "mean_top1_confidence": 0.2550538487111529
+        },
+        {
+          "text": ". He loved to play with his friends. One day, Lily's momdynera and gave a little girl named Suedynsidedy's mom and smiled and tried to come back to doa and gave a little girl named Sarahady gave Tommydy stopped and",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.10344827586206896,
+          "longest_repeated_span": 8,
+          "mean_top1_confidence": 0.253770443983376
+        },
+        {
+          "text": " Lily. She loved to play outside and loved to play with a big neighble. He was very happy and loved to come to dory to beepna's mom's momdys. One day, she saw a girl called Bennyailly and gave a little girl",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.034482758620689655,
+          "longest_repeated_span": 3,
+          "mean_top1_confidence": 0.258655748454233
+        },
+        {
+          "text": "bleep.",
+          "tokens": 5,
+          "repeated_3gram_rate": 0.0,
+          "longest_repeated_span": 0,
+          "mean_top1_confidence": 0.1653490886092186
+        },
+        {
+          "text": " Lily. She loved to play outside and loved to play with a big neighble. He was very happy and loved to come to dory to beepna's mom's momdys. One day, she saw a girl called Bennyailly and gave a little girl",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.034482758620689655,
+          "longest_repeated_span": 3,
+          "mean_top1_confidence": 0.258655748454233
+        },
+        {
+          "text": " Timmy. He loved to play outside and loved to eat a big neighberappy was very happy and Tom. One day, she saw a little girl named Timmydy friends. He had a big girl named Bennyailly tried to tried to boady, but she",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.0,
+          "longest_repeated_span": 2,
+          "mean_top1_confidence": 0.2591269331673781
+        },
+        {
+          "text": " and Tom. He loved to play with a little girl named Lilydy. He loved to eatly, but he tookny tried to being and tried to get anail. He tried to beephail and gave a little girl named Sueydy's mom said,",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.08620689655172414,
+          "longest_repeated_span": 4,
+          "mean_top1_confidence": 0.23906499755879243
+        },
+        {
+          "text": " Lily. She loved to play outside and loved to play with a big neighble. He was very happy and loved to come to dory to beepna's mom's momdys. One day, she saw a girl called Bennyailly and gave a little girl",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.034482758620689655,
+          "longest_repeated_span": 3,
+          "mean_top1_confidence": 0.258655748454233
+        },
+        {
+          "text": " Lily. She loved to play outside and loved to play with a big neighble. He was very happy and loved to come to dory to beepna's mom's momdys. One day, she saw a girl called Bennyailly and gave a little girl",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.034482758620689655,
+          "longest_repeated_span": 3,
+          "mean_top1_confidence": 0.258655748454233
+        },
+        {
+          "text": " Timmy. He loved to play outside and loved to eat a big neighberappy was very happy and Tom. One day, she saw a little girl named Timmydy friends. He had a big girl named Bennyailly tried to tried to boady, but she",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.0,
+          "longest_repeated_span": 2,
+          "mean_top1_confidence": 0.2591269331673781
+        },
+        {
+          "text": " was a little girl named Lilydy. He loved to play with a big neighby. He was very happy and took a big nearble. He tried to doa and gave a big girl named Suedyaughty smiled and tried to tried to getdy, but",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.017241379310344827,
+          "longest_repeated_span": 3,
+          "mean_top1_confidence": 0.26623428147286177
+        },
+        {
+          "text": "g. She loved to play with her friends. One day, Lily's mom was a girl named Lily and huggeddy, but she didn't want to doing a little girl named Sue smiled and hugged tried to do a big neails.",
+          "tokens": 53,
+          "repeated_3gram_rate": 0.0,
+          "longest_repeated_span": 2,
+          "mean_top1_confidence": 0.2661831503347406
+        },
+        {
+          "text": ". He loved to play with his friends. One day, Lily's momdyner and gave a little girl named Tommydydys and tried to get anail and tried to beh, but she took a little girl smiled and tried to tried to find a rabbit, but",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.05172413793103448,
+          "longest_repeated_span": 3,
+          "mean_top1_confidence": 0.2550538487111529
+        },
+        {
+          "text": " Timmy. He loved to play outside and loved to eat a big neighberappy was very happy and Tom. One day, she saw a little girl named Timmydy friends. He had a big girl named Bennyailly tried to tried to boady, but she",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.0,
+          "longest_repeated_span": 2,
+          "mean_top1_confidence": 0.2591269331673781
+        },
+        {
+          "text": " Lily. She loved to play outside and loved to play with a big neighble. He was very happy and loved to come to dory to beepna's mom's momdys. One day, she saw a girl called Bennyailly and gave a little girl",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.034482758620689655,
+          "longest_repeated_span": 3,
+          "mean_top1_confidence": 0.258655748454233
+        },
+        {
+          "text": " Lily. She loved to play outside and loved to play with a big neighble. He was very happy and loved to come to dory to beepna's mom's momdys. One day, she saw a girl called Bennyailly and gave a little girl",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.034482758620689655,
+          "longest_repeated_span": 3,
+          "mean_top1_confidence": 0.258655748454233
+        },
+        {
+          "text": ". The girl named Lily saw a big girl named Lily felt a girl named Lilydy friends. He loved to door and took a little girl named Benny loved to being and had a greatinginginginginginginginginging and smiled and smiled and tried to beh,",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.1724137931034483,
+          "longest_repeated_span": 9,
+          "mean_top1_confidence": 0.2325918801749746
+        },
+        {
+          "text": " Timmy. He loved to play outside and loved to eat a big neighberappy was very happy and Tom. One day, she saw a little girl named Timmydy friends. He had a big girl named Bennyailly tried to tried to boady, but she",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.0,
+          "longest_repeated_span": 2,
+          "mean_top1_confidence": 0.2591269331673781
+        }
+      ],
+      "mean_repeated_3gram_rate": 0.056707553031818826,
+      "mean_top1_confidence": 0.25869438922213334
+    },
+    "Z32fourtasksbounded-partial8992": {
+      "checkpoint": "latest.pt",
+      "updates": 8991,
+      "generations": [
+        {
+          "text": " Lily. She loved to play with her toys. She was very happy that she were very happy to beeph-hust lesson, she learned that she were very happy to behieoning. She looked at a big, and decided to behaure. She were",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.10344827586206896,
+          "longest_repeated_span": 7,
+          "mean_top1_confidence": 0.23903527626146873
+        },
+        {
+          "text": " named Lily. She loved to play with her toys. She were very happy. She were very happy to behie were very happy. She were very mommy were very mom. She were very mommy were very mommy were very best friends were very friends. She were very happy to beh, she",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.3793103448275862,
+          "longest_repeated_span": 8,
+          "mean_top1_confidence": 0.25393151429792243
+        },
+        {
+          "text": " Lily. She loved to play with her toys. She was very happy that she were very happy to beephong. He was very happy to behie were very happy and he were very mommy. He was very excited to eat were very happy to beh friends were very very lon",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.1724137931034483,
+          "longest_repeated_span": 5,
+          "mean_top1_confidence": 0.23562536270668108
+        },
+        {
+          "text": ". She was very happy. She was very happy to behieoning. She looked at a big lon was a big lonningningningningningning, she would sonningningningningningningningningningningningningningningningningningningningning",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.46551724137931033,
+          "longest_repeated_span": 19,
+          "mean_top1_confidence": 0.213565683675309
+        },
+        {
+          "text": " Lily. She loved to play with her toys. She was very happy that she were very happy to beephong. He was very happy to behie were very happy and he were very mommy. He was very excited to eat were very happy to beh friends were very very lon",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.1724137931034483,
+          "longest_repeated_span": 5,
+          "mean_top1_confidence": 0.23562536270668108
+        },
+        {
+          "text": " Lily. She loved to play with her toys. She was very happy that she were very happy to behie were very lon to beha was very very mommy were very mommy. Tom were hugged to be were very mom. Everyone was very happy to be were very happy to beh",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.1724137931034483,
+          "longest_repeated_span": 6,
+          "mean_top1_confidence": 0.21213636274139086
+        },
+        {
+          "text": ". She was very happy and heart. She was very happy to have a specialto.",
+          "tokens": 22,
+          "repeated_3gram_rate": 0.15,
+          "longest_repeated_span": 5,
+          "mean_top1_confidence": 0.17539306814697656
+        },
+        {
+          "text": " named Lily. She loved to play with her toys. She wanted to play with her toys. She were very happy that she were very happy. She were very happy to behieoning, she looked to be were very friends were very very lon there were very best friends were very best",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.1896551724137931,
+          "longest_repeated_span": 7,
+          "mean_top1_confidence": 0.26115596449623507
+        },
+        {
+          "text": " Lily. She loved to play with her toys. She was very happy that she were very happy to behie were very lon to beha was very very mommy were very mommy. Tom were hugged to be were very mom. Everyone was very happy to be were very happy to beh",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.1724137931034483,
+          "longest_repeated_span": 6,
+          "mean_top1_confidence": 0.21213636274139086
+        },
+        {
+          "text": " Lily. She loved to play with her toys. She was very happy that she were very happy to behie were very lon to beha was very very mommy were very mommy. Tom were hugged to be were very mom. Everyone was very happy to be were very happy to beh",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.1724137931034483,
+          "longest_repeated_span": 6,
+          "mean_top1_confidence": 0.21213636274139086
+        },
+        {
+          "text": " Lily. She loved to play with her toys. She was very happy that she were very happy to beephong. He was very happy to behie were very happy and he were very mommy. He was very excited to eat were very happy to beh friends were very very lon",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.1724137931034483,
+          "longest_repeated_span": 5,
+          "mean_top1_confidence": 0.23562536270668108
+        },
+        {
+          "text": " Lily. She loved to play with her toys. She was very happy that she were very happy to beephong. He was very happy to behie were very happy and he were very mommy. He was very excited to eat were very happy to beh friends were very very lon",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.1724137931034483,
+          "longest_repeated_span": 5,
+          "mean_top1_confidence": 0.23562536270668108
+        },
+        {
+          "text": " Lily. She loved to play with her toys. She was very happy that she were very happy to beephong. He was very happy to behie were very happy and he were very mommy. He was very excited to eat were very happy to beh friends were very very lon",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.1724137931034483,
+          "longest_repeated_span": 5,
+          "mean_top1_confidence": 0.23562536270668108
+        },
+        {
+          "text": " She loved to play with her toys. She was very happy that she were very happy to behie. She were very happy to behie were very happy. The lun learned were so happy, she learned that she were very happy to behie were very happy.",
+          "tokens": 58,
+          "repeated_3gram_rate": 0.30357142857142855,
+          "longest_repeated_span": 11,
+          "mean_top1_confidence": 0.20718941503557667
+        },
+        {
+          "text": " Lily. She loved to play with her toys. She was very happy that she were very happy to behie were very lon to beha was very very mommy were very mommy. Tom were hugged to be were very mom. Everyone was very happy to be were very happy to beh",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.1724137931034483,
+          "longest_repeated_span": 6,
+          "mean_top1_confidence": 0.21213636274139086
+        },
+        {
+          "text": ". She was very happy. She felt a big luniler. She looked around and hugged it was very happy and were very mommy. She were very happy. She were very happy to behie were very happy. The luna was very best friends were very very bestful.",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.13793103448275862,
+          "longest_repeated_span": 5,
+          "mean_top1_confidence": 0.16720076749722163
+        },
+        {
+          "text": " Lily. She loved to play with her toys. She was very happy that she were very happy to beephong. He was very happy to behie were very happy and he were very mommy. He was very excited to eat were very happy to beh friends were very very lon",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.1724137931034483,
+          "longest_repeated_span": 5,
+          "mean_top1_confidence": 0.23562536270668108
+        },
+        {
+          "text": " Lily. She loved to play with her toys. She was very happy that she were very happy to beephong. He was very happy to behie were very happy and he were very mommy. He was very excited to eat were very happy to beh friends were very very lon",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.1724137931034483,
+          "longest_repeated_span": 5,
+          "mean_top1_confidence": 0.23562536270668108
+        },
+        {
+          "text": ". She was very happy and heart. She was very happy to have a specialto.",
+          "tokens": 22,
+          "repeated_3gram_rate": 0.15,
+          "longest_repeated_span": 5,
+          "mean_top1_confidence": 0.17435472898862578
+        },
+        {
+          "text": " boy named Max. She loved to play with a family. One day, she decided to go in the garden. She were very happy and she were very happy. She looked around and walked to behieoted, she looked at a lon was very best friends were very very besties",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.017241379310344827,
+          "longest_repeated_span": 3,
+          "mean_top1_confidence": 0.2033788653711478
+        },
+        {
+          "text": " Lily. She loved to play with her toys. She was very happy that she were very happy to beephong. He was very happy to behie were very happy and he were very mommy. He was very excited to eat were very happy to beh friends were very very lon",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.1724137931034483,
+          "longest_repeated_span": 5,
+          "mean_top1_confidence": 0.23562536270668108
+        },
+        {
+          "text": ". She was a big toy she was very happy. She felt very happy to have a special family. It was a family were very happy. It was a family were very friends were very best friends. One day, she was a little girl named Sue were very happy to what were what were",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.13793103448275862,
+          "longest_repeated_span": 7,
+          "mean_top1_confidence": 0.23334432157377402
+        },
+        {
+          "text": ". He loved to play with his friends. She felt so excited to have a family were very happy. It was a big lunningning. She looked at the house and were very happy and he were very mommy. She were very mommy were very happy. She looked around at a big,",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.08620689655172414,
+          "longest_repeated_span": 4,
+          "mean_top1_confidence": 0.20889966028432053
+        },
+        {
+          "text": ". He loved to play with his friends. She was very happy that she were very happy. She were very happy. She were very happy to behie were very happy. The lon was a big, there was a family were very best friends were very very best friends. It was a",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.15517241379310345,
+          "longest_repeated_span": 8,
+          "mean_top1_confidence": 0.21575235836207868
+        },
+        {
+          "text": " Lily. She loved to play with her toys. She was very happy that she were very happy to beephong. He was very happy to behie were very happy and he were very mommy. He was very excited to eat were very happy to beh friends were very very lon",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.1724137931034483,
+          "longest_repeated_span": 5,
+          "mean_top1_confidence": 0.23562536270668108
+        },
+        {
+          "text": ". She was very happy and heart. She was very happy to have a specialto.",
+          "tokens": 22,
+          "repeated_3gram_rate": 0.15,
+          "longest_repeated_span": 5,
+          "mean_top1_confidence": 0.17944065024229613
+        },
+        {
+          "text": " Lily. She loved to play with her toys. She was very happy that she were very happy to beephong. He was very happy to behie were very happy and he were very mommy. He was very excited to eat were very happy to beh friends were very very lon",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.1724137931034483,
+          "longest_repeated_span": 5,
+          "mean_top1_confidence": 0.23562536270668108
+        },
+        {
+          "text": " Lily. She loved to play with her toys. She was very happy that she were very happy to behie were very lon to beha was very very mommy were very mommy. Tom were hugged to be were very mom. Everyone was very happy to be were very happy to beh",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.1724137931034483,
+          "longest_repeated_span": 6,
+          "mean_top1_confidence": 0.21213636274139086
+        },
+        {
+          "text": ". She loved to play with her toys. She wanted to play with her toys. She were very happy that she were very happy. She were very happy to behie were very lon to beha was very very lon were very mommy were very friends were very best friends.",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.1896551724137931,
+          "longest_repeated_span": 7,
+          "mean_top1_confidence": 0.21753663551062347
+        },
+        {
+          "text": " Lily. She loved to play with her toys. She was very happy that she were very happy to beephong. He was very happy to behie were very happy and he were very mommy. He was very excited to eat were very happy to beh friends were very very lon",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.1724137931034483,
+          "longest_repeated_span": 5,
+          "mean_top1_confidence": 0.23562536270668108
+        },
+        {
+          "text": " Lily. She loved to play with her toys. She was very happy that she were very happy to beephong. He was very happy to behie were very happy and he were very mommy. He was very excited to eat were very happy to beh friends were very very lon",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.1724137931034483,
+          "longest_repeated_span": 5,
+          "mean_top1_confidence": 0.23562536270668108
+        },
+        {
+          "text": " Lily. She loved to play with her toys. She was very happy that she were very happy to behie were very lon to beha was very very mommy were very mommy. Tom were hugged to be were very mom. Everyone was very happy to be were very happy to beh",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.1724137931034483,
+          "longest_repeated_span": 6,
+          "mean_top1_confidence": 0.21213636274139086
+        },
+        {
+          "text": " was a little boy named Timmy. She loved to play with a house, she decided to behield to go. She decided to behield and she decided to beh friends were very happy. She learned a big friends were very happy. She were very happy to behie",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.2413793103448276,
+          "longest_repeated_span": 6,
+          "mean_top1_confidence": 0.24074713295946518
+        },
+        {
+          "text": "a. She loved to play with her friends. She was very happy that she were very happy. She were very happy of food. One day, she were walking to behie were very happy and he were very mommy were very friends. The family were very excited to behie down to",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.06896551724137931,
+          "longest_repeated_span": 4,
+          "mean_top1_confidence": 0.2291426218425234
+        },
+        {
+          "text": ". He loved to play with his friends. She felt so excited to have a family were very happy. It was a big lunningning. She looked at the house and were very happy and he were very mommy. She were very mommy were very happy. She looked around at a big,",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.08620689655172414,
+          "longest_repeated_span": 4,
+          "mean_top1_confidence": 0.20889966028432053
+        },
+        {
+          "text": " Lily. She loved to play with her toys. She was very happy that she were very happy to behie were very lon to beha was very very mommy were very mommy. Tom were hugged to be were very mom. Everyone was very happy to be were very happy to beh",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.1724137931034483,
+          "longest_repeated_span": 6,
+          "mean_top1_confidence": 0.21213636274139086
+        },
+        {
+          "text": " Lily. She loved to play with her toys. She was very happy that she were very happy to beephong. He was very happy to behie were very happy and he were very mommy. He was very excited to eat were very happy to beh friends were very very lon",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.1724137931034483,
+          "longest_repeated_span": 5,
+          "mean_top1_confidence": 0.23562536270668108
+        },
+        {
+          "text": " Lily. She loved to play with her toys. She was very happy that she were very happy to beephong. He was very happy to behie were very happy and he were very mommy. He was very excited to eat were very happy to beh friends were very very lon",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.1724137931034483,
+          "longest_repeated_span": 5,
+          "mean_top1_confidence": 0.23562536270668108
+        },
+        {
+          "text": " named Max. He loved to play with his friends. She felt soheroldinginginging. She knew he would mom was very happy and heartinging. It was a big hug and thanked the garden. He was very excitedinginginginginginginging",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.13793103448275862,
+          "longest_repeated_span": 7,
+          "mean_top1_confidence": 0.19333151740332444
+        },
+        {
+          "text": " Lily. She loved to play with her toys. She was very happy that she were very happy to behie were very lon to beha was very very mommy were very mommy. Tom were hugged to be were very mom. Everyone was very happy to be were very happy to beh",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.1724137931034483,
+          "longest_repeated_span": 6,
+          "mean_top1_confidence": 0.21213636274139086
+        }
+      ],
+      "mean_repeated_3gram_rate": 0.17358066502463054,
+      "mean_top1_confidence": 0.2204536455514468
+    }
+  }
+}

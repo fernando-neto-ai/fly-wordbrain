@@ -34,3 +34,25 @@ class SurpriseGatedStateTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class GenerationMatchingTests(unittest.TestCase):
+    """Two arms compared from `latest.pt` are matched only by luck; the record must say so."""
+
+    def test_the_matched_record_is_flagged_matched(self):
+        r = json.loads((R / "generations-L8998-vs-Z8991-matched.json").read_text())
+        arms = [a["updates"] for a in r["arms"].values()]
+        self.assertLessEqual(max(arms) - min(arms), 50)
+
+    def test_the_confounded_record_is_not_presented_as_matched(self):
+        r = json.loads((R / "generations-L10171-vs-Z8991-40prompts.json").read_text())
+        arms = [a["updates"] for a in r["arms"].values()]
+        self.assertGreater(max(arms) - min(arms), 1000,
+                           "this record IS confounded and must not be read as matched")
+
+    def test_generation_and_cross_entropy_disagree_at_the_matched_point(self):
+        # The finding worth keeping: teacher-forced CE says the arms are identical while
+        # free-running generation says they are not.
+        g = json.loads((R / "generations-L8998-vs-Z8991-matched.json").read_text())
+        arms = list(g["arms"].values())
+        self.assertLess(arms[0]["mean_repeated_3gram_rate"] * 10, arms[1]["mean_repeated_3gram_rate"])
