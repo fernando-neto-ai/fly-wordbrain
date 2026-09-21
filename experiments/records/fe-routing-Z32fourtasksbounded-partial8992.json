@@ -1,0 +1,77 @@
+{
+  "arm": "Z32fourtasksbounded",
+  "checkpoint": "latest.pt",
+  "cues": [
+    "language",
+    "sentiment",
+    "toxicity"
+  ],
+  "rows_per_task": 200,
+  "width": 32,
+  "route_by_min_surprise": {
+    "accuracy": 0.21400000154972076,
+    "balanced_accuracy": 0.3450000000496705,
+    "recall": {
+      "language": 1.0,
+      "sentiment": 0.0,
+      "toxicity": 0.03500000014901161
+    },
+    "confusion": {
+      "language": {
+        "language": 100
+      },
+      "sentiment": {
+        "language": 200
+      },
+      "toxicity": {
+        "language": 193,
+        "toxicity": 7
+      }
+    }
+  },
+  "route_by_min_normalised_leakage": {
+    "accuracy": 0.42800000309944153,
+    "balanced_accuracy": 0.46833333373069763,
+    "recall": {
+      "language": 0.6700000166893005,
+      "sentiment": 0.35499998927116394,
+      "toxicity": 0.3799999952316284
+    },
+    "confusion": {
+      "language": {
+        "language": 67,
+        "sentiment": 30,
+        "toxicity": 3
+      },
+      "sentiment": {
+        "language": 60,
+        "sentiment": 71,
+        "toxicity": 69
+      },
+      "toxicity": {
+        "language": 67,
+        "sentiment": 57,
+        "toxicity": 76
+      }
+    }
+  },
+  "mean_surprise_by_source_and_cue": {
+    "language": {
+      "language": 4.164264678955078,
+      "sentiment": 7.4670610427856445,
+      "toxicity": 7.4516377449035645
+    },
+    "sentiment": {
+      "language": 6.778318881988525,
+      "sentiment": 10.180377006530762,
+      "toxicity": 10.098495483398438
+    },
+    "toxicity": {
+      "language": 7.3172430992126465,
+      "sentiment": 10.796032905578613,
+      "toxicity": 10.40576457977295
+    }
+  },
+  "majority_class": 0.4000000059604645,
+  "learned_gate_reference": "99.59% (2-way, Y-era) / 93.32% (3-way) on the same 32-token windows"
+}

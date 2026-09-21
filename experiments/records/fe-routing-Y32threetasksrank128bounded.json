@@ -1,0 +1,56 @@
+{
+  "arm": "Y32threetasksrank128bounded",
+  "checkpoint": "best.pt",
+  "cues": [
+    "language",
+    "sentiment"
+  ],
+  "rows_per_task": 200,
+  "width": 32,
+  "route_by_min_surprise": {
+    "accuracy": 0.3333333432674408,
+    "balanced_accuracy": 0.5,
+    "recall": {
+      "language": 1.0,
+      "sentiment": 0.0
+    },
+    "confusion": {
+      "language": {
+        "language": 100
+      },
+      "sentiment": {
+        "language": 200
+      }
+    }
+  },
+  "route_by_min_normalised_leakage": {
+    "accuracy": 0.8533333539962769,
+    "balanced_accuracy": 0.882500022649765,
+    "recall": {
+      "language": 0.9700000286102295,
+      "sentiment": 0.7950000166893005
+    },
+    "confusion": {
+      "language": {
+        "language": 97,
+        "sentiment": 3
+      },
+      "sentiment": {
+        "language": 41,
+        "sentiment": 159
+      }
+    }
+  },
+  "mean_surprise_by_source_and_cue": {
+    "language": {
+      "language": 3.5931789875030518,
+      "sentiment": 5.886377334594727
+    },
+    "sentiment": {
+      "language": 6.374567031860352,
+      "sentiment": 8.800701141357422
+    }
+  },
+  "majority_class": 0.6666666865348816,
+  "learned_gate_reference": "99.59% (2-way, Y-era) / 93.32% (3-way) on the same 32-token windows"
+}

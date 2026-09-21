@@ -1,0 +1,31 @@
+{
+  "arm": "Y32threetasksrank128bounded",
+  "checkpoint": "best.pt",
+  "positions": 8891,
+  "pearson_r": -0.146927610039711,
+  "spearman_rho": -0.14508071541786194,
+  "mean_relative_state_change": 0.7462418079376221,
+  "by_surprise_quartile": {
+    "q1": {
+      "mean_surprise": 0.47835320234298706,
+      "mean_relative_state_change": 0.7776600122451782,
+      "n": 2223
+    },
+    "q2": {
+      "mean_surprise": 1.909549355506897,
+      "mean_relative_state_change": 0.736875057220459,
+      "n": 2222
+    },
+    "q3": {
+      "mean_surprise": 3.6173150539398193,
+      "mean_relative_state_change": 0.7367767095565796,
+      "n": 2223
+    },
+    "q4": {
+      "mean_surprise": 6.375675678253174,
+      "mean_relative_state_change": 0.733651340007782,
+      "n": 2223
+    }
+  },
+  "note": "relative change = ||s_t - s_{t-1}|| / ||s_{t-1}|| over all 49,393 neurons; at leak 0.9 the floor is set by the update rule, so the question is the slope"
+}
