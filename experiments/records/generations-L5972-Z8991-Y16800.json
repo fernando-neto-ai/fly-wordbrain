@@ -1,0 +1,118 @@
+{
+  "prompts": [
+    "Once upon a time, there was a little bird named",
+    "Once upon a time, there was a happy little girl",
+    "Once upon a time, there was a little girl named",
+    "Once upon a time, there was a big ted"
+  ],
+  "arms": {
+    "L32fourtaskstrainableleak": {
+      "checkpoint": "latest.pt",
+      "updates": 5972,
+      "generations": [
+        {
+          "text": " Lily. She loved to play in a big friends. One day, Lily's mom were a a big friends were a neame. The little girl named Tim had a big, but he had a big girl named Tim felt a big, until he tried to beinginginginginginging",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.13793103448275862,
+          "longest_repeated_span": 6,
+          "mean_top1_confidence": 0.22302404390648006
+        },
+        {
+          "text": " named Lily. She loved to play outside. She wanted to playdy a little girl named Tim. The girl named Timmy to his friends and she had a big girl named Tim. The girl named Tim feltgainging and tried to being and a bigapainginginging",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.15517241379310345,
+          "longest_repeated_span": 8,
+          "mean_top1_confidence": 0.20531494884441295
+        },
+        {
+          "text": " Lily. She loved to play outside. She wanted to play in a big, but she was a little girl named Timmyiedied to a big, but she wereed to being a big, but he had a girl named Tim felt a girl named Timinginginginginging and",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.1896551724137931,
+          "longest_repeated_span": 5,
+          "mean_top1_confidence": 0.21037623826414348
+        },
+        {
+          "text": ". He was very happy. He was very happy to be a big fond. He tried to be a big, there was a little girl named Timmy to be were very happy to do a big, there were aed to be were what to being a bigapainginging",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.15517241379310345,
+          "longest_repeated_span": 5,
+          "mean_top1_confidence": 0.17457938206692536
+        }
+      ],
+      "mean_repeated_3gram_rate": 0.15948275862068967,
+      "mean_top1_confidence": 0.20332365327049046
+    },
+    "Z32fourtasksbounded-partial8992": {
+      "checkpoint": "latest.pt",
+      "updates": 8991,
+      "generations": [
+        {
+          "text": " Lily. She loved to play with her toys. She was very happy that she were very happy to beeph-hust lesson, she learned that she were very happy to behieoning. She looked at a big, and decided to behaure. She were",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.10344827586206896,
+          "longest_repeated_span": 7,
+          "mean_top1_confidence": 0.23903527626146873
+        },
+        {
+          "text": " named Lily. She loved to play with her toys. She were very happy. She were very happy to behie were very happy. She were very mommy were very mom. She were very mommy were very mommy were very best friends were very friends. She were very happy to beh, she",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.3793103448275862,
+          "longest_repeated_span": 8,
+          "mean_top1_confidence": 0.25393151429792243
+        },
+        {
+          "text": " Lily. She loved to play with her toys. She was very happy that she were very happy to beephong. He was very happy to behie were very happy and he were very mommy. He was very excited to eat were very happy to beh friends were very very lon",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.1724137931034483,
+          "longest_repeated_span": 5,
+          "mean_top1_confidence": 0.23562536270668108
+        },
+        {
+          "text": ". She was very happy. She was very happy to behieoning. She looked at a big lon was a big lonningningningningningning, she would sonningningningningningningningningningningningningningningningningningningningning",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.46551724137931033,
+          "longest_repeated_span": 19,
+          "mean_top1_confidence": 0.213565683675309
+        }
+      ],
+      "mean_repeated_3gram_rate": 0.2801724137931034,
+      "mean_top1_confidence": 0.2355394592353453
+    },
+    "Y32threetasksrank128bounded": {
+      "checkpoint": "best.pt",
+      "updates": 16800,
+      "generations": [
+        {
+          "text": " Timmy. Timmy loved to play outside in the garden. One day, she was very excited to go outside to play outside. One day, she saw a little girl named Lily loved to explore the windoods. She was very excited to go outside outside to play with his toy. One day,",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.1896551724137931,
+          "longest_repeated_span": 6,
+          "mean_top1_confidence": 0.3988426881531874
+        },
+        {
+          "text": " named Lily. She loved to play outside in the park with her mommy. One day, she found a little girl named Lily loved to explore her mommy. She was very excited to go outside outside to play outside. She was very excited to explore. One day, she was always careful to learn",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.15517241379310345,
+          "longest_repeated_span": 6,
+          "mean_top1_confidence": 0.4413813809553782
+        },
+        {
+          "text": " Lily. She loved to play outside in the park. One day, Lily's mommy gave her a little girl named Lily. She loved to play outside in the park, she saw a little girl named Lily who loved to play outside. One day, she was walking outside to catch a new friend",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.25862068965517243,
+          "longest_repeated_span": 10,
+          "mean_top1_confidence": 0.4855815671384335
+        },
+        {
+          "text": "dy bear. She was very excited to go outside. She was very excited to go outside. One day, she was walking outside to catch a new toy car. She was very strong, she was very excitedful that she loved to explore when she was very strong. She was very",
+          "tokens": 60,
+          "repeated_3gram_rate": 0.27586206896551724,
+          "longest_repeated_span": 9,
+          "mean_top1_confidence": 0.33410910703241825
+        }
+      ],
+      "mean_repeated_3gram_rate": 0.21982758620689655,
+      "mean_top1_confidence": 0.4149786858198543
+    }
+  }
+}
