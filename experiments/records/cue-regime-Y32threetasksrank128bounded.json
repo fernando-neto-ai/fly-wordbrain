@@ -1,0 +1,36 @@
+{
+  "arm": "Y32threetasksrank128bounded",
+  "plasticity": "bounded10",
+  "windows": 16,
+  "width": 32,
+  "thresholds": {
+    "saturated": 0.9,
+    "transmitting": 0.95
+  },
+  "saturated_fraction": {
+    "language": 0.1777491271495819,
+    "sentiment": 0.16695305705070496,
+    "chess": 0.17318369448184967
+  },
+  "transmitting_edge_fraction": {
+    "language": 0.8944646716117859,
+    "sentiment": 0.8974180817604065,
+    "chess": 0.8952671885490417
+  },
+  "same_input_different_cue": {
+    "note": "language cue vs sentiment cue on identical token windows -- the cue's effect alone",
+    "saturated_set_jaccard": 0.5880666971206665,
+    "transmitting_edge_jaccard": 0.974608302116394
+  },
+  "same_cue_different_input": {
+    "note": "language cue on different windows -- content's effect, the calibration",
+    "saturated_set_jaccard": 0.6201259508728981,
+    "transmitting_edge_jaccard": 0.9760683019955952
+  },
+  "chess_vs_language": {
+    "note": "different cue AND different input (a board is not tokens); conflated, reported for scale",
+    "saturated_set_jaccard": 0.5557547211647034,
+    "transmitting_edge_jaccard": 0.9697366952896118
+  },
+  "reading": "The cue moves the active subgraph MORE than content does"
+}

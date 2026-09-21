@@ -1,0 +1,36 @@
+{
+  "arm": "Y32threetasksrank128bounded",
+  "plasticity": "bounded10",
+  "windows": 64,
+  "width": 32,
+  "thresholds": {
+    "saturated": 0.9,
+    "transmitting": 0.95
+  },
+  "saturated_fraction": {
+    "language": 0.17789970338344574,
+    "sentiment": 0.16706788539886475,
+    "chess": 0.1716064214706421
+  },
+  "transmitting_edge_fraction": {
+    "language": 0.8944017887115479,
+    "sentiment": 0.8973684906959534,
+    "chess": 0.8963983654975891
+  },
+  "same_input_different_cue": {
+    "note": "language cue vs sentiment cue on identical token windows -- the cue's effect alone",
+    "saturated_set_jaccard": 0.5893217325210571,
+    "transmitting_edge_jaccard": 0.9746026992797852
+  },
+  "same_cue_different_input": {
+    "note": "language cue on different windows -- content's effect, the calibration",
+    "saturated_set_jaccard": 0.6223828982088774,
+    "transmitting_edge_jaccard": 0.9762359105405354
+  },
+  "chess_vs_language": {
+    "note": "different cue AND different input (a board is not tokens); conflated, reported for scale",
+    "saturated_set_jaccard": 0.5550719499588013,
+    "transmitting_edge_jaccard": 0.9700859785079956
+  },
+  "reading": "The cue moves the saturated set about as much as replacing the input does (gap -0.033): regime selection comparable to a strong input, not a switch"
+}
