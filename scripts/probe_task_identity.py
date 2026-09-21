@@ -34,9 +34,27 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import train_connectorch as trainer
 from fly_wordbrain.chess_encoding import features_from_packed
 from fly_wordbrain.chess_model import settle
-from fly_wordbrain.unified_model import CHESS, LANGUAGE, SENTIMENT, UnifiedFly
+from fly_wordbrain.unified_model import CHESS, LANGUAGE, SENTIMENT, TOXICITY, UnifiedFly
 
-TASK_NAMES = {LANGUAGE: "language", CHESS: "chess", SENTIMENT: "sentiment"}
+TASK_NAMES = {LANGUAGE: "language", CHESS: "chess", SENTIMENT: "sentiment",
+              TOXICITY: "toxicity"}
+
+
+def router_class_names(router):
+    """Name every class `router` can emit, or refuse to report at all.
+
+    The confusion table is built by iterating these names, so a table shorter than the
+    router drops predictions without saying so. A three-name table read a four-task
+    router and lost 56 of 100 language states into an unnamed column, which moved the
+    reported failure mode from toxicity to chess. Derive the names from the head that
+    produces the predictions rather than from a constant that has to be remembered.
+    """
+    width = int(router.weight.shape[0])
+    unnamed = [index for index in range(width) if index not in TASK_NAMES]
+    if unnamed:
+        raise SystemExit(f"the router emits {width} classes and this probe has no name "
+                         f"for {unnamed}; add them to TASK_NAMES before reporting")
+    return {index: TASK_NAMES[index] for index in range(width)}
 
 
 @torch.no_grad()
@@ -171,12 +189,20 @@ def main():
         # Accuracy alone cannot say *how* a router fails. A three-task router has somewhere
         # else to put a state, and language and sentiment are both token streams, so a
         # language state read as sentiment is a different failure from one read as chess.
+        names = router_class_names(unified.router)
         confusion = {}
         for task in (LANGUAGE, CHESS):
             predicted = routed[labels == task]
-            confusion[TASK_NAMES[task]] = {
-                TASK_NAMES[choice]: int((predicted == choice).sum())
-                for choice in sorted(TASK_NAMES) if int((predicted == choice).sum())}
+            row = {names[choice]: int((predicted == choice).sum())
+                   for choice in sorted(names) if int((predicted == choice).sum())}
+            # Every prediction must land in a named column. Dropped mass reads as a
+            # smaller, cleaner failure than the one that happened.
+            if sum(row.values()) != int(predicted.shape[0]):
+                raise SystemExit(
+                    f"{TASK_NAMES[task]} row counts {sum(row.values())} of "
+                    f"{int(predicted.shape[0])} predictions; the router emitted a class "
+                    f"this probe cannot name")
+            confusion[TASK_NAMES[task]] = row
 
         # A perfect probe is not yet an interesting result. If the two tasks simply drive
         # the brain to different magnitudes, a reader of "how big is this vector" scores

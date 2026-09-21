@@ -14,7 +14,7 @@ import torch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
-from probe_task_identity import linear_probe
+from probe_task_identity import TASK_NAMES, linear_probe, router_class_names
 
 
 def two_clouds(count, width, separation, seed=1729):
@@ -62,6 +62,39 @@ class ProbeTests(unittest.TestCase):
     def test_the_probe_is_deterministic(self):
         states, labels = two_clouds(200, 30, separation=2.0)
         self.assertEqual(linear_probe(states, labels), linear_probe(states, labels))
+
+
+class RouterClassNames(unittest.TestCase):
+    """A confusion table shorter than the router loses predictions silently.
+
+    Measured on L32fourtaskstrainableleak: a three-name table read a four-class router
+    and reported 44 of 100 language states, so the dropped 56 -- every state called
+    toxicity -- never appeared, and chess looked like the failure mode when toxicity was.
+    """
+
+    @staticmethod
+    def router(width, features=8):
+        return torch.nn.Linear(features, width)
+
+    def test_names_cover_every_class_a_four_task_router_emits(self):
+        names = router_class_names(self.router(4))
+        self.assertEqual(sorted(names), [0, 1, 2, 3])
+        self.assertEqual(names[3], "toxicity")
+
+    def test_a_narrower_router_is_named_to_its_own_width(self):
+        self.assertEqual(sorted(router_class_names(self.router(2))), [0, 1])
+
+    def test_an_unnameable_class_refuses_rather_than_dropping_it(self):
+        with self.assertRaises(SystemExit):
+            router_class_names(self.router(len(TASK_NAMES) + 1))
+
+    def test_every_prediction_lands_in_a_named_column(self):
+        names = router_class_names(self.router(4))
+        predicted = torch.tensor([0, 1, 1, 2, 3, 3, 3])
+        row = {names[choice]: int((predicted == choice).sum())
+               for choice in sorted(names) if int((predicted == choice).sum())}
+        self.assertEqual(sum(row.values()), predicted.shape[0])
+        self.assertEqual(row["toxicity"], 3)
 
 
 if __name__ == "__main__":
